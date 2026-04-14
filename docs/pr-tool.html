@@ -254,6 +254,23 @@
         .hub-empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
         .hub-loading { text-align: center; padding: 3rem; color: #94a3b8; }
 
+        /* ── Product calendar ── */
+        .hub-cal { margin-bottom: 1.5rem; }
+        .hub-cal-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .hub-cal-nav { background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.2rem 0.6rem; cursor: pointer; font-size: 0.85rem; color: #64748b; font-family: inherit; }
+        .hub-cal-nav:hover { background: #f1f5f9; }
+        .hub-cal-month { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+        .hub-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .hub-cal-dow { text-align: center; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; padding: 0.25rem 0; }
+        .hub-cal-day { min-height: 64px; background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 4px 5px; }
+        .hub-cal-day--today { border-color: #1d4ed8; background: #eff6ff; }
+        .hub-cal-day--other { background: #fafafa; }
+        .hub-cal-day-num { font-size: 0.68rem; font-weight: 600; color: #94a3b8; margin-bottom: 3px; }
+        .hub-cal-day--today .hub-cal-day-num { color: #1d4ed8; }
+        .hub-cal-entry { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; flex-wrap: wrap; }
+        .hub-cal-entry-name { font-size: 0.6rem; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+        .hub-cal-plat { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
         @media (max-width: 900px) {
             .hub-cat-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -516,10 +533,12 @@ const CATEGORIES = [
 ];
 
 const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢' };
+const CAL_PLAT_COLORS = { linkedin:'#0A66C2', x:'#000000', rednote:'#FF2442', wechat:'#07C160' };
 
 let allSources = [], token = null, editingSourceId = null, contentViewSource = null, contentViewTab = 'wechat', openMetricsKey = null;
 let currentView = 'hub';      // 'hub' | 'tools'
 let currentHubType = null;    // null = overview, string = drilled into category
+let calendarMonth = new Date().toISOString().slice(0, 7); // "2026-04"
 
 // ── Account switcher ──────────────────────────────────────────────────────────
 const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M'} };
@@ -727,11 +746,25 @@ function renderDetail() {
     document.getElementById('detailIcon').textContent  = cat.icon;
     document.getElementById('detailTitle').textContent = cat.name;
 
-    // Products get a card grid linking to campaign pages
+    // Products get a calendar + card grid linking to campaign pages
     if (currentHubType === 'product') {
         const products = accountSources().filter(s => s.type === 'product');
         document.getElementById('detailCount').textContent = `${products.length} products`;
-        document.getElementById('sourceList').innerHTML = `<div class="hub-product-grid">${products.map(renderProductCard).join('')}</div>`;
+        document.getElementById('sourceList').innerHTML =
+            renderProductCalendar(products) +
+            `<div class="hub-product-grid">${products.map(renderProductCard).join('')}</div>`;
+        document.getElementById('calPrev').addEventListener('click', () => {
+            const [y, m] = calendarMonth.split('-').map(Number);
+            const d = new Date(y, m - 2, 1);
+            calendarMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            renderDetail();
+        });
+        document.getElementById('calNext').addEventListener('click', () => {
+            const [y, m] = calendarMonth.split('-').map(Number);
+            const d = new Date(y, m, 1);
+            calendarMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            renderDetail();
+        });
         return;
     }
 
@@ -765,6 +798,48 @@ function renderDetail() {
     }));
     list.querySelectorAll('[data-show-content]').forEach(btn=>btn.addEventListener('click',()=>{const s=allSources.find(x=>x._id===btn.dataset.showContent);if(s)openContentModal(s);}));
     list.querySelectorAll('[data-edit-source]').forEach(btn=>btn.addEventListener('click',()=>{const s=allSources.find(x=>x._id===btn.dataset.editSource);if(s&&s._sourceKind==='custom')openSourceModal(s);}));
+}
+
+function renderProductCalendar(products) {
+    const dateMap = {};
+    for (const p of products) {
+        for (const post of (p.posts || [])) {
+            if (!dateMap[post.date]) dateMap[post.date] = [];
+            dateMap[post.date].push({ title: p.title, platform: post.platform });
+        }
+    }
+    const [year, month] = calendarMonth.split('-').map(Number);
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay  = new Date(year, month, 0);
+    const today    = new Date().toISOString().slice(0, 10);
+    const startDow = firstDay.getDay();
+    const totalCells = startDow + lastDay.getDate();
+    const trailingCells = (7 - (totalCells % 7)) % 7;
+    const monthName = firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const DOWS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += `<div class="hub-cal-day hub-cal-day--other"></div>`;
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+        const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = ds === today;
+        const entries = dateMap[ds] || [];
+        const entriesHtml = entries.map(e =>
+            `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}" title="${e.platform}"></span><span class="hub-cal-entry-name" title="${esc(e.title)}">${esc(e.title)}</span></div>`
+        ).join('');
+        cells += `<div class="hub-cal-day${isToday?' hub-cal-day--today':''}"><div class="hub-cal-day-num">${d}</div>${entriesHtml}</div>`;
+    }
+    for (let i = 0; i < trailingCells; i++) cells += `<div class="hub-cal-day hub-cal-day--other"></div>`;
+    return `<div class="hub-cal">
+        <div class="hub-cal-header">
+            <button class="hub-cal-nav" id="calPrev">‹</button>
+            <span class="hub-cal-month">${monthName}</span>
+            <button class="hub-cal-nav" id="calNext">›</button>
+        </div>
+        <div class="hub-cal-grid">
+            ${DOWS.map(d=>`<div class="hub-cal-dow">${d}</div>`).join('')}
+            ${cells}
+        </div>
+    </div>`;
 }
 
 function renderProductCard(s) {
