@@ -651,6 +651,8 @@ async function init() {
         const user = await res.json();
         if (user.role !== 'owner' && user.role !== 'admin') { showGate(); return; }
     } catch { showGate(); return; }
+    const urlAccount = new URLSearchParams(location.search).get('account');
+    if (urlAccount && ACCOUNTS[urlAccount]) applyAccount(urlAccount);
     loadData();
 }
 function showGate() { document.getElementById('prGate').classList.add('visible'); }
