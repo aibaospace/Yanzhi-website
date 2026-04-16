@@ -747,7 +747,7 @@ async function loadData() {
         const seen = new Map();
         for (const p of papers) {
             const key = (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-            if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'__all__', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', pr_logs:p.pr_logs||[], pr_matrix:p.pr_matrix||{}, _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||'', createdAt:p.createdAt||'' });
+            if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'__all__', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', pr_logs:p.pr_logs||[], pr_matrix:p.pr_matrix||{}, _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||(p.year?`${p.year}-01-01`:''), createdAt:p.createdAt||'' });
         }
         const customItems = prSources.map(s => ({ ...s, _id:s.id, _sourceKind:'custom' }));
         const paperItems = [...seen.values()].sort((a, b) => (b._date || '').localeCompare(a._date || ''));
