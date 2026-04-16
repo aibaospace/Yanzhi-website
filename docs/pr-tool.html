@@ -45,6 +45,18 @@
         .pr-hero-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .pr-hero h1 { font-size: 1.9rem; font-weight: 700; color: #0f172a; flex-shrink: 0; }
 
+        /* Log PR button */
+        .log-pr-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+        .log-pr-btn:hover { background: #6d28d9; color: #fff; }
+
+        /* Log PR modal specifics */
+        .lpr-form { display: flex; flex-direction: column; gap: 0.9rem; }
+        .lpr-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .lpr-field select, .lpr-field input { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.85rem; color: #1e293b; background: #fff; }
+        .lpr-field select:focus, .lpr-field input:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 2px #ede9fe; }
+        .lpr-success { display: none; padding: 0.6rem 1rem; background: #dcfce7; color: #15803d; border-radius: 7px; font-size: 0.85rem; font-weight: 600; }
+        .lpr-success.show { display: block; }
+
         /* View toggle */
         .pr-view-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
         .pr-view-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 600; border: none; background: #f8fafc; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
@@ -342,6 +354,9 @@
             <button class="pr-view-btn" data-view="tools">🛠 Tools</button>
         </div>
 
+        <!-- Log PR button -->
+        <button class="log-pr-btn" id="logPrBtn">✏️ Log PR</button>
+
         <!-- Detail filters: shown when drilled into a category -->
         <div class="pr-detail-filters" id="detailFilters">
             <button class="pr-back-crumb" id="hubBackBtn">← All Categories</button>
@@ -481,6 +496,53 @@
                 <button class="hub-btn-primary" id="sourceModalSave">Save</button>
                 <button class="hub-btn-secondary" id="sourceModalCancel">Cancel</button>
                 <button class="hub-btn-secondary" id="sourceModalDelete" style="margin-left:auto;color:#ef4444;border-color:#fca5a5;display:none">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log PR modal -->
+<div class="hub-modal-overlay" id="logPrModal">
+    <div class="hub-modal" style="width:480px">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title">Log PR Publication</div>
+            <button class="hub-modal-close" id="logPrModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="lpr-form">
+                <div class="lpr-field">
+                    <label>Paper</label>
+                    <select id="lpr-paper"><option value="">Loading papers…</option></select>
+                </div>
+                <div class="lpr-field">
+                    <label>Account</label>
+                    <select id="lpr-account">
+                        <option value="yanzhiwang">Yanzhiwang</option>
+                        <option value="embodyx">EmbodyX</option>
+                        <option value="moxin">Moxin</option>
+                    </select>
+                </div>
+                <div class="lpr-field">
+                    <label>Platform</label>
+                    <select id="lpr-platform">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="x">X</option>
+                        <option value="rednote">Rednote</option>
+                        <option value="wechat">WeChat</option>
+                        <option value="douyin">抖音</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="website">Website</option>
+                    </select>
+                </div>
+                <div class="lpr-field">
+                    <label>Publication Date</label>
+                    <input type="date" id="lpr-date" />
+                </div>
+                <div class="lpr-success" id="lpr-success">✓ Saved successfully!</div>
+            </div>
+            <div class="hub-form-actions" style="margin-top:1.25rem">
+                <button class="hub-btn-primary" id="lpr-save">Save</button>
+                <button class="hub-btn-secondary" id="lpr-cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -1007,6 +1069,93 @@ document.getElementById('contentModal').addEventListener('click',e=>{if(e.target
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 init();
+
+// ── Log PR ────────────────────────────────────────────────────────────────────
+let lprPapers = [];
+
+async function openLogPrModal() {
+    // Default account to current account
+    document.getElementById('lpr-account').value = currentAccount;
+    // Default date to today
+    document.getElementById('lpr-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lpr-success').classList.remove('show');
+
+    // Load arxiv papers if not yet loaded
+    if (lprPapers.length === 0) {
+        try {
+            const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
+            if (res.ok) {
+                const all = await res.json();
+                lprPapers = all.filter(p => p.arxiv).sort((a, b) => {
+                    const aD = a.date || `${a.year}-01-01`;
+                    const bD = b.date || `${b.year}-01-01`;
+                    return bD.localeCompare(aD);
+                });
+            }
+        } catch { }
+    }
+
+    const sel = document.getElementById('lpr-paper');
+    sel.innerHTML = lprPapers.length
+        ? lprPapers.map(p => `<option value="${esc(p.id)}">${esc(p.title || '(Untitled)')}</option>`).join('')
+        : '<option value="">No arXiv papers found</option>';
+
+    document.getElementById('logPrModal').classList.add('open');
+}
+
+function closeLogPrModal() {
+    document.getElementById('logPrModal').classList.remove('open');
+}
+
+document.getElementById('logPrBtn').addEventListener('click', openLogPrModal);
+document.getElementById('logPrModalClose').addEventListener('click', closeLogPrModal);
+document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
+
+document.getElementById('lpr-save').addEventListener('click', async () => {
+    const paperId  = document.getElementById('lpr-paper').value;
+    const account  = document.getElementById('lpr-account').value;
+    const platform = document.getElementById('lpr-platform').value;
+    const date     = document.getElementById('lpr-date').value;
+
+    if (!paperId || !date) { alert('Please select a paper and date.'); return; }
+
+    const btn = document.getElementById('lpr-save');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+        // Fetch current paper data
+        const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
+        const all = await res.json();
+        const paper = all.find(p => p.id === paperId);
+        if (!paper) throw new Error('Paper not found');
+
+        // Merge new pr_matrix entry
+        const newMatrix = {
+            ...(paper.pr_matrix || {}),
+            [account]: {
+                ...(paper.pr_matrix?.[account] || {}),
+                [platform]: date,
+            },
+        };
+
+        const saveRes = await fetch(API + '/api/papers/' + paperId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ ...paper, pr_matrix: newMatrix }),
+        });
+        if (!saveRes.ok) throw new Error('Save failed');
+
+        document.getElementById('lpr-success').classList.add('show');
+        btn.textContent = 'Save';
+        btn.disabled = false;
+        setTimeout(closeLogPrModal, 1200);
+    } catch (e) {
+        alert('Error: ' + e.message);
+        btn.textContent = 'Save';
+        btn.disabled = false;
+    }
+});
 </script>
 </body>
 </html>
