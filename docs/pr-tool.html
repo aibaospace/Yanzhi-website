@@ -543,6 +543,10 @@
                     <input type="date" id="lpr-date" />
                 </div>
                 <div class="lpr-field">
+                    <label>URL</label>
+                    <input type="url" id="lpr-url" placeholder="https://…" />
+                </div>
+                <div class="lpr-field">
                     <label>Content</label>
                     <textarea id="lpr-content" rows="4" placeholder="Paste or type the PR content you published…"></textarea>
                 </div>
@@ -1114,6 +1118,7 @@ async function openLogPrModal() {
     document.getElementById('lpr-date').value = new Date().toISOString().slice(0, 10);
     document.getElementById('lpr-success').classList.remove('show');
     document.getElementById('lpr-content').value = '';
+    document.getElementById('lpr-url').value = '';
 
     // Load arxiv papers if not yet loaded
     if (lprPapers.length === 0) {
@@ -1151,6 +1156,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
     const account  = document.getElementById('lpr-account').value;
     const platform = document.getElementById('lpr-platform').value;
     const date     = document.getElementById('lpr-date').value;
+    const url      = document.getElementById('lpr-url').value.trim();
     const content  = document.getElementById('lpr-content').value.trim();
 
     if (!paperId || !date) { alert('Please select a paper and date.'); return; }
@@ -1178,7 +1184,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         // Append to pr_logs array (stores history with content)
         const newLogs = [
             ...(paper.pr_logs || []),
-            { account, platform, date, content: content || null },
+            { account, platform, date, url: url || null, content: content || null },
         ];
 
         const saveRes = await fetch(API + '/api/papers/' + paperId, {
@@ -1196,7 +1202,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         document.getElementById('lpr-success').classList.add('show');
         btn.textContent = 'Save';
         btn.disabled = false;
-        setTimeout(() => { closeLogPrModal(); renderDetail(); }, 1200);
+        setTimeout(() => { closeLogPrModal(); renderOverview(); renderDetail(); }, 1200);
     } catch (e) {
         alert('Error: ' + e.message);
         btn.textContent = 'Save';
