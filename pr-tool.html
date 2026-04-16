@@ -1033,7 +1033,15 @@ async function saveMetrics(src, platform, platformDef) {
 
 async function unmark(src, platform) {
     const ex = prObj(src, platform);
-    await persistPr(src,{ ...(src.pr||{}), [platform]:{...ex,date:null} });
+    const newPr = { ...(src.pr||{}), [platform]:{...ex,date:null} };
+    const newLogs = (src.pr_logs || []).filter(l => l.platform !== platform);
+    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
+    try {
+        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({...src, pr:newPr, pr_logs:newLogs}) });
+        if(!res.ok) throw new Error();
+        src.pr = newPr; src.pr_logs = newLogs; openMetricsKey=null;
+        renderOverview(); renderDetail();
+    } catch { alert('Failed to unmark. Please try again.'); }
 }
 
 async function persistPr(src, newPr) {
@@ -1187,16 +1195,22 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
             { account, platform, date, url: url || null, content: content || null },
         ];
 
+        // Also update pr[platform].date so the badge checkmark appears
+        const newPr = {
+            ...(paper.pr || {}),
+            [platform]: { ...(paper.pr?.[platform] || {}), date },
+        };
+
         const saveRes = await fetch(API + '/api/papers/' + paperId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ ...paper, pr_matrix: newMatrix, pr_logs: newLogs }),
+            body: JSON.stringify({ ...paper, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
         });
         if (!saveRes.ok) throw new Error('Save failed');
 
         // Update local allSources so re-render shows new log immediately
         const src = allSources.find(s => s._id === paperId);
-        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; }
+        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = newPr; }
         lprPapers = []; // invalidate cache
 
         document.getElementById('lpr-success').classList.add('show');
