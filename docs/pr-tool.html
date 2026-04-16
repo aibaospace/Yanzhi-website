@@ -1032,34 +1032,38 @@ async function saveMetrics(src, platform, platformDef) {
 }
 
 async function unmark(src, platform) {
-    const ex = prObj(src, platform);
-    const newPr = { ...(src.pr||{}), [platform]:{...ex,date:null} };
-    const newLogs = (src.pr_logs || []).filter(l => l.platform !== platform);
-    const newMatrix = { ...(src.pr_matrix || {}) };
-    for (const acc of Object.keys(newMatrix)) {
-        if (newMatrix[acc]?.[platform]) {
-            newMatrix[acc] = { ...newMatrix[acc] };
-            delete newMatrix[acc][platform];
-        }
-    }
     const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
     try {
-        let body;
+        // Fetch fresh paper data (same approach as Log PR)
+        let paperData = src;
         if (src._sourceKind === 'paper') {
-            // Fetch fresh paper from API (same approach as Log PR) to avoid stale/extra fields
             const freshRes = await fetch(`${API}/api/papers`, { headers: { Authorization: 'Bearer ' + token } });
             const allPapers = freshRes.ok ? await freshRes.json() : [];
-            const paper = allPapers.find(p => p.id === src._id);
-            if (!paper) throw new Error('Paper not found');
-            body = { ...paper, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
-        } else {
-            body = { ...src, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
+            const found = allPapers.find(p => p.id === src._id);
+            if (!found) throw new Error('Paper not found');
+            paperData = found;
         }
+
+        // Compute everything from fresh data
+        const ex = prObj({ pr: paperData.pr }, platform);
+        const newPr = { ...(paperData.pr||{}), [platform]: { ...ex, date: null } };
+        const newLogs = (paperData.pr_logs || []).filter(l => l.platform !== platform);
+
+        // Clear this platform from ALL accounts in pr_matrix
+        const newMatrix = {};
+        for (const [acc, platforms] of Object.entries(paperData.pr_matrix || {})) {
+            const filtered = { ...platforms };
+            delete filtered[platform];
+            newMatrix[acc] = filtered;
+        }
+
+        const body = { ...paperData, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
         const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
         if(!res.ok) throw new Error();
+
         src.pr = newPr; src.pr_logs = newLogs; src.pr_matrix = newMatrix; openMetricsKey=null;
         renderOverview(); renderDetail();
-    } catch { alert('Failed to unmark. Please try again.'); }
+    } catch(e) { alert('Failed to unmark: ' + e.message); }
 }
 
 async function persistPr(src, newPr) {
