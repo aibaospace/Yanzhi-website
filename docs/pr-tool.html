@@ -750,7 +750,8 @@ async function loadData() {
             if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'__all__', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', pr_logs:p.pr_logs||[], pr_matrix:p.pr_matrix||{}, _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||'', createdAt:p.createdAt||'' });
         }
         const customItems = prSources.map(s => ({ ...s, _id:s.id, _sourceKind:'custom' }));
-        allSources = [...customItems, ...[...seen.values()]];
+        const paperItems = [...seen.values()].sort((a, b) => (b._date || '').localeCompare(a._date || ''));
+        allSources = [...customItems, ...paperItems];
         renderOverview();
         if (currentHubType) renderDetail();
     } catch { document.getElementById('hubCatGrid').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">⚠️</div>Failed to load data.</div>'; }
