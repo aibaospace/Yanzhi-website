@@ -1035,7 +1035,6 @@ async function unmark(src, platform) {
     const ex = prObj(src, platform);
     const newPr = { ...(src.pr||{}), [platform]:{...ex,date:null} };
     const newLogs = (src.pr_logs || []).filter(l => l.platform !== platform);
-    // Also clear pr_matrix for all accounts on this platform
     const newMatrix = { ...(src.pr_matrix || {}) };
     for (const acc of Object.keys(newMatrix)) {
         if (newMatrix[acc]?.[platform]) {
@@ -1045,7 +1044,18 @@ async function unmark(src, platform) {
     }
     const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
     try {
-        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({...src, pr:newPr, pr_logs:newLogs, pr_matrix:newMatrix}) });
+        let body;
+        if (src._sourceKind === 'paper') {
+            // Fetch fresh paper from API (same approach as Log PR) to avoid stale/extra fields
+            const freshRes = await fetch(`${API}/api/papers`, { headers: { Authorization: 'Bearer ' + token } });
+            const allPapers = freshRes.ok ? await freshRes.json() : [];
+            const paper = allPapers.find(p => p.id === src._id);
+            if (!paper) throw new Error('Paper not found');
+            body = { ...paper, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
+        } else {
+            body = { ...src, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
+        }
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
         if(!res.ok) throw new Error();
         src.pr = newPr; src.pr_logs = newLogs; src.pr_matrix = newMatrix; openMetricsKey=null;
         renderOverview(); renderDetail();
