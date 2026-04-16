@@ -46,16 +46,25 @@
         .pr-hero h1 { font-size: 1.9rem; font-weight: 700; color: #0f172a; flex-shrink: 0; }
 
         /* Log PR button */
-        .log-pr-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+        .log-pr-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 7px; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
         .log-pr-btn:hover { background: #6d28d9; color: #fff; }
 
         /* Log PR modal specifics */
         .lpr-form { display: flex; flex-direction: column; gap: 0.9rem; }
         .lpr-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
-        .lpr-field select, .lpr-field input { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.85rem; color: #1e293b; background: #fff; }
-        .lpr-field select:focus, .lpr-field input:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 2px #ede9fe; }
+        .lpr-field select, .lpr-field input, .lpr-field textarea { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.85rem; color: #1e293b; background: #fff; }
+        .lpr-field select:focus, .lpr-field input:focus, .lpr-field textarea:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 2px #ede9fe; }
+        .lpr-field textarea { resize: vertical; min-height: 80px; }
+        .lpr-account-display { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; background: #f8fafc; font-size: 0.85rem; color: #1e293b; font-weight: 700; }
         .lpr-success { display: none; padding: 0.6rem 1rem; background: #dcfce7; color: #15803d; border-radius: 7px; font-size: 0.85rem; font-weight: 600; }
         .lpr-success.show { display: block; }
+
+        /* PR logs in paper cards */
+        .hub-pr-logs { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.35rem; }
+        .hub-pr-log-entry { display: flex; align-items: flex-start; gap: 0.45rem; font-size: 0.78rem; flex-wrap: wrap; }
+        .hub-pr-log-plat-badge { font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; background: #ede9fe; color: #6d28d9; white-space: nowrap; flex-shrink: 0; }
+        .hub-pr-log-date { color: #94a3b8; font-size: 0.72rem; white-space: nowrap; flex-shrink: 0; margin-top: 0.1rem; }
+        .hub-pr-log-content-text { color: #475569; font-size: 0.75rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex: 1; min-width: 0; }
 
         /* View toggle */
         .pr-view-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
@@ -354,9 +363,6 @@
             <button class="pr-view-btn" data-view="tools">🛠 Tools</button>
         </div>
 
-        <!-- Log PR button -->
-        <button class="log-pr-btn" id="logPrBtn">✏️ Log PR</button>
-
         <!-- Detail filters: shown when drilled into a category -->
         <div class="pr-detail-filters" id="detailFilters">
             <button class="pr-back-crumb" id="hubBackBtn">← All Categories</button>
@@ -374,6 +380,7 @@
                 <option value="wechat">WeChat</option>
             </select>
             <button class="pr-add-btn" id="addSourceBtn" style="display:none">＋ Add Source</button>
+            <button class="log-pr-btn" id="logPrPaperBtn" style="display:none">✏️ Log PR</button>
         </div>
 
         <!-- Tools filters -->
@@ -516,11 +523,8 @@
                 </div>
                 <div class="lpr-field">
                     <label>Account</label>
-                    <select id="lpr-account">
-                        <option value="yanzhiwang">Yanzhiwang</option>
-                        <option value="embodyx">EmbodyX</option>
-                        <option value="moxin">Moxin</option>
-                    </select>
+                    <div class="lpr-account-display" id="lpr-account-display"></div>
+                    <input type="hidden" id="lpr-account" />
                 </div>
                 <div class="lpr-field">
                     <label>Platform</label>
@@ -537,6 +541,10 @@
                 <div class="lpr-field">
                     <label>Publication Date</label>
                     <input type="date" id="lpr-date" />
+                </div>
+                <div class="lpr-field">
+                    <label>Content</label>
+                    <textarea id="lpr-content" rows="4" placeholder="Paste or type the PR content you published…"></textarea>
                 </div>
                 <div class="lpr-success" id="lpr-success">✓ Saved successfully!</div>
             </div>
@@ -596,6 +604,12 @@ const CATEGORIES = [
 
 const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢' };
 const CAL_PLAT_COLORS = { linkedin:'#0A66C2', x:'#000000', rednote:'#FF2442', wechat:'#07C160' };
+const LPR_PLATFORMS = [
+    {key:'linkedin', label:'LinkedIn'}, {key:'x', label:'X'},
+    {key:'rednote', label:'Rednote'}, {key:'wechat', label:'WeChat'},
+    {key:'douyin', label:'抖音'}, {key:'tiktok', label:'TikTok'},
+    {key:'website', label:'Website'},
+];
 
 let allSources = [], token = null, editingSourceId = null, contentViewSource = null, contentViewTab = 'wechat', openMetricsKey = null;
 let currentView = 'hub';      // 'hub' | 'tools'
@@ -661,6 +675,7 @@ function updateHeroFilters() {
     const cat = CATEGORIES.find(c => c.type === currentHubType);
     detailFilters.classList.add('visible');
     document.getElementById('addSourceBtn').style.display = cat?.canAdd ? '' : 'none';
+    document.getElementById('logPrPaperBtn').style.display = currentHubType === 'paper' ? '' : 'none';
 }
 
 function setHeaderBack(cat) {
@@ -732,7 +747,7 @@ async function loadData() {
         const seen = new Map();
         for (const p of papers) {
             const key = (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-            if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'yanzhiwang', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||'', createdAt:p.createdAt||'' });
+            if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'__all__', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', pr_logs:p.pr_logs||[], pr_matrix:p.pr_matrix||{}, _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||'', createdAt:p.createdAt||'' });
         }
         const customItems = prSources.map(s => ({ ...s, _id:s.id, _sourceKind:'custom' }));
         allSources = [...customItems, ...[...seen.values()]];
@@ -743,7 +758,7 @@ async function loadData() {
 
 // ── Account filter ────────────────────────────────────────────────────────────
 function accountSources() {
-    return allSources.filter(s => (s.account || 'yanzhiwang') === currentAccount);
+    return allSources.filter(s => s.account === '__all__' || (s.account || 'yanzhiwang') === currentAccount);
 }
 
 // ── PR helpers ────────────────────────────────────────────────────────────────
@@ -943,6 +958,21 @@ function renderCard(s) {
     const badges = PLATFORMS.map(p=>{ const date=prDate(s,p.key); return `<button class="hub-pr-badge${date?' hub-pr-badge--done':''}" data-toggle-platform="${p.key}" data-sid="${s._id}" title="${p.label}: ${date?'Done '+date:'click to mark'}">${p.svgHtml}${date?'<span class="hub-pr-check">✓</span>':''}</button>`; }).join('');
     const editBtn = s._sourceKind==='custom' ? `<button class="hub-menu-btn" data-edit-source="${s._id}" title="Edit">⋯</button>` : '';
     const metaTags = [s._conf&&`<span class="hub-tag hub-tag--meta">${esc(s._conf)}</span>`, s._date&&`<span class="hub-tag hub-tag--meta">${s._date}</span>`, s._status&&`<span class="hub-tag hub-tag--${s._status==='rejected'?'status-r':'status'}">${s._status}</span>`].filter(Boolean).join('');
+    const accountLogs = (s.pr_logs || [])
+        .filter(l => l.account === currentAccount)
+        .sort((a, b) => b.date.localeCompare(a.date));
+    const prLogsHtml = accountLogs.length ? `<div class="hub-pr-logs">
+        ${accountLogs.map(l => {
+            const platLabel = LPR_PLATFORMS.find(p => p.key === l.platform)?.label || l.platform;
+            const dateFmt = new Date(l.date + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+            return `<div class="hub-pr-log-entry">
+                <span class="hub-pr-log-plat-badge">${esc(platLabel)}</span>
+                <span class="hub-pr-log-date">${dateFmt}</span>
+                ${l.content ? `<span class="hub-pr-log-content-text">${esc(l.content)}</span>` : ''}
+            </div>`;
+        }).join('')}
+    </div>` : '';
+
     return `<div class="hub-card" id="card-${s._id}">
         <div class="hub-card-main">
             <div class="hub-card-type-icon">${TYPE_ICONS[s.type]||'📌'}</div>
@@ -957,6 +987,7 @@ function renderCard(s) {
             </div>
         </div>
         <div class="hub-card-footer"><div class="hub-pr-badges">${badges}</div></div>
+        ${prLogsHtml}
         <div class="hub-metrics-panel" id="metrics-panel-${s._id}"></div>
     </div>`;
 }
@@ -1074,11 +1105,14 @@ init();
 let lprPapers = [];
 
 async function openLogPrModal() {
-    // Default account to current account
+    // Set account to current account (read-only)
+    const accName = ACCOUNTS[currentAccount]?.name || currentAccount;
+    document.getElementById('lpr-account-display').textContent = accName;
     document.getElementById('lpr-account').value = currentAccount;
     // Default date to today
     document.getElementById('lpr-date').value = new Date().toISOString().slice(0, 10);
     document.getElementById('lpr-success').classList.remove('show');
+    document.getElementById('lpr-content').value = '';
 
     // Load arxiv papers if not yet loaded
     if (lprPapers.length === 0) {
@@ -1107,7 +1141,7 @@ function closeLogPrModal() {
     document.getElementById('logPrModal').classList.remove('open');
 }
 
-document.getElementById('logPrBtn').addEventListener('click', openLogPrModal);
+document.getElementById('logPrPaperBtn').addEventListener('click', openLogPrModal);
 document.getElementById('logPrModalClose').addEventListener('click', closeLogPrModal);
 document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
 
@@ -1116,6 +1150,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
     const account  = document.getElementById('lpr-account').value;
     const platform = document.getElementById('lpr-platform').value;
     const date     = document.getElementById('lpr-date').value;
+    const content  = document.getElementById('lpr-content').value.trim();
 
     if (!paperId || !date) { alert('Please select a paper and date.'); return; }
 
@@ -1130,7 +1165,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         const paper = all.find(p => p.id === paperId);
         if (!paper) throw new Error('Paper not found');
 
-        // Merge new pr_matrix entry
+        // Merge new pr_matrix entry (stores latest date per account/platform)
         const newMatrix = {
             ...(paper.pr_matrix || {}),
             [account]: {
@@ -1139,17 +1174,28 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
             },
         };
 
+        // Append to pr_logs array (stores history with content)
+        const newLogs = [
+            ...(paper.pr_logs || []),
+            { account, platform, date, content: content || null },
+        ];
+
         const saveRes = await fetch(API + '/api/papers/' + paperId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ ...paper, pr_matrix: newMatrix }),
+            body: JSON.stringify({ ...paper, pr_matrix: newMatrix, pr_logs: newLogs }),
         });
         if (!saveRes.ok) throw new Error('Save failed');
+
+        // Update local allSources so re-render shows new log immediately
+        const src = allSources.find(s => s._id === paperId);
+        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; }
+        lprPapers = []; // invalidate cache
 
         document.getElementById('lpr-success').classList.add('show');
         btn.textContent = 'Save';
         btn.disabled = false;
-        setTimeout(closeLogPrModal, 1200);
+        setTimeout(() => { closeLogPrModal(); renderDetail(); }, 1200);
     } catch (e) {
         alert('Error: ' + e.message);
         btn.textContent = 'Save';
