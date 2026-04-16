@@ -1035,11 +1035,19 @@ async function unmark(src, platform) {
     const ex = prObj(src, platform);
     const newPr = { ...(src.pr||{}), [platform]:{...ex,date:null} };
     const newLogs = (src.pr_logs || []).filter(l => l.platform !== platform);
+    // Also clear pr_matrix for all accounts on this platform
+    const newMatrix = { ...(src.pr_matrix || {}) };
+    for (const acc of Object.keys(newMatrix)) {
+        if (newMatrix[acc]?.[platform]) {
+            newMatrix[acc] = { ...newMatrix[acc] };
+            delete newMatrix[acc][platform];
+        }
+    }
     const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
     try {
-        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({...src, pr:newPr, pr_logs:newLogs}) });
+        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({...src, pr:newPr, pr_logs:newLogs, pr_matrix:newMatrix}) });
         if(!res.ok) throw new Error();
-        src.pr = newPr; src.pr_logs = newLogs; openMetricsKey=null;
+        src.pr = newPr; src.pr_logs = newLogs; src.pr_matrix = newMatrix; openMetricsKey=null;
         renderOverview(); renderDetail();
     } catch { alert('Failed to unmark. Please try again.'); }
 }
