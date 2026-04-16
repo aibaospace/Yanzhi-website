@@ -860,17 +860,13 @@ function renderDetail() {
     const list = document.getElementById('sourceList');
     if (filtered.length === 0) { list.innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">🔍</div>No sources match the filters.</div>'; return; }
 
-    // Papers: flat list sorted by date desc (same as Paper Management)
-    if (currentHubType === 'paper') {
-        list.innerHTML = filtered.map(s=>renderCard(s)).join('');
-    } else {
-        const groups = [
-            { key:'none',    label:'⭕ Not Started',       items: filtered.filter(s=>prStatus(s)==='none') },
-            { key:'partial', label:'🔄 In Progress',        items: filtered.filter(s=>prStatus(s)==='partial') },
-            { key:'done',    label:'✅ All Platforms Done', items: filtered.filter(s=>prStatus(s)==='done') },
-        ].filter(g=>g.items.length>0);
-        list.innerHTML = groups.map(g=>`<div class="hub-section-title">${g.label} (${g.items.length})</div>${g.items.map(s=>renderCard(s)).join('')}`).join('');
-    }
+    const groups = [
+        { key:'partial', label:'🔄 In Progress',        items: filtered.filter(s=>prStatus(s)==='partial') },
+        { key:'none',    label:'⭕ Not Started',         items: filtered.filter(s=>prStatus(s)==='none') },
+        { key:'done',    label:'✅ All Platforms Done',  items: filtered.filter(s=>prStatus(s)==='done') },
+    ].filter(g=>g.items.length>0);
+
+    list.innerHTML = groups.map(g=>`<div class="hub-section-title">${g.label} (${g.items.length})</div>${g.items.map(s=>renderCard(s)).join('')}`).join('');
 
     list.querySelectorAll('[data-toggle-platform]').forEach(btn=>btn.addEventListener('click',()=>{
         const sid=btn.dataset.sid, platform=btn.dataset.togglePlatform, src=allSources.find(s=>s._id===sid);
