@@ -266,8 +266,9 @@ function closeModal() {
     if (overlay) overlay.style.display = 'none';
 }
 
-// ── Sidebar links (Conference Tracker + PR Tool) ───────────────
+// ── Sidebar links (Conference Tracker + News Management + PR Tool) ───────────────
 let sidebarLink = null;
+let sidebarNewsLink = null;
 let sidebarPRLink = null;
 
 function makeSidebarLink(href, text, marginTop) {
@@ -310,16 +311,21 @@ function updateSidebarLink(user) {
             sidebarLink = makeSidebarLink('/conferences/', 'Conference Tracker', '2rem');
             logo.insertAdjacentElement('afterend', sidebarLink);
         }
+        if (!sidebarNewsLink) {
+            sidebarNewsLink = makeSidebarLink('/conferences/#news', 'News Management', '0.5rem');
+            sidebarLink.insertAdjacentElement('afterend', sidebarNewsLink);
+        }
         const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
         if (isAdminOrOwner && !sidebarPRLink) {
             sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '0.5rem');
-            sidebarLink.insertAdjacentElement('afterend', sidebarPRLink);
+            sidebarNewsLink.insertAdjacentElement('afterend', sidebarPRLink);
         } else if (!isAdminOrOwner && sidebarPRLink) {
             sidebarPRLink.remove();
             sidebarPRLink = null;
         }
     } else {
         if (sidebarLink) { sidebarLink.remove(); sidebarLink = null; }
+        if (sidebarNewsLink) { sidebarNewsLink.remove(); sidebarNewsLink = null; }
         if (sidebarPRLink) { sidebarPRLink.remove(); sidebarPRLink = null; }
     }
 }
