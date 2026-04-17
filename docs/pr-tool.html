@@ -381,6 +381,7 @@
             </select>
             <button class="pr-add-btn" id="addSourceBtn" style="display:none">＋ Add Source</button>
             <button class="log-pr-btn" id="logPrPaperBtn" style="display:none">✏️ Log PR</button>
+            <button class="log-pr-btn" id="logPrNewsBtn" style="display:none">✏️ Log PR</button>
         </div>
 
         <!-- Tools filters -->
@@ -560,6 +561,58 @@
     </div>
 </div>
 
+<!-- Log PR News modal -->
+<div class="hub-modal-overlay" id="logPrNewsModal">
+    <div class="hub-modal" style="width:480px">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title">Log PR Publication (News)</div>
+            <button class="hub-modal-close" id="logPrNewsModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="lpr-form">
+                <div class="lpr-field">
+                    <label>News</label>
+                    <select id="lprn-news"><option value="">Loading news…</option></select>
+                </div>
+                <div class="lpr-field">
+                    <label>Account</label>
+                    <div class="lpr-account-display" id="lprn-account-display"></div>
+                    <input type="hidden" id="lprn-account" />
+                </div>
+                <div class="lpr-field">
+                    <label>Platform</label>
+                    <select id="lprn-platform">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="x">X</option>
+                        <option value="rednote">Rednote</option>
+                        <option value="wechat">WeChat</option>
+                        <option value="douyin">抖音</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="website">Website</option>
+                    </select>
+                </div>
+                <div class="lpr-field">
+                    <label>Publication Date</label>
+                    <input type="date" id="lprn-date" />
+                </div>
+                <div class="lpr-field">
+                    <label>URL</label>
+                    <input type="url" id="lprn-url" placeholder="https://…" />
+                </div>
+                <div class="lpr-field">
+                    <label>Content</label>
+                    <textarea id="lprn-content" rows="4" placeholder="Paste or type the PR content you published…"></textarea>
+                </div>
+                <div class="lpr-success" id="lprn-success">✓ Saved successfully!</div>
+            </div>
+            <div class="hub-form-actions" style="margin-top:1.25rem">
+                <button class="hub-btn-primary" id="lprn-save">Save</button>
+                <button class="hub-btn-secondary" id="lprn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Content viewer modal -->
 <div class="hub-modal-overlay" id="contentModal">
     <div class="hub-modal">
@@ -603,10 +656,10 @@ const CATEGORIES = [
     { type: 'finding',      icon: '🔬', name: 'Findings',      desc: 'Research findings and notable results to promote.',  iconClass: 'icon--purple', cardClass: 'hub-cat-card--finding',      canAdd: true  },
     { type: 'product',      icon: '📦', name: 'Products',      desc: 'Product launches and feature announcements.',        iconClass: 'icon--sky',    cardClass: 'hub-cat-card--product',      canAdd: true  },
     { type: 'project',      icon: '🚀', name: 'Projects',      desc: 'Ongoing projects and milestones worth sharing.',     iconClass: 'icon--green',  cardClass: 'hub-cat-card--project',      canAdd: true  },
-    { type: 'announcement', icon: '📢', name: 'Announcements', desc: 'General announcements, events, and news.',           iconClass: 'icon--amber',  cardClass: 'hub-cat-card--announcement', canAdd: true  },
+    { type: 'news',         icon: '📰', name: 'News',          desc: 'News articles and media coverage.',                 iconClass: 'icon--amber',  cardClass: 'hub-cat-card--announcement', canAdd: false },
 ];
 
-const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢' };
+const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢', news:'📰' };
 const CAL_PLAT_COLORS = { linkedin:'#0A66C2', x:'#000000', rednote:'#FF2442', wechat:'#07C160' };
 const LPR_PLATFORMS = [
     {key:'linkedin', label:'LinkedIn'}, {key:'x', label:'X'},
@@ -638,7 +691,13 @@ function applyAccount(key) {
         btn.classList.toggle('active', active);
         document.getElementById('check-' + btn.dataset.account).style.display = active ? '' : 'none';
     });
-    if (allSources.length) { goBackToOverview(); renderOverview(); }
+    if (allSources.length) {
+        // Refresh pr for news items based on new account's pr_matrix
+        allSources.filter(s => s._sourceKind === 'news').forEach(s => {
+            s.pr = buildPrFromMatrix(s.pr_matrix || {}, key);
+        });
+        goBackToOverview(); renderOverview();
+    }
 }
 document.getElementById('accountBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('accountDropdown').classList.toggle('open'); });
 document.addEventListener('click', () => document.getElementById('accountDropdown').classList.remove('open'));
@@ -680,6 +739,7 @@ function updateHeroFilters() {
     detailFilters.classList.add('visible');
     document.getElementById('addSourceBtn').style.display = cat?.canAdd ? '' : 'none';
     document.getElementById('logPrPaperBtn').style.display = currentHubType === 'paper' ? '' : 'none';
+    document.getElementById('logPrNewsBtn').style.display  = currentHubType === 'news'  ? '' : 'none';
 }
 
 function setHeaderBack(cat) {
@@ -741,12 +801,14 @@ function showGate() { document.getElementById('prGate').classList.add('visible')
 // ── Data ──────────────────────────────────────────────────────────────────────
 async function loadData() {
     try {
-        const [pr, ps] = await Promise.all([
+        const [pr, ps, ns] = await Promise.all([
             fetch(API + '/api/papers',     { headers: { Authorization: 'Bearer ' + token } }),
             fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } }),
+            fetch(API + '/api/news',       { headers: { Authorization: 'Bearer ' + token } }),
         ]);
         const papers    = pr.ok ? await pr.json() : [];
         const prSources = ps.ok ? await ps.json() : [];
+        const newsItems = ns.ok ? await ns.json() : [];
 
         const seen = new Map();
         for (const p of papers) {
@@ -755,10 +817,27 @@ async function loadData() {
         }
         const customItems = prSources.map(s => ({ ...s, _id:s.id, _sourceKind:'custom' }));
         const paperItems = [...seen.values()].sort((a, b) => (b._date || '').localeCompare(a._date || ''));
-        allSources = [...customItems, ...paperItems];
+        const newsSourceItems = newsItems.map(n => ({
+            ...n, _id:n.id, _sourceKind:'news', type:'news', account:'__all__',
+            description: n.source || '', priority:'medium',
+            pr: buildPrFromMatrix(n.pr_matrix || {}, currentAccount),
+            pr_logs: n.pr_logs || [], pr_matrix: n.pr_matrix || {},
+            _date: n.date || '', createdAt: n.createdAt || '',
+        }));
+        allSources = [...customItems, ...paperItems, ...newsSourceItems];
         renderOverview();
         if (currentHubType) renderDetail();
     } catch { document.getElementById('hubCatGrid').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">⚠️</div>Failed to load data.</div>'; }
+}
+
+// Convert pr_matrix[account][platform] → pr[platform] format for prStatus display
+function buildPrFromMatrix(matrix, account) {
+    const pr = {};
+    const accData = matrix[account] || {};
+    for (const [platform, date] of Object.entries(accData)) {
+        if (date) pr[platform] = { date };
+    }
+    return pr;
 }
 
 // ── Account filter ────────────────────────────────────────────────────────────
@@ -1032,8 +1111,30 @@ async function saveMetrics(src, platform, platformDef) {
 }
 
 async function unmark(src, platform) {
-    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
+    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}`
+              : src._sourceKind==='news'  ? `${API}/api/news/${src._id}`
+              : `${API}/api/pr-sources/${src._id}`;
     try {
+        if (src._sourceKind === 'news') {
+            // Clear platform from pr_matrix for current account only
+            const freshRes = await fetch(`${API}/api/news`, { headers: { Authorization: 'Bearer ' + token } });
+            const allNews = freshRes.ok ? await freshRes.json() : [];
+            const found = allNews.find(n => n.id === src._id);
+            if (!found) throw new Error('News not found');
+            const newMatrix = { ...(found.pr_matrix || {}) };
+            if (newMatrix[currentAccount]) {
+                newMatrix[currentAccount] = { ...newMatrix[currentAccount] };
+                delete newMatrix[currentAccount][platform];
+            }
+            const newPr = buildPrFromMatrix(newMatrix, currentAccount);
+            const body = { ...found, pr_matrix: newMatrix };
+            const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
+            if(!res.ok) throw new Error();
+            src.pr = newPr; src.pr_matrix = newMatrix; openMetricsKey=null;
+            renderOverview(); renderDetail();
+            return;
+        }
+
         // Fetch fresh paper data (same approach as Log PR)
         let paperData = src;
         if (src._sourceKind === 'paper') {
@@ -1067,9 +1168,22 @@ async function unmark(src, platform) {
 }
 
 async function persistPr(src, newPr) {
-    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}` : `${API}/api/pr-sources/${src._id}`;
+    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}`
+              : src._sourceKind==='news'  ? `${API}/api/news/${src._id}`
+              : `${API}/api/pr-sources/${src._id}`;
     try {
-        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({...src,pr:newPr}) });
+        let body = { ...src, pr: newPr };
+        if (src._sourceKind === 'news') {
+            // Also update pr_matrix for the current account
+            const newMatrix = { ...(src.pr_matrix || {}) };
+            for (const [platform, val] of Object.entries(newPr)) {
+                if (!newMatrix[currentAccount]) newMatrix[currentAccount] = {};
+                newMatrix[currentAccount][platform] = val?.date || null;
+            }
+            body = { ...src, pr: newPr, pr_matrix: newMatrix };
+            src.pr_matrix = newMatrix;
+        }
+        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
         if(!res.ok) throw new Error();
         src.pr = newPr; openMetricsKey=null;
         renderOverview();
@@ -1243,6 +1357,88 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         alert('Error: ' + e.message);
         btn.textContent = 'Save';
         btn.disabled = false;
+    }
+});
+
+// ── Log PR (News) ─────────────────────────────────────────────────────────────
+let lprNewsItems = [];
+
+async function openLogPrNewsModal() {
+    const accName = ACCOUNTS[currentAccount]?.name || currentAccount;
+    document.getElementById('lprn-account-display').textContent = accName;
+    document.getElementById('lprn-account').value = currentAccount;
+    document.getElementById('lprn-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lprn-success').classList.remove('show');
+    document.getElementById('lprn-content').value = '';
+    document.getElementById('lprn-url').value = '';
+
+    if (lprNewsItems.length === 0) {
+        try {
+            const res = await fetch(API + '/api/news', { headers: { Authorization: 'Bearer ' + token } });
+            if (res.ok) lprNewsItems = (await res.json()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+        } catch { }
+    }
+
+    const sel = document.getElementById('lprn-news');
+    sel.innerHTML = lprNewsItems.length
+        ? lprNewsItems.map(n => `<option value="${esc(n.id)}">${esc(n.title || '(Untitled)')}</option>`).join('')
+        : '<option value="">No news items found</option>';
+
+    document.getElementById('logPrNewsModal').classList.add('open');
+}
+
+function closeLogPrNewsModal() {
+    document.getElementById('logPrNewsModal').classList.remove('open');
+}
+
+document.getElementById('logPrNewsBtn').addEventListener('click', openLogPrNewsModal);
+document.getElementById('logPrNewsModalClose').addEventListener('click', closeLogPrNewsModal);
+document.getElementById('lprn-cancel').addEventListener('click', closeLogPrNewsModal);
+document.getElementById('logPrNewsModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeLogPrNewsModal(); });
+
+document.getElementById('lprn-save').addEventListener('click', async () => {
+    const newsId   = document.getElementById('lprn-news').value;
+    const account  = document.getElementById('lprn-account').value;
+    const platform = document.getElementById('lprn-platform').value;
+    const date     = document.getElementById('lprn-date').value;
+    const url      = document.getElementById('lprn-url').value.trim();
+    const content  = document.getElementById('lprn-content').value.trim();
+
+    if (!newsId || !date) { alert('Please select a news item and date.'); return; }
+
+    const btn = document.getElementById('lprn-save');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    try {
+        const res = await fetch(API + '/api/news', { headers: { Authorization: 'Bearer ' + token } });
+        const all = await res.json();
+        const item = all.find(n => n.id === newsId);
+        if (!item) throw new Error('News item not found');
+
+        const newMatrix = {
+            ...(item.pr_matrix || {}),
+            [account]: { ...(item.pr_matrix?.[account] || {}), [platform]: date },
+        };
+        const newLogs = [...(item.pr_logs || []), { account, platform, date, url: url || null, content: content || null }];
+        const newPr = { ...(item.pr || {}), [platform]: { ...(item.pr?.[platform] || {}), date } };
+
+        const saveRes = await fetch(API + '/api/news/' + newsId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ ...item, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
+        });
+        if (!saveRes.ok) throw new Error('Save failed');
+
+        const src = allSources.find(s => s._id === newsId);
+        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = buildPrFromMatrix(newMatrix, currentAccount); }
+        lprNewsItems = [];
+
+        document.getElementById('lprn-success').classList.add('show');
+        btn.textContent = 'Save'; btn.disabled = false;
+        setTimeout(() => { closeLogPrNewsModal(); renderOverview(); renderDetail(); }, 1200);
+    } catch (e) {
+        alert('Error: ' + e.message);
+        btn.textContent = 'Save'; btn.disabled = false;
     }
 });
 </script>
