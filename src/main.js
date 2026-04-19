@@ -311,14 +311,17 @@ function updateSidebarLink(user) {
             sidebarLink = makeSidebarLink('/conferences/', 'Conference Tracker', '2rem');
             logo.insertAdjacentElement('afterend', sidebarLink);
         }
-        if (!sidebarNewsLink) {
+        const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
+        if (isAdminOrOwner && !sidebarNewsLink) {
             sidebarNewsLink = makeSidebarLink('/conferences/#news', 'News Management', '0.5rem');
             sidebarLink.insertAdjacentElement('afterend', sidebarNewsLink);
+        } else if (!isAdminOrOwner && sidebarNewsLink) {
+            sidebarNewsLink.remove();
+            sidebarNewsLink = null;
         }
-        const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
         if (isAdminOrOwner && !sidebarPRLink) {
             sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '0.5rem');
-            sidebarNewsLink.insertAdjacentElement('afterend', sidebarPRLink);
+            (sidebarNewsLink || sidebarLink).insertAdjacentElement('afterend', sidebarPRLink);
         } else if (!isAdminOrOwner && sidebarPRLink) {
             sidebarPRLink.remove();
             sidebarPRLink = null;
