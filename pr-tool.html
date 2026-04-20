@@ -322,6 +322,16 @@
         .matrix-check--done { background: #dcfce7; border-color: #86efac; color: #16a34a; font-weight: 700; }
         .matrix-check--done:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
 
+        /* Account column tints & separators */
+        .matrix-col-e { background: #faf8ff; }
+        .matrix-col-m { background: #f0f9ff; }
+        .matrix-td-cell--done.matrix-col-e { background: #ede9fe; }
+        .matrix-td-cell--done.matrix-col-m { background: #bae6fd; }
+        .matrix-sep-e { border-left: 3px solid #7c3aed !important; }
+        .matrix-sep-m { border-left: 3px solid #0891b2 !important; }
+        .matrix-th-acc.matrix-col-e { border-left: 3px solid #7c3aed; }
+        .matrix-th-acc.matrix-col-m { border-left: 3px solid #0891b2; }
+
         @media (max-width: 900px) {
             .hub-cat-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -361,6 +371,11 @@
             </button>
             <div class="account-dropdown" id="accountDropdown">
                 <div class="account-dropdown-label">Switch Account</div>
+                <button class="account-option" data-account="all">
+                    <span class="account-avatar" style="background:#64748b;">≡</span>
+                    <span class="account-option-name">All Accounts</span>
+                    <span class="account-option-check" id="check-all" style="display:none">✓</span>
+                </button>
                 <button class="account-option active" data-account="yanzhiwang">
                     <span class="account-avatar" style="background:#1d4ed8;">Y</span>
                     <span class="account-option-name">Yanzhiwang</span>
@@ -730,6 +745,39 @@ let matrixFilter = 'all';     // 'all' | 'paper' | 'news'
 const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M'} };
 let currentAccount = localStorage.getItem('pr_account') || 'yanzhiwang';
 
+function applyMatrixFilter(key) {
+    matrixAccountFilter = key;
+    const acc = key === 'all' ? null : ACCOUNTS[key];
+    document.getElementById('accountName').textContent = acc ? acc.name : 'All Accounts';
+    const av = document.getElementById('accountAvatar');
+    av.textContent = acc ? acc.initial : '≡'; av.style.background = acc ? acc.color : '#64748b';
+    const ey = document.getElementById('heroEyebrow');
+    ey.textContent = acc ? acc.name : 'All Accounts'; ey.style.color = acc ? acc.color : '#64748b';
+    document.querySelectorAll('.account-option').forEach(btn => {
+        const active = btn.dataset.account === key;
+        btn.classList.toggle('active', active);
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
+    });
+    if (allSources.length) renderMatrix();
+}
+
+function syncHubDisplay() {
+    const acc = ACCOUNTS[currentAccount];
+    if (!acc) return;
+    document.getElementById('accountName').textContent = acc.name;
+    const av = document.getElementById('accountAvatar');
+    av.textContent = acc.initial; av.style.background = acc.color;
+    const ey = document.getElementById('heroEyebrow');
+    ey.textContent = acc.name; ey.style.color = acc.color;
+    document.querySelectorAll('.account-option').forEach(btn => {
+        const active = btn.dataset.account === currentAccount;
+        btn.classList.toggle('active', active);
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
+    });
+}
+
 function applyAccount(key) {
     const acc = ACCOUNTS[key];
     currentAccount = key;
@@ -742,7 +790,8 @@ function applyAccount(key) {
     document.querySelectorAll('.account-option').forEach(btn => {
         const active = btn.dataset.account === key;
         btn.classList.toggle('active', active);
-        document.getElementById('check-' + btn.dataset.account).style.display = active ? '' : 'none';
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
     });
     if (allSources.length) {
         // Refresh pr for news items based on new account's pr_matrix
@@ -755,8 +804,17 @@ function applyAccount(key) {
 }
 document.getElementById('accountBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('accountDropdown').classList.toggle('open'); });
 document.addEventListener('click', () => document.getElementById('accountDropdown').classList.remove('open'));
-document.querySelectorAll('.account-option').forEach(btn => btn.addEventListener('click', () => { applyAccount(btn.dataset.account); document.getElementById('accountDropdown').classList.remove('open'); }));
+document.querySelectorAll('.account-option').forEach(btn => btn.addEventListener('click', () => {
+    const key = btn.dataset.account;
+    document.getElementById('accountDropdown').classList.remove('open');
+    if (currentView === 'matrix') {
+        applyMatrixFilter(key);
+    } else {
+        if (key !== 'all') applyAccount(key);
+    }
+}));
 applyAccount(currentAccount);
+applyMatrixFilter('all'); // matrix default: show all accounts
 
 // ── View toggle (Matrix / Hub / Tools) ───────────────────────────────────────
 document.querySelectorAll('.pr-view-btn').forEach(btn => {
@@ -767,12 +825,14 @@ document.querySelectorAll('.pr-view-btn').forEach(btn => {
         document.getElementById('hubView').style.display    = currentView === 'hub'   ? '' : 'none';
         document.getElementById('toolsView').classList.toggle('visible', currentView === 'tools');
         document.getElementById('toolsFilters').classList.toggle('visible', currentView === 'tools');
-        if (currentView === 'hub') {
+        if (currentView === 'matrix') {
+            applyMatrixFilter(matrixAccountFilter);
+        } else if (currentView === 'hub') {
+            syncHubDisplay();
             updateHeroFilters();
         } else {
             document.getElementById('detailFilters').classList.remove('visible');
         }
-        if (currentView === 'matrix') renderMatrix();
     });
 });
 
@@ -1343,12 +1403,15 @@ function renderMatrix() {
         return;
     }
 
-    const accountKeys = Object.keys(ACCOUNTS); // ['yanzhiwang', 'embodyx', 'moxin']
+    const accountKeys = matrixAccountFilter === 'all' ? Object.keys(ACCOUNTS) : [matrixAccountFilter];
+    const COL_CLS = { yanzhiwang: '', embodyx: 'matrix-col-e', moxin: 'matrix-col-m' };
+    const SEP_CLS = { yanzhiwang: '', embodyx: 'matrix-sep-e', moxin: 'matrix-sep-m' };
 
     // Header row 1: account groups, each spanning all platforms
-    const thAccounts = accountKeys.map(accKey => {
+    const thAccounts = accountKeys.map((accKey, idx) => {
         const acc = ACCOUNTS[accKey];
-        return `<th colspan="${PLATFORMS.length}" class="matrix-th-acc">
+        const sepCls = idx > 0 ? SEP_CLS[accKey] : '';
+        return `<th colspan="${PLATFORMS.length}" class="matrix-th-acc ${COL_CLS[accKey]} ${sepCls}">
             <div class="matrix-acc-label">
                 <span class="matrix-acc-dot" style="background:${acc.color}">${acc.initial}</span>
                 ${acc.name}
@@ -1357,8 +1420,11 @@ function renderMatrix() {
     }).join('');
 
     // Header row 2: platform icons repeated for each account
-    const thPlats = accountKeys.map(() =>
-        PLATFORMS.map(p => `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`).join('')
+    const thPlats = accountKeys.map((accKey, accIdx) =>
+        PLATFORMS.map((p, pIdx) => {
+            const sepCls = (accIdx > 0 && pIdx === 0) ? SEP_CLS[accKey] : '';
+            return `<th class="matrix-th-plat ${COL_CLS[accKey]} ${sepCls}" title="${p.label}">${p.svgHtml}</th>`;
+        }).join('')
     ).join('');
 
     const rows = items.map(item => {
@@ -1372,11 +1438,12 @@ function renderMatrix() {
         const metaParts = [item._conf, item._date ? item._date.slice(0,4) : null].filter(Boolean);
         const metaHtml = metaParts.length ? `<div class="matrix-item-meta">${esc(metaParts.join(' · '))}</div>` : '';
 
-        const cells = accountKeys.map(accKey =>
-            PLATFORMS.map(p => {
+        const cells = accountKeys.map((accKey, accIdx) =>
+            PLATFORMS.map((p, pIdx) => {
                 const date = (item.pr_matrix?.[accKey]?.[p.key]) || null;
                 const done = !!date;
-                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
+                const sepCls = (accIdx > 0 && pIdx === 0) ? SEP_CLS[accKey] : '';
+                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''} ${COL_CLS[accKey]} ${sepCls}">
                     <button class="matrix-check${done?' matrix-check--done':''}"
                         data-matrix-id="${item._id}"
                         data-matrix-account="${accKey}"
