@@ -307,24 +307,25 @@ function updateSidebarLink(user) {
     const logo = document.getElementById('embodyx-sidebar-logo') || document.querySelector('.university-logo');
     if (!logo) return;
     if (user) {
-        if (!sidebarLink) {
-            sidebarLink = makeSidebarLink('/conferences/', 'Conference Tracker', '2rem');
-            logo.insertAdjacentElement('afterend', sidebarLink);
-        }
         const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
+        // Order: PR Tool → Conference Tracker → News Management
+        if (isAdminOrOwner && !sidebarPRLink) {
+            sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '2rem');
+            logo.insertAdjacentElement('afterend', sidebarPRLink);
+        } else if (!isAdminOrOwner && sidebarPRLink) {
+            sidebarPRLink.remove();
+            sidebarPRLink = null;
+        }
+        if (!sidebarLink) {
+            sidebarLink = makeSidebarLink('/conferences/', 'Conference Tracker', '0.5rem');
+            (sidebarPRLink || logo).insertAdjacentElement('afterend', sidebarLink);
+        }
         if (isAdminOrOwner && !sidebarNewsLink) {
             sidebarNewsLink = makeSidebarLink('/conferences/#news', 'News Management', '0.5rem');
             sidebarLink.insertAdjacentElement('afterend', sidebarNewsLink);
         } else if (!isAdminOrOwner && sidebarNewsLink) {
             sidebarNewsLink.remove();
             sidebarNewsLink = null;
-        }
-        if (isAdminOrOwner && !sidebarPRLink) {
-            sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '0.5rem');
-            (sidebarNewsLink || sidebarLink).insertAdjacentElement('afterend', sidebarPRLink);
-        } else if (!isAdminOrOwner && sidebarPRLink) {
-            sidebarPRLink.remove();
-            sidebarPRLink = null;
         }
     } else {
         if (sidebarLink) { sidebarLink.remove(); sidebarLink = null; }
