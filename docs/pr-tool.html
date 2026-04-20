@@ -292,6 +292,33 @@
         .hub-cal-entry-name { font-size: 0.6rem; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
         .hub-cal-plat { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
+        /* ── PR Matrix view ── */
+        .matrix-view { max-width: 1200px; margin: 0 auto; padding: 0 2rem 3rem; }
+        .matrix-filter-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .matrix-filter-btn { padding: 0.3rem 0.9rem; border: 1.5px solid #e2e8f0; border-radius: 20px; background: #fff; color: #64748b; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .matrix-filter-btn.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+        .matrix-filter-btn:hover:not(.active) { background: #f1f5f9; }
+        .matrix-log-btn { margin-left: auto; padding: 0.3rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 20px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .matrix-log-btn:hover { background: #6d28d9; color: #fff; }
+        .matrix-count { font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem; }
+        .matrix-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+        .matrix-table { border-collapse: collapse; width: max-content; min-width: 100%; background: #fff; font-size: 0.8rem; }
+        .matrix-table th, .matrix-table td { border: 1px solid #f1f5f9; }
+        .matrix-th-item { padding: 0.6rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; background: #f8fafc; min-width: 220px; max-width: 280px; position: sticky; left: 0; z-index: 2; }
+        .matrix-th-plat { padding: 0.4rem 0.3rem; text-align: center; background: #f8fafc; width: 36px; }
+        .matrix-td-item { padding: 0.55rem 1rem; background: #fff; position: sticky; left: 0; z-index: 1; border-right: 2px solid #e2e8f0; min-width: 220px; max-width: 280px; }
+        .matrix-td-cell { padding: 0.25rem; text-align: center; background: #fff; }
+        .matrix-td-cell--done { background: #f0fdf4; }
+        .matrix-item-title { font-size: 0.8rem; font-weight: 600; color: #1e293b; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .matrix-item-title a { color: #1d4ed8; text-decoration: none; }
+        .matrix-item-title a:hover { text-decoration: underline; }
+        .matrix-item-meta { font-size: 0.7rem; color: #94a3b8; margin-top: 0.15rem; }
+        .matrix-type-badge { display: inline-block; font-size: 0.65rem; padding: 0.05rem 0.3rem; border-radius: 3px; margin-bottom: 0.2rem; background: #f1f5f9; color: #64748b; font-weight: 600; }
+        .matrix-check { width: 26px; height: 26px; border: 1.5px solid #e2e8f0; border-radius: 5px; background: #fff; cursor: pointer; font-size: 0.75rem; color: #16a34a; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s; padding: 0; }
+        .matrix-check:hover { border-color: #94a3b8; background: #f8fafc; }
+        .matrix-check--done { background: #dcfce7; border-color: #86efac; color: #16a34a; font-weight: 700; }
+        .matrix-check--done:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+
         @media (max-width: 900px) {
             .hub-cat-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -359,7 +386,8 @@
 
         <!-- View toggle -->
         <div class="pr-view-toggle">
-            <button class="pr-view-btn active" data-view="hub">📊 PR Hub</button>
+            <button class="pr-view-btn active" data-view="matrix">📋 PR Matrix</button>
+            <button class="pr-view-btn" data-view="hub">📊 PR Hub</button>
             <button class="pr-view-btn" data-view="tools">🛠 Tools</button>
         </div>
 
@@ -393,8 +421,20 @@
     </div>
 </div>
 
+<!-- Matrix view (default homepage) -->
+<div class="matrix-view" id="matrixView">
+    <div class="matrix-filter-bar">
+        <button class="matrix-filter-btn active" data-mfilter="all">All</button>
+        <button class="matrix-filter-btn" data-mfilter="paper">Papers</button>
+        <button class="matrix-filter-btn" data-mfilter="news">News</button>
+        <span class="matrix-count" id="matrixCount"></span>
+        <button class="matrix-log-btn" id="matrixLogPrBtn">✏️ Log PR</button>
+    </div>
+    <div id="matrixBody"><div class="hub-loading">Loading…</div></div>
+</div>
+
 <!-- PR Hub view -->
-<div class="hub-view" id="hubView">
+<div class="hub-view" id="hubView" style="display:none">
 
     <!-- Overview: category cards -->
     <div id="hubOverview">
@@ -678,9 +718,10 @@ const LPR_PLATFORMS = [
 ];
 
 let allSources = [], token = null, editingSourceId = null, contentViewSource = null, contentViewTab = 'wechat', openMetricsKey = null;
-let currentView = 'hub';      // 'hub' | 'tools'
+let currentView = 'matrix';   // 'matrix' | 'hub' | 'tools'
 let currentHubType = null;    // null = overview, string = drilled into category
 let calendarMonth = new Date().toISOString().slice(0, 7); // "2026-04"
+let matrixFilter = 'all';     // 'all' | 'paper' | 'news'
 
 // ── Account switcher ──────────────────────────────────────────────────────────
 const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M'} };
@@ -706,6 +747,7 @@ function applyAccount(key) {
             s.pr = buildPrFromMatrix(s.pr_matrix || {}, key);
         });
         goBackToOverview(); renderOverview();
+        if (currentView === 'matrix') renderMatrix();
     }
 }
 document.getElementById('accountBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('accountDropdown').classList.toggle('open'); });
@@ -713,11 +755,12 @@ document.addEventListener('click', () => document.getElementById('accountDropdow
 document.querySelectorAll('.account-option').forEach(btn => btn.addEventListener('click', () => { applyAccount(btn.dataset.account); document.getElementById('accountDropdown').classList.remove('open'); }));
 applyAccount(currentAccount);
 
-// ── View toggle (Hub / Tools) ─────────────────────────────────────────────────
+// ── View toggle (Matrix / Hub / Tools) ───────────────────────────────────────
 document.querySelectorAll('.pr-view-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         currentView = btn.dataset.view;
         document.querySelectorAll('.pr-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+        document.getElementById('matrixView').style.display = currentView === 'matrix' ? '' : 'none';
         document.getElementById('hubView').style.display    = currentView === 'hub'   ? '' : 'none';
         document.getElementById('toolsView').classList.toggle('visible', currentView === 'tools');
         document.getElementById('toolsFilters').classList.toggle('visible', currentView === 'tools');
@@ -726,7 +769,21 @@ document.querySelectorAll('.pr-view-btn').forEach(btn => {
         } else {
             document.getElementById('detailFilters').classList.remove('visible');
         }
+        if (currentView === 'matrix') renderMatrix();
     });
+});
+
+// Matrix filter pills
+document.querySelectorAll('[data-mfilter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        matrixFilter = btn.dataset.mfilter;
+        document.querySelectorAll('[data-mfilter]').forEach(b => b.classList.toggle('active', b.dataset.mfilter === matrixFilter));
+        renderMatrix();
+    });
+});
+document.getElementById('matrixLogPrBtn').addEventListener('click', () => {
+    if (matrixFilter === 'news') openLogPrNewsModal();
+    else openLogPrModal();
 });
 
 // Tools filter pills
@@ -835,6 +892,7 @@ async function loadData() {
         }));
         allSources = [...customItems, ...paperItems, ...newsSourceItems];
         renderOverview();
+        if (currentView === 'matrix') renderMatrix();
         if (currentHubType) renderDetail();
     } catch { document.getElementById('hubCatGrid').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">⚠️</div>Failed to load data.</div>'; }
 }
@@ -1141,6 +1199,7 @@ async function unmark(src, platform) {
             if(!res.ok) throw new Error();
             src.pr = newPr; src.pr_matrix = newMatrix; openMetricsKey=null;
             renderOverview(); renderDetail();
+            if (currentView === 'matrix') renderMatrix();
             return;
         }
 
@@ -1173,6 +1232,7 @@ async function unmark(src, platform) {
 
         src.pr = newPr; src.pr_logs = newLogs; src.pr_matrix = newMatrix; openMetricsKey=null;
         renderOverview(); renderDetail();
+        if (currentView === 'matrix') renderMatrix();
     } catch(e) { alert('Failed to unmark: ' + e.message); }
 }
 
@@ -1197,6 +1257,7 @@ async function persistPr(src, newPr) {
         src.pr = newPr; openMetricsKey=null;
         renderOverview();
         renderDetail();
+        if (currentView === 'matrix') renderMatrix();
     } catch { alert('Failed to save. Please try again.'); }
 }
 
@@ -1257,6 +1318,108 @@ document.getElementById('contentModal').addEventListener('click',e=>{if(e.target
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+// ── PR Matrix view ────────────────────────────────────────────────────────────
+function renderMatrix() {
+    const matrixView = document.getElementById('matrixView');
+    if (!matrixView) return;
+
+    let items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
+    if (matrixFilter === 'paper') items = items.filter(s => s._sourceKind === 'paper');
+    if (matrixFilter === 'news')  items = items.filter(s => s._sourceKind === 'news');
+
+    items.sort((a, b) => {
+        const aT = a.createdAt ? new Date(a.createdAt).getTime() : (a._date ? new Date(a._date).getTime() : 0);
+        const bT = b.createdAt ? new Date(b.createdAt).getTime() : (b._date ? new Date(b._date).getTime() : 0);
+        return bT - aT;
+    });
+
+    document.getElementById('matrixCount').textContent = `${items.length} items`;
+
+    if (items.length === 0) {
+        document.getElementById('matrixBody').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">🔍</div>No items found.</div>';
+        return;
+    }
+
+    const thPlats = PLATFORMS.map(p =>
+        `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`
+    ).join('');
+
+    const rows = items.map(item => {
+        const isPaper = item._sourceKind === 'paper';
+        const typeBadge = isPaper
+            ? `<span class="matrix-type-badge" style="background:#eff6ff;color:#1d4ed8">Paper</span>`
+            : `<span class="matrix-type-badge" style="background:#fffbeb;color:#92400e">News</span>`;
+        const titleLink = item.link
+            ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
+            : esc(item.title);
+        const metaParts = [item._conf, item._date ? item._date.slice(0,4) : null].filter(Boolean);
+        const metaHtml = metaParts.length ? `<div class="matrix-item-meta">${esc(metaParts.join(' · '))}</div>` : '';
+
+        const cells = PLATFORMS.map(p => {
+            const date = (item.pr_matrix?.[currentAccount]?.[p.key]) || null;
+            const done = !!date;
+            return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
+                <button class="matrix-check${done?' matrix-check--done':''}"
+                    data-matrix-id="${item._id}"
+                    data-matrix-platform="${p.key}"
+                    title="${done ? 'Done: '+date+'. Click to unmark.' : 'Mark done on '+esc(p.label)}">${done ? '✓' : ''}</button>
+            </td>`;
+        }).join('');
+
+        return `<tr>
+            <td class="matrix-td-item">
+                <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                ${metaHtml}
+            </td>
+            ${cells}
+        </tr>`;
+    }).join('');
+
+    document.getElementById('matrixBody').innerHTML = `<div class="matrix-scroll">
+        <table class="matrix-table">
+            <thead><tr><th class="matrix-th-item">Item</th>${thPlats}</tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+    </div>`;
+
+    document.getElementById('matrixBody').querySelectorAll('[data-matrix-id]').forEach(btn => {
+        btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixPlatform));
+    });
+}
+
+async function toggleMatrixCell(itemId, platform) {
+    const src = allSources.find(s => s._id === itemId);
+    if (!src) return;
+    const date = (src.pr_matrix?.[currentAccount]?.[platform]) || null;
+    if (date) {
+        if (!confirm(`Remove PR mark for ${platform} on ${date}?`)) return;
+        await unmark(src, platform);
+    } else {
+        await quickMarkPr(src, platform);
+    }
+}
+
+async function quickMarkPr(src, platform) {
+    const date = new Date().toISOString().slice(0, 10);
+    const url = src._sourceKind === 'paper'
+        ? `${API}/api/papers/${src._id}`
+        : `${API}/api/news/${src._id}`;
+    try {
+        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
+        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const fresh = all.find(x => x.id === src._id);
+        if (!fresh) throw new Error('Not found');
+        const newMatrix = { ...(fresh.pr_matrix||{}), [currentAccount]: { ...(fresh.pr_matrix?.[currentAccount]||{}), [platform]: date } };
+        const newPr = { ...(fresh.pr||{}), [platform]: { ...(fresh.pr?.[platform]||{}), date } };
+        const newLogs = [...(fresh.pr_logs||[]), { account: currentAccount, platform, date, url: null, content: null }];
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix, pr: newPr, pr_logs: newLogs }) });
+        if (!res.ok) throw new Error('Save failed');
+        src.pr_matrix = newMatrix; src.pr = newPr; src.pr_logs = newLogs;
+        renderOverview();
+        renderMatrix();
+    } catch(e) { alert('Failed to mark: ' + e.message); }
+}
+
 init();
 
 // ── Log PR ────────────────────────────────────────────────────────────────────
@@ -1293,7 +1456,16 @@ async function openLogPrModal() {
         ? lprPapers.map(p => `<option value="${esc(p.id)}">${esc(p.title || '(Untitled)')}</option>`).join('')
         : '<option value="">No arXiv papers found</option>';
 
+    fillLprUrl();
     document.getElementById('logPrModal').classList.add('open');
+}
+
+function fillLprUrl() {
+    const paperId  = document.getElementById('lpr-paper').value;
+    const platform = document.getElementById('lpr-platform').value;
+    const paper = lprPapers.find(p => p.id === paperId);
+    const existing = paper?.pr?.[platform]?.postUrl || '';
+    document.getElementById('lpr-url').value = existing;
 }
 
 function closeLogPrModal() {
@@ -1303,6 +1475,8 @@ function closeLogPrModal() {
 document.getElementById('logPrPaperBtn').addEventListener('click', openLogPrModal);
 document.getElementById('logPrModalClose').addEventListener('click', closeLogPrModal);
 document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
+document.getElementById('lpr-paper').addEventListener('change', fillLprUrl);
+document.getElementById('lpr-platform').addEventListener('change', fillLprUrl);
 
 document.getElementById('lpr-save').addEventListener('click', async () => {
     const paperId  = document.getElementById('lpr-paper').value;
