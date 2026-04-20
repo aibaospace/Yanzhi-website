@@ -293,7 +293,7 @@
         .hub-cal-plat { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
         /* ── PR Matrix view ── */
-        .matrix-view { max-width: 1200px; margin: 0 auto; padding: 0 2rem 3rem; }
+        .matrix-view { padding: 0 2rem 3rem; }
         .matrix-filter-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .matrix-filter-btn { padding: 0.3rem 0.9rem; border: 1.5px solid #e2e8f0; border-radius: 20px; background: #fff; color: #64748b; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
         .matrix-filter-btn.active { background: #1e293b; color: #fff; border-color: #1e293b; }
@@ -813,6 +813,12 @@ document.querySelectorAll('.account-option').forEach(btn => btn.addEventListener
 }));
 applyAccount(currentAccount);
 applyMatrixFilter('all'); // matrix default: show all accounts
+// Apply filter from URL param (e.g. ?filter=paper from Paper Management link)
+const _urlFilter = new URLSearchParams(window.location.search).get('filter');
+if (_urlFilter === 'paper' || _urlFilter === 'news') {
+    matrixFilter = _urlFilter;
+    document.querySelectorAll('[data-mfilter]').forEach(b => b.classList.toggle('active', b.dataset.mfilter === matrixFilter));
+}
 
 // ── View toggle (Matrix / Hub / Tools) ───────────────────────────────────────
 document.querySelectorAll('.pr-view-btn').forEach(btn => {
