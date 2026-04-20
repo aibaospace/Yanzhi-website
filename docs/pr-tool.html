@@ -305,6 +305,9 @@
         .matrix-table { border-collapse: collapse; width: max-content; min-width: 100%; background: #fff; font-size: 0.8rem; }
         .matrix-table th, .matrix-table td { border: 1px solid #f1f5f9; }
         .matrix-th-item { padding: 0.6rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; background: #f8fafc; min-width: 220px; max-width: 280px; position: sticky; left: 0; z-index: 2; }
+        .matrix-th-acc { padding: 0.5rem 0.75rem; text-align: center; font-weight: 700; font-size: 0.8rem; background: #f8fafc; white-space: nowrap; }
+        .matrix-acc-label { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+        .matrix-acc-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; flex-shrink: 0; }
         .matrix-th-plat { padding: 0.4rem 0.3rem; text-align: center; background: #f8fafc; width: 36px; }
         .matrix-td-item { padding: 0.55rem 1rem; background: #fff; position: sticky; left: 0; z-index: 1; border-right: 2px solid #e2e8f0; min-width: 220px; max-width: 280px; }
         .matrix-td-cell { padding: 0.25rem; text-align: center; background: #fff; }
@@ -1340,8 +1343,22 @@ function renderMatrix() {
         return;
     }
 
-    const thPlats = PLATFORMS.map(p =>
-        `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`
+    const accountKeys = Object.keys(ACCOUNTS); // ['yanzhiwang', 'embodyx', 'moxin']
+
+    // Header row 1: account groups, each spanning all platforms
+    const thAccounts = accountKeys.map(accKey => {
+        const acc = ACCOUNTS[accKey];
+        return `<th colspan="${PLATFORMS.length}" class="matrix-th-acc">
+            <div class="matrix-acc-label">
+                <span class="matrix-acc-dot" style="background:${acc.color}">${acc.initial}</span>
+                ${acc.name}
+            </div>
+        </th>`;
+    }).join('');
+
+    // Header row 2: platform icons repeated for each account
+    const thPlats = accountKeys.map(() =>
+        PLATFORMS.map(p => `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`).join('')
     ).join('');
 
     const rows = items.map(item => {
@@ -1355,16 +1372,19 @@ function renderMatrix() {
         const metaParts = [item._conf, item._date ? item._date.slice(0,4) : null].filter(Boolean);
         const metaHtml = metaParts.length ? `<div class="matrix-item-meta">${esc(metaParts.join(' · '))}</div>` : '';
 
-        const cells = PLATFORMS.map(p => {
-            const date = (item.pr_matrix?.[currentAccount]?.[p.key]) || null;
-            const done = !!date;
-            return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
-                <button class="matrix-check${done?' matrix-check--done':''}"
-                    data-matrix-id="${item._id}"
-                    data-matrix-platform="${p.key}"
-                    title="${done ? 'Done: '+date+'. Click to unmark.' : 'Mark done on '+esc(p.label)}">${done ? '✓' : ''}</button>
-            </td>`;
-        }).join('');
+        const cells = accountKeys.map(accKey =>
+            PLATFORMS.map(p => {
+                const date = (item.pr_matrix?.[accKey]?.[p.key]) || null;
+                const done = !!date;
+                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
+                    <button class="matrix-check${done?' matrix-check--done':''}"
+                        data-matrix-id="${item._id}"
+                        data-matrix-account="${accKey}"
+                        data-matrix-platform="${p.key}"
+                        title="${done ? 'Done: '+date+'. Click to unmark.' : 'Mark done · '+esc(ACCOUNTS[accKey].name)+' · '+esc(p.label)}">${done ? '✓' : ''}</button>
+                </td>`;
+            }).join('')
+        ).join('');
 
         return `<tr>
             <td class="matrix-td-item">
@@ -1377,29 +1397,55 @@ function renderMatrix() {
 
     document.getElementById('matrixBody').innerHTML = `<div class="matrix-scroll">
         <table class="matrix-table">
-            <thead><tr><th class="matrix-th-item">Item</th>${thPlats}</tr></thead>
+            <thead>
+                <tr><th class="matrix-th-item" rowspan="2">Item</th>${thAccounts}</tr>
+                <tr>${thPlats}</tr>
+            </thead>
             <tbody>${rows}</tbody>
         </table>
     </div>`;
 
     document.getElementById('matrixBody').querySelectorAll('[data-matrix-id]').forEach(btn => {
-        btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixPlatform));
+        btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixAccount, btn.dataset.matrixPlatform));
     });
 }
 
-async function toggleMatrixCell(itemId, platform) {
+async function toggleMatrixCell(itemId, account, platform) {
     const src = allSources.find(s => s._id === itemId);
     if (!src) return;
-    const date = (src.pr_matrix?.[currentAccount]?.[platform]) || null;
+    const date = (src.pr_matrix?.[account]?.[platform]) || null;
     if (date) {
-        if (!confirm(`Remove PR mark for ${platform} on ${date}?`)) return;
-        await unmark(src, platform);
+        if (!confirm(`Remove PR mark for ${platform} (${ACCOUNTS[account]?.name || account}) on ${date}?`)) return;
+        await unmarkMatrix(src, account, platform);
     } else {
-        await quickMarkPr(src, platform);
+        await quickMarkPr(src, account, platform);
     }
 }
 
-async function quickMarkPr(src, platform) {
+async function unmarkMatrix(src, account, platform) {
+    const url = src._sourceKind === 'paper'
+        ? `${API}/api/papers/${src._id}`
+        : `${API}/api/news/${src._id}`;
+    try {
+        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
+        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const fresh = all.find(x => x.id === src._id);
+        if (!fresh) throw new Error('Not found');
+        const newMatrix = { ...(fresh.pr_matrix || {}) };
+        if (newMatrix[account]) {
+            newMatrix[account] = { ...newMatrix[account] };
+            delete newMatrix[account][platform];
+        }
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix }) });
+        if (!res.ok) throw new Error('Unmark failed');
+        src.pr_matrix = newMatrix;
+        src.pr = buildPrFromMatrix(newMatrix, currentAccount);
+        renderOverview();
+        renderMatrix();
+    } catch(e) { alert('Failed to unmark: ' + e.message); }
+}
+
+async function quickMarkPr(src, account, platform) {
     const date = new Date().toISOString().slice(0, 10);
     const url = src._sourceKind === 'paper'
         ? `${API}/api/papers/${src._id}`
@@ -1409,12 +1455,14 @@ async function quickMarkPr(src, platform) {
         const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
         const fresh = all.find(x => x.id === src._id);
         if (!fresh) throw new Error('Not found');
-        const newMatrix = { ...(fresh.pr_matrix||{}), [currentAccount]: { ...(fresh.pr_matrix?.[currentAccount]||{}), [platform]: date } };
+        const newMatrix = { ...(fresh.pr_matrix||{}), [account]: { ...(fresh.pr_matrix?.[account]||{}), [platform]: date } };
         const newPr = { ...(fresh.pr||{}), [platform]: { ...(fresh.pr?.[platform]||{}), date } };
-        const newLogs = [...(fresh.pr_logs||[]), { account: currentAccount, platform, date, url: null, content: null }];
+        const newLogs = [...(fresh.pr_logs||[]), { account, platform, date, url: null, content: null }];
         const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix, pr: newPr, pr_logs: newLogs }) });
         if (!res.ok) throw new Error('Save failed');
-        src.pr_matrix = newMatrix; src.pr = newPr; src.pr_logs = newLogs;
+        src.pr_matrix = newMatrix;
+        src.pr = buildPrFromMatrix(newMatrix, currentAccount);
+        src.pr_logs = newLogs;
         renderOverview();
         renderMatrix();
     } catch(e) { alert('Failed to mark: ' + e.message); }
