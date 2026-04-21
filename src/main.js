@@ -310,7 +310,7 @@ function updateSidebarLink(user) {
         const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
         // Order: PR Tool → Conference Tracker → News Management
         if (isAdminOrOwner && !sidebarPRLink) {
-            sidebarPRLink = makeSidebarLink('/pr-tool.html?view=hub', 'PR Tool', '2rem');
+            sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '2rem');
             logo.insertAdjacentElement('afterend', sidebarPRLink);
         } else if (!isAdminOrOwner && sidebarPRLink) {
             sidebarPRLink.remove();
