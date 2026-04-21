@@ -313,6 +313,8 @@
         .matrix-table tbody tr { border-bottom: 1px solid #f1f5f9; }
         .matrix-table tbody tr:hover { background: #fafafa; }
         .matrix-table tbody tr:hover .matrix-td-item { background: #fafafa; }
+        .matrix-row--target { background: #fef9c3 !important; }
+        .matrix-row--target .matrix-td-item { background: #fef9c3 !important; }
         .matrix-td-cell { text-align: center; padding: 0.3rem 0.15rem; vertical-align: middle; }
         .matrix-td-cell--done { background: #f0fdf4; }
         .matrix-item-title { font-size: 0.8rem; font-weight: 500; color: #1e293b; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -1455,7 +1457,7 @@ function renderMatrix() {
             }).join('')
         ).join('');
 
-        return `<tr>
+        return `<tr data-item-id="${item._id}">
             <td class="matrix-td-item">
                 <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
                 ${metaHtml}${ownerHtml}
@@ -1477,6 +1479,18 @@ function renderMatrix() {
     document.getElementById('matrixBody').querySelectorAll('[data-matrix-id]').forEach(btn => {
         btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixAccount, btn.dataset.matrixPlatform));
     });
+
+    // Scroll to and highlight target row from ?paper=ID or ?news=ID URL param
+    const _targetItemId = new URLSearchParams(window.location.search).get('paper')
+                        || new URLSearchParams(window.location.search).get('news');
+    if (_targetItemId) {
+        const targetRow = document.querySelector(`tr[data-item-id="${_targetItemId}"]`);
+        if (targetRow) {
+            document.querySelectorAll('tr[data-item-id]').forEach(r => r.classList.remove('matrix-row--target'));
+            targetRow.classList.add('matrix-row--target');
+            setTimeout(() => targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+        }
+    }
 }
 
 async function toggleMatrixCell(itemId, account, platform) {
