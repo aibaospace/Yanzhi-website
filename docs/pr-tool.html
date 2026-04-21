@@ -924,6 +924,10 @@ async function init() {
     } catch { showGate(); return; }
     const urlAccount = new URLSearchParams(location.search).get('account');
     if (urlAccount && ACCOUNTS[urlAccount]) applyAccount(urlAccount);
+    const urlView = new URLSearchParams(location.search).get('view');
+    if (urlView === 'hub' || urlView === 'tools') {
+        document.querySelector(`[data-view="${urlView}"]`)?.click();
+    }
     loadData();
 }
 function showGate() { document.getElementById('prGate').classList.add('visible'); }
