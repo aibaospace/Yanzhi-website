@@ -1601,20 +1601,34 @@ async function toggleProductPostCell(postId, account, platform) {
     if (!product) return;
     const postIdx = (product.posts || []).findIndex(p => p.id === postId);
     if (postIdx === -1) return;
-    const post = product.posts[postIdx];
-    const currentMatrix = JSON.parse(JSON.stringify(post.pr_matrix || {}));
-    const currentDate = currentMatrix?.[account]?.[platform] || null;
+    const refPost = product.posts[postIdx];
+    const content = refPost.content || '';
+    const today = new Date().toISOString().slice(0, 10);
+    const platLabel = (PLATFORMS.find(pl => pl.key === platform)?.label || platform).split(' ')[0];
+    const campaignTitle = content ? `${product.title} - ${content}` : product.title;
 
-    if (currentDate) {
-        if (!confirm(`Remove PR mark for ${platform} (${ACCOUNTS[account]?.name || account}) on ${currentDate}?`)) return;
-        if (currentMatrix[account]) delete currentMatrix[account][platform];
+    const hasMark = !!(refPost.pr_matrix?.[account]?.[platform]);
+    const originalPosts = JSON.parse(JSON.stringify(product.posts));
+
+    if (hasMark) {
+        // Remove old pr_matrix mark (backwards compat)
+        if (!confirm(`Remove PR mark for ${platLabel}?`)) return;
+        const matrix = JSON.parse(JSON.stringify(refPost.pr_matrix || {}));
+        if (matrix[account]) delete matrix[account][platform];
+        product.posts[postIdx] = { ...refPost, pr_matrix: matrix };
     } else {
-        const today = new Date().toISOString().slice(0, 10);
-        if (!currentMatrix[account]) currentMatrix[account] = {};
-        currentMatrix[account][platform] = today;
+        // Create a real post — same format as campaign.html
+        if (!confirm(`Add a ${platLabel} post for "${campaignTitle}" dated ${today}?`)) return;
+        product.posts = [...product.posts, {
+            id: 'post_' + Date.now(),
+            platform,
+            date: today,
+            content,
+            url: '',
+            metrics: {},
+        }];
     }
-    const updatedPost = { ...post, pr_matrix: currentMatrix };
-    product.posts[postIdx] = updatedPost;
+
     try {
         const res = await fetch(`${API}/api/pr-sources/${product.id}`, {
             method: 'PUT',
@@ -1624,8 +1638,9 @@ async function toggleProductPostCell(postId, account, platform) {
         if (!res.ok) throw new Error('Save failed');
         renderOverview();
         renderMatrix();
+        if (currentHubType) renderDetail();
     } catch(e) {
-        product.posts[postIdx] = post; // revert
+        product.posts = originalPosts;
         alert('Failed to save: ' + e.message);
     }
 }
