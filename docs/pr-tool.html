@@ -1139,9 +1139,12 @@ function renderProductCalendar(products) {
         const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const isToday = ds === today;
         const entries = dateMap[ds] || [];
-        const entriesHtml = entries.map(e =>
-            `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}" title="${e.platform}"></span><span class="hub-cal-entry-name" title="${esc(e.title)}">${esc(e.title)}</span></div>`
-        ).join('');
+        const entriesHtml = entries.map(e => {
+            const platLabel = (PLATFORMS.find(pl => pl.key === e.platform)?.label || e.platform).split(' ')[0];
+            const parts = [e.title, e.content, platLabel].filter(Boolean);
+            const displayText = parts.join(' - ');
+            return `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}" title="${platLabel}"></span><span class="hub-cal-entry-name" title="${esc(displayText)}">${esc(displayText)}</span></div>`;
+        }).join('');
         cells += `<div class="hub-cal-day${isToday?' hub-cal-day--today':''}"><div class="hub-cal-day-num">${d}</div>${entriesHtml}</div>`;
     }
     for (let i = 0; i < trailingCells; i++) cells += `<div class="hub-cal-day hub-cal-day--other"></div>`;
