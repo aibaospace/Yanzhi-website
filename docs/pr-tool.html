@@ -442,6 +442,7 @@
         <button class="matrix-filter-btn active" data-mfilter="all">All</button>
         <button class="matrix-filter-btn" data-mfilter="paper">Papers</button>
         <button class="matrix-filter-btn" data-mfilter="news">News</button>
+        <button class="matrix-filter-btn" data-mfilter="product">Products</button>
         <span class="matrix-count" id="matrixCount"></span>
         <button class="matrix-log-btn" id="matrixLogPrBtn">✏️ Log PR</button>
     </div>
@@ -736,7 +737,7 @@ let allSources = [], token = null, editingSourceId = null, contentViewSource = n
 let currentView = 'matrix';   // 'matrix' | 'hub' | 'tools'
 let currentHubType = null;    // null = overview, string = drilled into category
 let calendarMonth = new Date().toISOString().slice(0, 7); // "2026-04"
-let matrixFilter = 'all';     // 'all' | 'paper' | 'news'
+let matrixFilter = 'all';     // 'all' | 'paper' | 'news' | 'product'
 
 // ── Account switcher ──────────────────────────────────────────────────────────
 const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y',bg:'#eff6ff'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E',bg:'#faf5ff'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M',bg:'#f0f9ff'} };
@@ -814,7 +815,7 @@ applyAccount(currentAccount);
 applyMatrixFilter('all'); // matrix default: show all accounts
 // Apply filter from URL param (e.g. ?filter=paper from Paper Management link)
 const _urlFilter = new URLSearchParams(window.location.search).get('filter');
-if (_urlFilter === 'paper' || _urlFilter === 'news') {
+if (_urlFilter === 'paper' || _urlFilter === 'news' || _urlFilter === 'product') {
     matrixFilter = _urlFilter;
     document.querySelectorAll('[data-mfilter]').forEach(b => b.classList.toggle('active', b.dataset.mfilter === matrixFilter));
 }
@@ -849,6 +850,7 @@ document.querySelectorAll('[data-mfilter]').forEach(btn => {
 });
 document.getElementById('matrixLogPrBtn').addEventListener('click', () => {
     if (matrixFilter === 'news') openLogPrNewsModal();
+    else if (matrixFilter === 'product') openLogPrModal();
     else openLogPrModal();
 });
 
@@ -1393,9 +1395,10 @@ function renderMatrix() {
     const matrixView = document.getElementById('matrixView');
     if (!matrixView) return;
 
-    let items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
-    if (matrixFilter === 'paper') items = items.filter(s => s._sourceKind === 'paper');
-    if (matrixFilter === 'news')  items = items.filter(s => s._sourceKind === 'news');
+    let items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news' || s.type === 'product');
+    if (matrixFilter === 'paper')   items = items.filter(s => s._sourceKind === 'paper');
+    if (matrixFilter === 'news')    items = items.filter(s => s._sourceKind === 'news');
+    if (matrixFilter === 'product') items = items.filter(s => s.type === 'product');
 
     items.sort((a, b) => {
         const aT = a.createdAt ? new Date(a.createdAt).getTime() : (a._date ? new Date(a._date).getTime() : 0);
