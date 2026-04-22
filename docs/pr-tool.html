@@ -1407,7 +1407,8 @@ function renderMatrix() {
                     _id: post.id,
                     _sourceKind: 'product_post',
                     _productTitle: product.title,
-                    title: post.content || product.title,
+                    _productAccount: product.account,
+                    title: post.content ? `${product.title} - ${post.content}` : product.title,
                     link: post.url || null,
                     platform: post.platform,
                     date: post.date,
@@ -1456,19 +1457,18 @@ function renderMatrix() {
     ).join('');
 
     const rows = items.map(item => {
-        // ── Product posts: platform badge + content/caption as title ──
+        // ── Product posts: "Product" badge + "Product Name - Caption" title ──
         if (item._sourceKind === 'product_post') {
-            const platColor = CAL_PLAT_COLORS[item.platform] || '#64748b';
-            const platBg    = CAL_PLAT_BG[item.platform] || '#f1f5f9';
-            const platLabel = (PLATFORMS.find(p => p.key === item.platform)?.label || item.platform).split(' ')[0];
-            const typeBadge = `<span class="matrix-type-badge" style="background:${platBg};color:${platColor}">${platLabel}</span>`;
+            const typeBadge = `<span class="matrix-type-badge" style="background:#f0f9ff;color:#0891b2">Product</span>`;
             const titleLink = item.link
                 ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
                 : esc(item.title);
-            const metaHtml = `<div class="matrix-item-meta">${esc(item._productTitle)} · ${item.date}</div>`;
+            const platLabel = (PLATFORMS.find(p => p.key === item.platform)?.label || item.platform).split(' ')[0];
+            const metaHtml = `<div class="matrix-item-meta">${platLabel} · ${item.date}</div>`;
             const cells = accountKeys.map(accKey =>
                 PLATFORMS.map((p, pIdx) => {
-                    const isDone = p.key === item.platform;
+                    // ✓ only for the account that owns this product + this post's platform
+                    const isDone = accKey === item._productAccount && p.key === item.platform;
                     const isLast = pIdx === PLATFORMS.length - 1;
                     return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>
                         <div class="matrix-check${isDone?' matrix-check--done':''}" style="cursor:default">${isDone ? '✓' : ''}</div>
