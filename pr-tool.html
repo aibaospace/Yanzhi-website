@@ -1418,9 +1418,27 @@ function renderMatrix() {
         }
         items = postRows;
     } else {
-        items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news' || s.type === 'product');
-        if (matrixFilter === 'paper') items = items.filter(s => s._sourceKind === 'paper');
-        if (matrixFilter === 'news')  items = items.filter(s => s._sourceKind === 'news');
+        // Expand products into posts for 'all', 'paper', and 'news' filters too
+        const expandedProductPosts = [];
+        for (const product of allSources.filter(s => s.type === 'product')) {
+            for (const post of (product.posts || [])) {
+                expandedProductPosts.push({
+                    _id: post.id,
+                    _sourceKind: 'product_post',
+                    _productTitle: product.title,
+                    _productAccount: product.account,
+                    title: post.content ? `${product.title} - ${post.content}` : product.title,
+                    link: post.url || null,
+                    platform: post.platform,
+                    date: post.date,
+                    createdAt: post.date ? post.date + 'T00:00:00Z' : null,
+                });
+            }
+        }
+        const papersAndNews = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
+        if (matrixFilter === 'paper') items = papersAndNews.filter(s => s._sourceKind === 'paper');
+        else if (matrixFilter === 'news') items = papersAndNews.filter(s => s._sourceKind === 'news');
+        else items = [...papersAndNews, ...expandedProductPosts]; // 'all'
     }
 
     items.sort((a, b) => {
