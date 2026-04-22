@@ -1406,6 +1406,7 @@ function renderMatrix() {
                 postRows.push({
                     _id: post.id,
                     _sourceKind: 'product_post',
+                    _productId: product.id,
                     _productTitle: product.title,
                     _productAccount: product.account,
                     title: post.content ? `${product.title} - ${post.content}` : product.title,
@@ -1413,6 +1414,7 @@ function renderMatrix() {
                     platform: post.platform,
                     date: post.date,
                     createdAt: post.date ? post.date + 'T00:00:00Z' : null,
+                    pr_matrix: post.pr_matrix || {},
                 });
             }
         }
@@ -1485,12 +1487,19 @@ function renderMatrix() {
             const metaHtml = `<div class="matrix-item-meta">${platLabel} · ${item.date}</div>`;
             const cells = accountKeys.map(accKey =>
                 PLATFORMS.map((p, pIdx) => {
-                    // ✓ only for the account that owns this product + this post's platform
-                    const isDone = accKey === item._productAccount && p.key === item.platform;
+                    const isOwn = accKey === item._productAccount && p.key === item.platform;
+                    const manualDone = !!(item.pr_matrix?.[accKey]?.[p.key]);
+                    const isDone = isOwn || manualDone;
+                    const doneDate = isOwn ? item.date : (item.pr_matrix?.[accKey]?.[p.key] || null);
                     const isLast = pIdx === PLATFORMS.length - 1;
-                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>
-                        <div class="matrix-check${isDone?' matrix-check--done':''}" style="cursor:default">${isDone ? '✓' : ''}</div>
-                    </td>`;
+                    const inner = isOwn
+                        ? `<div class="matrix-check matrix-check--done" style="cursor:default" title="Logged via campaign (${item.date})">✓</div>`
+                        : `<button class="matrix-check${isDone?' matrix-check--done':''}"
+                            data-ppost-id="${esc(item._id)}"
+                            data-ppost-account="${accKey}"
+                            data-ppost-platform="${p.key}"
+                            title="${isDone ? 'Done: '+doneDate+'. Click to unmark.' : 'Mark done · '+(ACCOUNTS[accKey]?.name||accKey)+' · '+p.label.split(' ')[0]}">${isDone ? '✓' : ''}</button>`;
+                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>${inner}</td>`;
                 }).join('')
             ).join('');
             return `<tr data-item-id="${item._id}">
@@ -1554,6 +1563,9 @@ function renderMatrix() {
     document.getElementById('matrixBody').querySelectorAll('[data-matrix-id]').forEach(btn => {
         btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixAccount, btn.dataset.matrixPlatform));
     });
+    document.getElementById('matrixBody').querySelectorAll('[data-ppost-id]').forEach(btn => {
+        btn.addEventListener('click', () => toggleProductPostCell(btn.dataset.ppostId, btn.dataset.ppostAccount, btn.dataset.ppostPlatform));
+    });
 
     // Scroll to and highlight target row from ?paper=ID or ?news=ID URL param
     const _targetItemId = new URLSearchParams(window.location.search).get('paper')
@@ -1565,6 +1577,40 @@ function renderMatrix() {
             targetRow.classList.add('matrix-row--target');
             setTimeout(() => targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
         }
+    }
+}
+
+async function toggleProductPostCell(postId, account, platform) {
+    const product = allSources.find(s => s.type === 'product' && (s.posts || []).some(p => p.id === postId));
+    if (!product) return;
+    const postIdx = (product.posts || []).findIndex(p => p.id === postId);
+    if (postIdx === -1) return;
+    const post = product.posts[postIdx];
+    const currentMatrix = JSON.parse(JSON.stringify(post.pr_matrix || {}));
+    const currentDate = currentMatrix?.[account]?.[platform] || null;
+
+    if (currentDate) {
+        if (!confirm(`Remove PR mark for ${platform} (${ACCOUNTS[account]?.name || account}) on ${currentDate}?`)) return;
+        if (currentMatrix[account]) delete currentMatrix[account][platform];
+    } else {
+        const today = new Date().toISOString().slice(0, 10);
+        if (!currentMatrix[account]) currentMatrix[account] = {};
+        currentMatrix[account][platform] = today;
+    }
+    const updatedPost = { ...post, pr_matrix: currentMatrix };
+    product.posts[postIdx] = updatedPost;
+    try {
+        const res = await fetch(`${API}/api/pr-sources/${product.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify(product),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        renderOverview();
+        renderMatrix();
+    } catch(e) {
+        product.posts[postIdx] = post; // revert
+        alert('Failed to save: ' + e.message);
     }
 }
 
