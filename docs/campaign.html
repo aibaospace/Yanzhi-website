@@ -13,13 +13,17 @@
         body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
 
         /* ── Header ── */
-        .cp-header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 2rem; }
-        .cp-header-inner { max-width: 1100px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 1rem; }
-        .cp-back { font-size: 13px; color: #64748b; text-decoration: none; }
-        .cp-back:hover { color: #1d4ed8; text-decoration: underline; }
-        .cp-sep { color: #cbd5e1; font-size: 1.2rem; }
-        .cp-header-title { font-size: 1rem; font-weight: 700; color: #1e293b; }
-        .cp-header-sub { font-size: 0.8rem; color: #94a3b8; }
+        .pr-header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 2rem; }
+        .pr-header-inner { max-width: 1100px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 1rem; }
+        .pr-back { font-size: 13px; color: #64748b; text-decoration: none; }
+        .pr-back:hover { color: #1d4ed8; text-decoration: underline; }
+        .pr-header-sep { color: #cbd5e1; }
+        .pr-header-title { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .pr-view-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-left: 0.25rem; }
+        .pr-view-btn { padding: 0.3rem 0.875rem; font-size: 0.82rem; font-weight: 600; border: none; background: #f8fafc; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; text-decoration: none; display: inline-block; line-height: 1.6; }
+        .pr-view-btn + .pr-view-btn { border-left: 1px solid #e2e8f0; }
+        .pr-view-btn.active { background: #1e293b; color: #fff; }
+        .pr-view-btn:hover:not(.active) { background: #f1f5f9; }
 
         /* ── Auth gate ── */
         .cp-gate { display: none; position: fixed; inset: 0; background: #f8fafc; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; z-index: 999; }
@@ -30,110 +34,85 @@
         .cp-gate-btn { margin-top: 0.5rem; padding: 0.5rem 1.25rem; background: #1e293b; color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; }
 
         /* ── Page body ── */
-        .cp-body { max-width: 1100px; margin: 0 auto; padding: 1.75rem 2rem 4rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        .cp-body { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
 
         /* ── Hero ── */
-        .cp-hero { display: flex; align-items: center; gap: 1.25rem; }
-        .cp-hero-icon { font-size: 2.5rem; }
+        .cp-hero { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+        .cp-hero-icon { font-size: 2rem; flex-shrink: 0; }
         .cp-hero-info { flex: 1; min-width: 0; }
-        .cp-hero-name { font-size: 1.7rem; font-weight: 700; color: #0f172a; }
-        .cp-hero-desc { font-size: 0.875rem; color: #64748b; margin-top: 0.2rem; }
-        .cp-hero-link { font-size: 0.8rem; color: #1d4ed8; text-decoration: none; }
+        .cp-hero-name { font-size: 1.2rem; font-weight: 700; color: #0f172a; }
+        .cp-hero-desc { font-size: 0.85rem; color: #64748b; margin-top: 0.15rem; }
+        .cp-hero-link { font-size: 0.8rem; color: #1d4ed8; text-decoration: none; display: inline-block; margin-top: 0.25rem; }
         .cp-hero-link:hover { text-decoration: underline; }
 
-        /* ── Cards ── */
-        .cp-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem 1.5rem; }
-        .cp-card-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 1rem; }
+        /* ── News-Management-style list ── */
+        .pt-table { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #fff; }
 
-        /* ── Schedule section ── */
-        .cp-schedule-grid { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 0.875rem; align-items: end; }
-        .cp-field { display: flex; flex-direction: column; gap: 0.3rem; }
-        .cp-field label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
-        .cp-field input, .cp-field select { padding: 0.45rem 0.65rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.875rem; background: #f8fafc; color: #1e293b; }
-        .cp-field input:focus, .cp-field select:focus { outline: none; border-color: #94a3b8; background: #fff; }
-        .cp-platforms-wrap { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
-        .cp-platform-toggle { display: flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 20px; background: #fff; font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.15s; }
-        .cp-platform-toggle.on { border-color: #1e293b; color: #1e293b; background: #f8fafc; }
-        .cp-save-btn { padding: 0.45rem 1.1rem; background: #1e293b; color: #fff; border: none; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; align-self: end; }
-        .cp-save-btn:hover { background: #0f172a; }
-        .cp-save-btn:disabled { background: #94a3b8; cursor: default; }
-        .cp-save-ok { display: none; font-size: 0.78rem; color: #16a34a; margin-left: 0.5rem; }
-        .cp-save-ok.show { display: inline; }
+        /* Filter bar (top of table) */
+        .paper-filters { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+        .paper-filters select { padding: 0.4rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem; background: #f8fafc; color: #1e293b; font-family: inherit; cursor: pointer; }
 
-        /* ── Timeline strip ── */
-        .cp-timeline { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
-        .cp-tl-day { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; flex-shrink: 0; }
-        .cp-tl-dot { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; border: 2px solid transparent; cursor: default; transition: transform 0.15s; }
-        .cp-tl-dot--past    { background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; }
-        .cp-tl-dot--today   { background: #eff6ff; color: #1d4ed8; border-color: #1d4ed8; }
-        .cp-tl-dot--future  { background: #fff; color: #cbd5e1; border-color: #e2e8f0; }
-        .cp-tl-dot--posted  { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
-        .cp-tl-dot--posted:hover { transform: scale(1.08); }
-        .cp-tl-label { font-size: 0.62rem; color: #94a3b8; white-space: nowrap; }
-        .cp-tl-platforms { display: flex; gap: 2px; }
-        .cp-tl-plat-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .cp-timeline-empty { font-size: 0.85rem; color: #94a3b8; padding: 1rem 0; }
+        /* Column header */
+        .pt-header-row { display: flex; align-items: center; padding: 0.4rem 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+        .pt-row-title-header { flex: 1; }
 
-        /* ── Post log ── */
-        .cp-log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-        .cp-log-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; }
-        .cp-add-post-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.875rem; background: #1e293b; color: #fff; border: none; border-radius: 7px; font-family: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
-        .cp-add-post-btn:hover { background: #0f172a; }
+        /* Data rows */
+        .pt-row { display: flex; align-items: flex-start; padding: 0.6rem 0.75rem; border-bottom: 1px solid #f1f5f9; gap: 0; }
+        .pt-row:last-child { border-bottom: none; }
+        .pt-row:hover { background: #fafbfc; }
 
-        .cp-post-list { display: flex; flex-direction: column; gap: 0.625rem; }
-        .cp-post-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.875rem 1rem; display: flex; align-items: flex-start; gap: 1rem; transition: box-shadow 0.15s; }
-        .cp-post-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-        .cp-post-plat { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; min-width: 90px; }
-        .cp-post-date { font-size: 0.78rem; color: #64748b; flex-shrink: 0; min-width: 90px; }
-        .cp-post-metrics { display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1; }
-        .cp-post-metric { display: flex; flex-direction: column; gap: 0.1rem; }
-        .cp-post-metric-val { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
-        .cp-post-metric-lbl { font-size: 0.62rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
-        .cp-post-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
-        .cp-post-link-btn { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.15s; }
-        .cp-post-link-btn:hover { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-        .cp-post-edit-btn { padding: 0.25rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; color: #94a3b8; font-size: 0.78rem; cursor: pointer; }
-        .cp-post-edit-btn:hover { background: #f1f5f9; color: #475569; }
-        .cp-post-del-btn { padding: 0.25rem 0.5rem; border: 1px solid #fca5a5; border-radius: 6px; background: #fff; color: #ef4444; font-size: 0.78rem; cursor: pointer; }
-        .cp-post-del-btn:hover { background: #fef2f2; }
-        .cp-log-empty { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.875rem; }
+        /* Title cell */
+        .pt-row-title { flex: 1; font-size: 0.8rem; color: #1e293b; padding-right: 0.75rem; min-width: 0; }
+        .pt-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; margin-bottom: 0.25rem; }
+        .pt-meta-platform { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+        .pt-meta-date { font-size: 0.68rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 3px; padding: 0 4px; }
+        .pt-row-title-text { font-size: 0.82rem; font-weight: 600; color: #1e293b; line-height: 1.4; word-break: break-word; }
+        .pt-title-link { color: inherit; text-decoration: underline; text-decoration-color: #94a3b8; text-underline-offset: 2px; }
+        .pt-title-link:hover { color: #1d4ed8; text-decoration-color: #1d4ed8; }
+        .pt-row-content { font-size: 0.72rem; color: #64748b; margin-top: 0.2rem; }
 
-        /* ── Stats summary ── */
-        .cp-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .cp-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.875rem 1.25rem; flex: 1; min-width: 110px; }
-        .cp-stat-num { font-size: 1.6rem; font-weight: 700; line-height: 1; color: #0f172a; }
-        .cp-stat-lbl { font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; }
+        /* Metrics chips */
+        .pt-metrics-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+        .pt-metric-chip { font-size: 0.68rem; color: #475569; background: #f1f5f9; border-radius: 4px; padding: 0.1rem 0.45rem; }
+        .pt-metric-chip strong { font-weight: 700; color: #1e293b; }
 
-        /* ── Modal ── */
-        .cp-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
-        .cp-modal-overlay.open { display: flex; }
-        .cp-modal { background: #fff; border-radius: 14px; width: 540px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .cp-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
-        .cp-modal-title { font-size: 0.95rem; font-weight: 700; }
-        .cp-modal-close { background: none; border: none; font-size: 16px; color: #94a3b8; cursor: pointer; }
-        .cp-modal-close:hover { color: #1e293b; }
-        .cp-modal-body { padding: 1.25rem; overflow-y: auto; flex: 1; }
-        .cp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-        .cp-form-full { grid-column: 1 / -1; }
-        .cp-form-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
-        .cp-form-field input, .cp-form-field select, .cp-form-field textarea { padding: 0.45rem 0.65rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.875rem; background: #f8fafc; color: #1e293b; }
-        .cp-form-field input:focus, .cp-form-field select:focus { outline: none; border-color: #94a3b8; background: #fff; }
-        .cp-metrics-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
-        .cp-metrics-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 0.75rem; }
-        .cp-modal-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
-        .cp-btn-primary { padding: 0.5rem 1.1rem; background: #1e293b; color: #fff; border: none; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
-        .cp-btn-primary:hover { background: #0f172a; }
-        .cp-btn-secondary { padding: 0.5rem 1.1rem; background: none; border: 1px solid #e2e8f0; color: #475569; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
-        .cp-btn-secondary:hover { background: #f8fafc; }
-        .cp-btn-danger { padding: 0.5rem 1.1rem; background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; margin-left: auto; }
-        .cp-btn-danger:hover { background: #fef2f2; }
+        /* Actions column */
+        .pt-row-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; width: 80px; justify-content: flex-end; padding-top: 0.15rem; }
+        .pt-delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 12px; padding: 0.2rem 0.3rem; border-radius: 4px; line-height: 1; }
+        .pt-delete-btn:hover { background: #fef2f2; color: #ef4444; }
 
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-size: 0.875rem; transition: all 0.15s; line-height: 1; }
+        .btn--primary { background: #1e293b; color: #fff; border-color: #1e293b; }
+        .btn--primary:hover { background: #0f172a; }
+        .btn--secondary { background: #fff; color: #374151; border-color: #e2e8f0; }
+        .btn--secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .btn--danger { background: #fff; color: #ef4444; border-color: #fca5a5; margin-left: auto; }
+        .btn--danger:hover { background: #fef2f2; }
+        .btn--small { padding: 0.25rem 0.6rem; font-size: 0.8rem; border-radius: 6px; }
+
+        /* Inline form */
+        .paper-form { background: #fff; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 1rem 0.75rem; }
+        .paper-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .paper-form-grid label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .paper-form-grid input, .paper-form-grid select { padding: 0.4rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem; background: #f8fafc; color: #1e293b; font-family: inherit; }
+        .paper-form-grid input:focus, .paper-form-grid select:focus { outline: none; border-color: #94a3b8; background: #fff; }
+        .paper-form-metrics { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; }
+        .paper-form-metrics-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 0.5rem; }
+        .paper-form-metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        .paper-form-metrics-grid label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; font-weight: 600; color: #64748b; }
+        .paper-form-metrics-grid input { padding: 0.35rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 5px; font-size: 0.82rem; background: #f8fafc; color: #1e293b; font-family: inherit; }
+        .paper-form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+
+        /* Empty / loading */
+        .pt-empty { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.875rem; }
         .cp-loading { text-align: center; padding: 4rem; color: #94a3b8; font-size: 0.9rem; }
 
         @media (max-width: 700px) {
-            .cp-schedule-grid { grid-template-columns: 1fr 1fr; }
-            .cp-form-grid { grid-template-columns: 1fr; }
-            .cp-stats-row { gap: 0.5rem; }
+            .paper-form-grid { grid-template-columns: 1fr; }
+            .paper-form-metrics-grid { grid-template-columns: 1fr 1fr; }
+            .cp-body { padding: 1rem 1rem 4rem; }
+            .pr-header { padding: 0 1rem; }
         }
     </style>
 </head>
@@ -146,143 +125,68 @@
     <a class="cp-gate-btn" href="/pr-tool.html">← PR Tool</a>
 </div>
 
-<header class="cp-header">
-    <div class="cp-header-inner">
-        <a href="/pr-tool.html" class="cp-back">← PR Tool</a>
-        <span class="cp-sep">|</span>
-        <span class="cp-header-title" id="headerTitle">Campaign</span>
+<header class="pr-header">
+    <div class="pr-header-inner">
+        <a href="/pr-tool.html" class="pr-back">← PR Tool</a>
+        <span class="pr-header-sep">|</span>
+        <span class="pr-header-title" id="headerTitle">Campaign</span>
+        <div class="pr-view-toggle">
+            <span class="pr-view-btn active">Posts</span>
+            <a class="pr-view-btn" id="prMatrixLink" href="/pr-tool.html?filter=product" target="_blank" rel="noopener noreferrer">PR Matrix</a>
+        </div>
     </div>
 </header>
 
 <div class="cp-body" id="cpBody" style="display:none">
 
-    <!-- Hero -->
+    <!-- Hero: product info -->
     <div class="cp-hero">
         <div class="cp-hero-icon" id="heroIcon">📦</div>
         <div class="cp-hero-info">
             <div class="cp-hero-name" id="heroName">Loading…</div>
             <div class="cp-hero-desc" id="heroDesc"></div>
-            <a class="cp-hero-link" id="heroLink" href="#" target="_blank" rel="noopener" style="display:none">↗ Visit Link</a>
+            <a class="cp-hero-link" id="heroLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↗ Visit Link</a>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="cp-stats-row" id="statsRow">
-        <div class="cp-stat"><div class="cp-stat-num" id="statPosts">0</div><div class="cp-stat-lbl">Posts Logged</div></div>
-        <div class="cp-stat"><div class="cp-stat-num" id="statPlatforms">—</div><div class="cp-stat-lbl">Platforms Active</div></div>
-        <div class="cp-stat"><div class="cp-stat-num" id="statFreq">—</div><div class="cp-stat-lbl">Frequency</div></div>
-        <div class="cp-stat"><div class="cp-stat-num" id="statNext">—</div><div class="cp-stat-lbl">Next Post</div></div>
+    <!-- Post list (News Management style) -->
+    <div class="pt-table">
+        <div class="paper-filters">
+            <select id="filterPlatform">
+                <option value="all">All Platforms</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="x">X (Twitter)</option>
+                <option value="rednote">Rednote</option>
+                <option value="wechat">WeChat</option>
+            </select>
+            <button class="btn btn--primary btn--small" id="addPostBtn">+ Log Post</button>
+        </div>
+        <div class="pt-header-row">
+            <div class="pt-row-title-header">Posts</div>
+            <div style="width:80px"></div>
+        </div>
+        <div id="postList"><div class="cp-loading">Loading…</div></div>
     </div>
 
-    <!-- Schedule setup -->
-    <div class="cp-card">
-        <div class="cp-card-title">Campaign Schedule</div>
-        <div class="cp-schedule-grid">
-            <div class="cp-field">
-                <label>Start Date</label>
-                <input type="date" id="schedStartDate" />
-            </div>
-            <div class="cp-field">
-                <label>Frequency (days)</label>
-                <input type="number" id="schedFrequency" min="1" max="365" placeholder="e.g. 3" />
-            </div>
-            <div class="cp-field" style="grid-column: span 1">
-                <label>Platforms</label>
-                <div class="cp-platforms-wrap" id="schedPlatforms">
-                    <button class="cp-platform-toggle" data-plat="linkedin">LinkedIn</button>
-                    <button class="cp-platform-toggle" data-plat="x">X</button>
-                    <button class="cp-platform-toggle" data-plat="rednote">Rednote</button>
-                    <button class="cp-platform-toggle" data-plat="wechat">WeChat</button>
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:0.5rem;align-self:end;padding-bottom:2px">
-                <button class="cp-save-btn" id="schedSaveBtn">Save</button>
-                <span class="cp-save-ok" id="schedSaveOk">✓ Saved</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Timeline -->
-    <div class="cp-card">
-        <div class="cp-card-title">Timeline</div>
-        <div class="cp-timeline" id="timeline">
-            <div class="cp-timeline-empty">Set a schedule above to see the posting timeline.</div>
-        </div>
-    </div>
-
-    <!-- Post log -->
-    <div class="cp-card">
-        <div class="cp-log-header">
-            <div class="cp-log-title">Post Log</div>
-            <button class="cp-add-post-btn" id="addPostBtn">＋ Log Post</button>
-        </div>
-        <div id="postList"><div class="cp-log-empty">No posts logged yet.</div></div>
-    </div>
-
-</div>
-
-<!-- Log Post modal -->
-<div class="cp-modal-overlay" id="postModal">
-    <div class="cp-modal">
-        <div class="cp-modal-header">
-            <div class="cp-modal-title" id="postModalTitle">Log Post</div>
-            <button class="cp-modal-close" id="postModalClose">✕</button>
-        </div>
-        <div class="cp-modal-body">
-            <div class="cp-form-grid">
-                <div class="cp-form-field">
-                    <label>Platform *</label>
-                    <select id="mPlatform">
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="x">X (Twitter)</option>
-                        <option value="rednote">Rednote (小红书)</option>
-                        <option value="wechat">WeChat (公众号)</option>
-                    </select>
-                </div>
-                <div class="cp-form-field">
-                    <label>Post Date *</label>
-                    <input type="date" id="mDate" />
-                </div>
-                <div class="cp-form-field cp-form-full">
-                    <label>Post URL</label>
-                    <input type="url" id="mUrl" placeholder="https://…" />
-                </div>
-            </div>
-
-            <div class="cp-metrics-section">
-                <div class="cp-metrics-label">Metrics (optional)</div>
-                <div class="cp-form-grid" id="metricsFields"></div>
-            </div>
-
-            <div class="cp-modal-actions">
-                <button class="cp-btn-primary" id="postModalSave">Save Post</button>
-                <button class="cp-btn-secondary" id="postModalCancel">Cancel</button>
-                <button class="cp-btn-danger" id="postModalDelete" style="display:none">Delete</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
 const API = 'https://conference-tracker-production.up.railway.app';
 
 const PLATFORMS = [
-    { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2',
-      metrics: ['views','likes','comments','reposts'] },
-    { key: 'x', label: 'X',             color: '#000',
-      metrics: ['views','likes','reposts'] },
-    { key: 'rednote', label: 'Rednote',  color: '#FF2442',
-      metrics: ['views','likes','saves','comments'] },
-    { key: 'wechat',  label: 'WeChat',   color: '#07C160',
-      metrics: ['reads','likes'] },
+    { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', bg: '#dbeafe', metrics: ['views','likes','comments','reposts'] },
+    { key: 'x',        label: 'X',        color: '#1e293b', bg: '#f1f5f9', metrics: ['views','likes','reposts'] },
+    { key: 'rednote',  label: 'Rednote',  color: '#FF2442', bg: '#fee2e2', metrics: ['views','likes','saves','comments'] },
+    { key: 'wechat',   label: 'WeChat',   color: '#07C160', bg: '#dcfce7', metrics: ['reads','likes'] },
 ];
 const PLAT_MAP = Object.fromEntries(PLATFORMS.map(p => [p.key, p]));
 
-const PLAT_COLORS = { linkedin:'#0A66C2', x:'#000', rednote:'#FF2442', wechat:'#07C160' };
+let token = null, source = null;
+let filterPlatform = 'all';
+let showAdd = false;
+let editingPostId = null;
 
-let token = null, source = null, editingPostId = null;
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────────
 async function init() {
     token = localStorage.getItem('ct_token');
     if (!token) { showGate(); return; }
@@ -297,12 +201,14 @@ async function init() {
 
 function showGate() { document.getElementById('cpGate').classList.add('visible'); }
 
-// ── Load source ───────────────────────────────────────────────────────────────
+// ── Load ───────────────────────────────────────────────────────────────────────
 async function loadSource() {
-    const params = new URLSearchParams(location.search);
-    const id = params.get('id');
-    if (!id) { document.getElementById('cpBody').innerHTML = '<div class="cp-loading">No product ID specified.</div>'; document.getElementById('cpBody').style.display = ''; return; }
-
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+        document.getElementById('postList').innerHTML = '<div class="cp-loading">No product ID specified.</div>';
+        document.getElementById('cpBody').style.display = '';
+        return;
+    }
     try {
         const res = await fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } });
         if (!res.ok) throw new Error();
@@ -310,20 +216,20 @@ async function loadSource() {
         source = all.find(s => s.id === id);
         if (!source) throw new Error('not found');
     } catch {
-        document.getElementById('cpBody').innerHTML = '<div class="cp-loading">Failed to load product.</div>';
+        document.getElementById('postList').innerHTML = '<div class="cp-loading">Failed to load product.</div>';
         document.getElementById('cpBody').style.display = '';
         return;
     }
-
     document.getElementById('cpBody').style.display = '';
-    renderPage();
+    renderHero();
+    renderPostList();
 }
 
-// ── Render page ───────────────────────────────────────────────────────────────
-function renderPage() {
-    // Hero
-    document.title = source.title + ' — Campaign';
+// ── Hero ───────────────────────────────────────────────────────────────────────
+function renderHero() {
+    document.title = source.title + ' — Posts';
     document.getElementById('headerTitle').textContent = source.title;
+    document.getElementById('heroIcon').textContent = source.icon || '📦';
     document.getElementById('heroName').textContent = source.title;
     document.getElementById('heroDesc').textContent = source.description || '';
     if (source.link) {
@@ -331,221 +237,157 @@ function renderPage() {
         lnk.href = source.link;
         lnk.style.display = '';
     }
-
-    // Schedule fields
-    const sched = source.schedule || {};
-    document.getElementById('schedStartDate').value = sched.startDate || '';
-    document.getElementById('schedFrequency').value = sched.frequencyDays || '';
-    const activePlats = sched.platforms || [];
-    document.querySelectorAll('.cp-platform-toggle').forEach(btn => {
-        btn.classList.toggle('on', activePlats.includes(btn.dataset.plat));
-    });
-
-    renderStats();
-    renderTimeline();
-    renderPostList();
 }
 
-function renderStats() {
-    const posts = source.posts || [];
-    const sched = source.schedule || {};
-    document.getElementById('statPosts').textContent = posts.length;
-
-    const platSet = new Set(posts.map(p => p.platform));
-    document.getElementById('statPlatforms').textContent = platSet.size || '—';
-
-    document.getElementById('statFreq').textContent = sched.frequencyDays ? `Every ${sched.frequencyDays}d` : '—';
-
-    let nextDate = null;
-    if (sched.startDate && sched.frequencyDays) {
-        const today = new Date().toISOString().slice(0, 10);
-        let d = new Date(sched.startDate + 'T00:00:00');
-        const freq = sched.frequencyDays;
-        while (d.toISOString().slice(0, 10) <= today) d.setDate(d.getDate() + freq);
-        nextDate = d.toISOString().slice(0, 10);
-    }
-    document.getElementById('statNext').textContent = nextDate || '—';
-}
-
-// ── Timeline ──────────────────────────────────────────────────────────────────
-function renderTimeline() {
-    const tl = document.getElementById('timeline');
-    const sched = source.schedule || {};
-    if (!sched.startDate || !sched.frequencyDays) {
-        tl.innerHTML = '<div class="cp-timeline-empty">Set a schedule above to see the posting timeline.</div>';
-        return;
-    }
-
-    const posts = source.posts || [];
-    const postsByDate = {};
-    for (const p of posts) {
-        if (!postsByDate[p.date]) postsByDate[p.date] = [];
-        postsByDate[p.date].push(p);
-    }
-
-    const today = new Date().toISOString().slice(0, 10);
-    const freq = sched.frequencyDays;
-    const start = new Date(sched.startDate + 'T00:00:00');
-
-    // Generate dates: from start up to 6 future ones (or at least today's range)
-    const dates = [];
-    let d = new Date(start);
-    const maxFuture = 6;
-    let futureCount = 0;
-    while (futureCount < maxFuture) {
-        const ds = d.toISOString().slice(0, 10);
-        dates.push(ds);
-        if (ds > today) futureCount++;
-        d.setDate(d.getDate() + freq);
-    }
-
-    tl.innerHTML = dates.map(ds => {
-        const isToday = ds === today;
-        const isPast = ds < today;
-        const postsOnDay = postsByDate[ds] || [];
-        const hasPost = postsOnDay.length > 0;
-
-        let dotClass = 'cp-tl-dot--future';
-        if (hasPost) dotClass = 'cp-tl-dot--posted';
-        else if (isToday) dotClass = 'cp-tl-dot--today';
-        else if (isPast) dotClass = 'cp-tl-dot--past';
-
-        const label = fmtDateShort(ds);
-        const platDots = postsOnDay.map(p =>
-            `<span class="cp-tl-plat-dot" style="background:${PLAT_COLORS[p.platform]||'#cbd5e1'}" title="${PLAT_MAP[p.platform]?.label||p.platform}"></span>`
-        ).join('');
-
-        return `<div class="cp-tl-day" title="${ds}">
-            <div class="cp-tl-dot ${dotClass}">${hasPost ? '✓' : isToday ? '●' : ''}</div>
-            <div class="cp-tl-platforms">${platDots}</div>
-            <div class="cp-tl-label">${label}</div>
-        </div>`;
-    }).join('');
-}
-
-// ── Post log ──────────────────────────────────────────────────────────────────
+// ── Render post list ───────────────────────────────────────────────────────────
 function renderPostList() {
-    const posts = [...(source.posts || [])].sort((a, b) => b.date.localeCompare(a.date));
-    const list = document.getElementById('postList');
-    if (posts.length === 0) {
-        list.innerHTML = '<div class="cp-log-empty">No posts logged yet. Click "＋ Log Post" to get started.</div>';
-        return;
+    const posts = [...(source.posts || [])]
+        .filter(p => filterPlatform === 'all' || p.platform === filterPlatform)
+        .sort((a, b) => b.date.localeCompare(a.date));
+
+    let html = '';
+
+    // Inline add form at top
+    if (showAdd && !editingPostId) {
+        html += renderPostForm(null);
     }
-    list.innerHTML = `<div class="cp-post-list">${posts.map(p => renderPostRow(p)).join('')}</div>`;
-    list.querySelectorAll('[data-edit-post]').forEach(btn =>
-        btn.addEventListener('click', () => openPostModal(btn.dataset.editPost)));
-    list.querySelectorAll('[data-del-post]').forEach(btn =>
-        btn.addEventListener('click', () => deletePost(btn.dataset.delPost)));
+
+    if (posts.length === 0 && !showAdd) {
+        html += '<div class="pt-empty">No posts logged yet. Click "+ Log Post" to get started.</div>';
+    } else {
+        html += posts.map(p =>
+            editingPostId === p.id ? renderPostForm(p) : renderPostRow(p)
+        ).join('');
+    }
+
+    document.getElementById('postList').innerHTML = html;
+    wirePostListEvents();
 }
 
 function renderPostRow(p) {
-    const plat = PLAT_MAP[p.platform] || { label: p.platform, color: '#94a3b8', metrics: [] };
+    const plat = PLAT_MAP[p.platform] || { key: p.platform, label: p.platform, color: '#64748b', bg: '#f1f5f9', metrics: [] };
     const metrics = plat.metrics.filter(m => p.metrics?.[m] != null && p.metrics[m] !== '');
     const metricsHtml = metrics.length
-        ? metrics.map(m => `<div class="cp-post-metric"><div class="cp-post-metric-val">${fmtNum(p.metrics[m])}</div><div class="cp-post-metric-lbl">${m}</div></div>`).join('')
-        : '<span style="font-size:0.78rem;color:#94a3b8">No metrics yet</span>';
-
-    const linkBtn = p.url
-        ? `<a class="cp-post-link-btn" href="${esc(p.url)}" target="_blank" rel="noopener">↗ View</a>`
+        ? `<div class="pt-metrics-row">${metrics.map(m =>
+            `<span class="pt-metric-chip"><strong>${fmtNum(p.metrics[m])}</strong> ${m}</span>`
+          ).join('')}</div>`
         : '';
 
-    return `<div class="cp-post-row">
-        <div class="cp-post-plat" style="color:${plat.color}">${plat.label}</div>
-        <div class="cp-post-date">${p.date}</div>
-        <div class="cp-post-metrics">${metricsHtml}</div>
-        <div class="cp-post-actions">
-            ${linkBtn}
-            <button class="cp-post-edit-btn" data-edit-post="${esc(p.id)}" title="Edit">✎</button>
-            <button class="cp-post-del-btn" data-del-post="${esc(p.id)}" title="Delete">✕</button>
+    // Title: show content as title if set; URL as link line; fallback "No link"
+    let titleHtml;
+    if (p.content) {
+        titleHtml = esc(p.content);
+    } else if (p.url) {
+        titleHtml = `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" class="pt-title-link">${esc(p.url)}</a>`;
+    } else {
+        titleHtml = `<span style="color:#94a3b8;font-style:italic">No link</span>`;
+    }
+
+    const urlLine = (p.content && p.url)
+        ? `<div class="pt-row-content"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" class="pt-title-link" style="font-size:0.72rem">${esc(p.url)}</a></div>`
+        : '';
+
+    return `<div class="pt-row">
+        <div class="pt-row-title">
+            <div class="pt-row-meta">
+                <span class="pt-meta-platform" style="color:${plat.color};background:${plat.bg}">${plat.label}</span>
+                <span class="pt-meta-date">${p.date}</span>
+            </div>
+            <div class="pt-row-title-text">${titleHtml}</div>
+            ${urlLine}
+            ${metricsHtml}
+        </div>
+        <div class="pt-row-actions">
+            <button class="btn btn--small btn--secondary" data-edit-post="${esc(p.id)}">Edit</button>
+            <button class="pt-delete-btn" data-del-post="${esc(p.id)}" title="Delete">✕</button>
         </div>
     </div>`;
 }
 
-// ── Save schedule ─────────────────────────────────────────────────────────────
-document.getElementById('schedSaveBtn').addEventListener('click', async () => {
-    const startDate = document.getElementById('schedStartDate').value;
-    const frequencyDays = parseInt(document.getElementById('schedFrequency').value, 10);
-    const platforms = [...document.querySelectorAll('.cp-platform-toggle.on')].map(b => b.dataset.plat);
-
-    const schedule = {};
-    if (startDate) schedule.startDate = startDate;
-    if (frequencyDays && !isNaN(frequencyDays)) schedule.frequencyDays = frequencyDays;
-    if (platforms.length) schedule.platforms = platforms;
-
-    const btn = document.getElementById('schedSaveBtn');
-    btn.disabled = true;
-    try {
-        const res = await fetch(`${API}/api/pr-sources/${source.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ ...source, schedule }),
-        });
-        if (!res.ok) throw new Error();
-        source.schedule = schedule;
-        const ok = document.getElementById('schedSaveOk');
-        ok.classList.add('show');
-        setTimeout(() => ok.classList.remove('show'), 2500);
-        renderStats();
-        renderTimeline();
-    } catch { alert('Failed to save schedule.'); }
-    btn.disabled = false;
-});
-
-document.querySelectorAll('.cp-platform-toggle').forEach(btn => {
-    btn.addEventListener('click', () => btn.classList.toggle('on'));
-});
-
-// ── Log Post modal ────────────────────────────────────────────────────────────
-function openPostModal(postId) {
-    editingPostId = postId || null;
-    const post = postId ? (source.posts || []).find(p => p.id === postId) : null;
-
-    document.getElementById('postModalTitle').textContent = post ? 'Edit Post' : 'Log Post';
-    document.getElementById('mPlatform').value = post?.platform || 'linkedin';
-    document.getElementById('mDate').value = post?.date || new Date().toISOString().slice(0, 10);
-    document.getElementById('mUrl').value = post?.url || '';
-    document.getElementById('postModalDelete').style.display = post ? '' : 'none';
-
-    renderMetricsFields(post?.platform || 'linkedin', post?.metrics || {});
-    document.getElementById('postModal').classList.add('open');
-}
-
-function renderMetricsFields(platKey, values) {
-    const plat = PLAT_MAP[platKey] || { metrics: [] };
-    document.getElementById('metricsFields').innerHTML = plat.metrics.map(m =>
-        `<div class="cp-form-field">
-            <label>${capitalize(m)}</label>
-            <input type="number" min="0" id="m_${m}" placeholder="0" value="${values[m] != null ? values[m] : ''}" />
-        </div>`
+function renderPostForm(p) {
+    const currentPlat = PLAT_MAP[p?.platform || 'linkedin'] || { metrics: [] };
+    const platformOptions = PLATFORMS.map(pl =>
+        `<option value="${pl.key}"${(p?.platform || 'linkedin') === pl.key ? ' selected' : ''}>${pl.label}</option>`
     ).join('');
+    const metricsHtml = currentPlat.metrics.map(m =>
+        `<label>${capitalize(m)}<input type="number" min="0" id="fm_${m}" placeholder="0" value="${p?.metrics?.[m] ?? ''}" /></label>`
+    ).join('');
+
+    return `<div class="paper-form" id="postForm">
+        <div class="paper-form-grid">
+            <label>Platform
+                <select id="fm_platform">${platformOptions}</select>
+            </label>
+            <label>Date
+                <input type="date" id="fm_date" value="${p?.date || new Date().toISOString().slice(0, 10)}" />
+            </label>
+            <label style="grid-column:1/-1">Content / Caption
+                <input type="text" id="fm_content" value="${esc(p?.content || '')}" placeholder="Post description or caption (optional)" />
+            </label>
+            <label style="grid-column:1/-1">Post URL
+                <input type="url" id="fm_url" value="${esc(p?.url || '')}" placeholder="https://…" />
+            </label>
+        </div>
+        <div class="paper-form-metrics">
+            <div class="paper-form-metrics-label">Metrics (optional)</div>
+            <div class="paper-form-metrics-grid" id="fm_metrics_grid">${metricsHtml}</div>
+        </div>
+        <div class="paper-form-actions">
+            <button class="btn btn--primary btn--small" id="fm_save">Save</button>
+            <button class="btn btn--secondary btn--small" id="fm_cancel">Cancel</button>
+            ${p ? `<button class="btn btn--small btn--danger" id="fm_delete">Delete</button>` : ''}
+        </div>
+    </div>`;
 }
 
-document.getElementById('mPlatform').addEventListener('change', function () {
-    const existing = {};
-    const plat = PLAT_MAP[this.value] || { metrics: [] };
-    plat.metrics.forEach(m => { const el = document.getElementById('m_' + m); if (el) existing[m] = el.value; });
-    renderMetricsFields(this.value, existing);
-});
+function wirePostListEvents() {
+    // Platform change → refresh metrics fields
+    document.getElementById('fm_platform')?.addEventListener('change', function () {
+        const plat = PLAT_MAP[this.value] || { metrics: [] };
+        document.getElementById('fm_metrics_grid').innerHTML = plat.metrics.map(m =>
+            `<label>${capitalize(m)}<input type="number" min="0" id="fm_${m}" placeholder="0" /></label>`
+        ).join('');
+    });
 
-document.getElementById('addPostBtn').addEventListener('click', () => openPostModal(null));
+    document.getElementById('fm_save')?.addEventListener('click', savePost);
+    document.getElementById('fm_cancel')?.addEventListener('click', () => {
+        showAdd = false; editingPostId = null; renderPostList();
+    });
+    document.getElementById('fm_delete')?.addEventListener('click', async () => {
+        if (!editingPostId || !confirm('Delete this post?')) return;
+        const posts = (source.posts || []).filter(p => p.id !== editingPostId);
+        editingPostId = null; showAdd = false;
+        await savePosts(posts);
+    });
 
-function closePostModal() {
-    document.getElementById('postModal').classList.remove('open');
-    editingPostId = null;
+    document.querySelectorAll('[data-edit-post]').forEach(btn =>
+        btn.addEventListener('click', () => {
+            editingPostId = btn.dataset.editPost;
+            showAdd = false;
+            renderPostList();
+        })
+    );
+    document.querySelectorAll('[data-del-post]').forEach(btn =>
+        btn.addEventListener('click', async () => {
+            if (!confirm('Delete this post?')) return;
+            const posts = (source.posts || []).filter(p => p.id !== btn.dataset.delPost);
+            await savePosts(posts);
+        })
+    );
 }
-document.getElementById('postModalClose').addEventListener('click', closePostModal);
-document.getElementById('postModalCancel').addEventListener('click', closePostModal);
-document.getElementById('postModal').addEventListener('click', e => { if (e.target === e.currentTarget) closePostModal(); });
 
-document.getElementById('postModalSave').addEventListener('click', async () => {
-    const platform = document.getElementById('mPlatform').value;
-    const date = document.getElementById('mDate').value;
+// ── Save ───────────────────────────────────────────────────────────────────────
+async function savePost() {
+    const platform = document.getElementById('fm_platform').value;
+    const date     = document.getElementById('fm_date').value;
     if (!date) { alert('Date is required.'); return; }
+    const content = document.getElementById('fm_content').value.trim();
+    const url     = document.getElementById('fm_url').value.trim();
 
     const plat = PLAT_MAP[platform] || { metrics: [] };
     const metrics = {};
     plat.metrics.forEach(m => {
-        const el = document.getElementById('m_' + m);
+        const el = document.getElementById('fm_' + m);
         const v = el ? el.value.trim() : '';
         if (v !== '') metrics[m] = Number(v);
     });
@@ -553,25 +395,12 @@ document.getElementById('postModalSave').addEventListener('click', async () => {
     const posts = [...(source.posts || [])];
     if (editingPostId) {
         const idx = posts.findIndex(p => p.id === editingPostId);
-        if (idx !== -1) posts[idx] = { ...posts[idx], platform, date, url: document.getElementById('mUrl').value.trim(), metrics };
+        if (idx !== -1) posts[idx] = { ...posts[idx], platform, date, content, url, metrics };
     } else {
-        posts.push({ id: 'post_' + Date.now(), platform, date, url: document.getElementById('mUrl').value.trim(), metrics });
+        posts.push({ id: 'post_' + Date.now(), platform, date, content, url, metrics });
     }
 
-    await savePosts(posts);
-    closePostModal();
-});
-
-document.getElementById('postModalDelete').addEventListener('click', async () => {
-    if (!editingPostId || !confirm('Delete this post?')) return;
-    const posts = (source.posts || []).filter(p => p.id !== editingPostId);
-    await savePosts(posts);
-    closePostModal();
-});
-
-async function deletePost(postId) {
-    if (!confirm('Delete this post?')) return;
-    const posts = (source.posts || []).filter(p => p.id !== postId);
+    showAdd = false; editingPostId = null;
     await savePosts(posts);
 }
 
@@ -584,18 +413,21 @@ async function savePosts(posts) {
         });
         if (!res.ok) throw new Error();
         source.posts = posts;
-        renderStats();
-        renderTimeline();
         renderPostList();
     } catch { alert('Failed to save post.'); }
 }
 
-// ── Utils ─────────────────────────────────────────────────────────────────────
-function fmtDateShort(ds) {
-    const d = new Date(ds + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+// ── Filter + Add ───────────────────────────────────────────────────────────────
+document.getElementById('filterPlatform').addEventListener('change', function () {
+    filterPlatform = this.value;
+    renderPostList();
+});
 
+document.getElementById('addPostBtn').addEventListener('click', () => {
+    showAdd = true; editingPostId = null; renderPostList();
+});
+
+// ── Utils ──────────────────────────────────────────────────────────────────────
 function fmtNum(n) {
     if (n == null) return '—';
     if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
