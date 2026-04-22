@@ -1107,8 +1107,21 @@ function renderProductCalendar(products) {
     const dateMap = {};
     for (const p of products) {
         for (const post of (p.posts || [])) {
+            // Primary logged platform at the post's date
             if (!dateMap[post.date]) dateMap[post.date] = [];
-            dateMap[post.date].push({ title: p.title, platform: post.platform });
+            if (!dateMap[post.date].some(e => e.title === p.title && e.platform === post.platform)) {
+                dateMap[post.date].push({ title: p.title, platform: post.platform });
+            }
+            // Additional platforms marked via PR Matrix (may be on different dates)
+            for (const [, platforms] of Object.entries(post.pr_matrix || {})) {
+                for (const [platform, date] of Object.entries(platforms)) {
+                    if (!date) continue;
+                    if (!dateMap[date]) dateMap[date] = [];
+                    if (!dateMap[date].some(e => e.title === p.title && e.platform === platform)) {
+                        dateMap[date].push({ title: p.title, platform });
+                    }
+                }
+            }
         }
     }
     const [year, month] = calendarMonth.split('-').map(Number);
