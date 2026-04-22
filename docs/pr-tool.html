@@ -1141,9 +1141,8 @@ function renderProductCalendar(products) {
         const entries = dateMap[ds] || [];
         const entriesHtml = entries.map(e => {
             const platLabel = (PLATFORMS.find(pl => pl.key === e.platform)?.label || e.platform).split(' ')[0];
-            const parts = [e.title, e.content, platLabel].filter(Boolean);
-            const displayText = parts.join(' - ');
-            return `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}" title="${platLabel}"></span><span class="hub-cal-entry-name" title="${esc(displayText)}">${esc(displayText)}</span></div>`;
+            const tooltip = [e.title, e.content, platLabel].filter(Boolean).join(' - ');
+            return `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}"></span><span class="hub-cal-entry-name" title="${esc(tooltip)}">${esc(e.title)}</span></div>`;
         }).join('');
         cells += `<div class="hub-cal-day${isToday?' hub-cal-day--today':''}"><div class="hub-cal-day-num">${d}</div>${entriesHtml}</div>`;
     }
