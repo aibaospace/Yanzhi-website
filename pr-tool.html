@@ -1416,47 +1416,42 @@ function renderMatrix() {
     const matrixView = document.getElementById('matrixView');
     if (!matrixView) return;
 
-    let items;
-    if (matrixFilter === 'product') {
-        // Expand products into individual posts — each post becomes one matrix row
-        const products = allSources.filter(s => s.type === 'product');
-        const postRows = [];
+    // Group product posts by (product, content) → one campaign row per unique announcement
+    function buildCampaigns(products) {
+        const map = new Map();
         for (const product of products) {
             for (const post of (product.posts || [])) {
-                postRows.push({
-                    _id: post.id,
-                    _sourceKind: 'product_post',
-                    _productId: product.id,
-                    _productTitle: product.title,
-                    _productAccount: product.account,
-                    title: post.content ? `${product.title} - ${post.content}` : product.title,
-                    link: post.url || null,
-                    platform: post.platform,
-                    date: post.date,
-                    createdAt: post.date ? post.date + 'T00:00:00Z' : null,
-                    pr_matrix: post.pr_matrix || {},
-                });
+                const content = post.content || '';
+                const key = `${product.id}::${content}`;
+                if (!map.has(key)) {
+                    map.set(key, {
+                        _id: post.id, _sourceKind: 'product_post',
+                        _productId: product.id, _productTitle: product.title, _productAccount: product.account,
+                        _loggedPlatforms: new Set(), _platformDates: {},
+                        title: content ? `${product.title} - ${content}` : product.title,
+                        link: post.url || null, date: post.date,
+                        createdAt: post.date ? post.date + 'T00:00:00Z' : null, pr_matrix: {},
+                    });
+                }
+                const c = map.get(key);
+                c._loggedPlatforms.add(post.platform);
+                c._platformDates[post.platform] = post.date;
+                if (!c.date || post.date > c.date) { c.date = post.date; c.createdAt = post.date + 'T00:00:00Z'; }
+                for (const [acc, plats] of Object.entries(post.pr_matrix || {})) {
+                    if (!c.pr_matrix[acc]) c.pr_matrix[acc] = {};
+                    for (const [plat, d] of Object.entries(plats)) { if (d && !c.pr_matrix[acc][plat]) c.pr_matrix[acc][plat] = d; }
+                }
             }
         }
-        items = postRows;
+        return [...map.values()];
+    }
+
+    let items;
+    const allProducts = allSources.filter(s => s.type === 'product');
+    if (matrixFilter === 'product') {
+        items = buildCampaigns(allProducts);
     } else {
-        // Expand products into posts for 'all', 'paper', and 'news' filters too
-        const expandedProductPosts = [];
-        for (const product of allSources.filter(s => s.type === 'product')) {
-            for (const post of (product.posts || [])) {
-                expandedProductPosts.push({
-                    _id: post.id,
-                    _sourceKind: 'product_post',
-                    _productTitle: product.title,
-                    _productAccount: product.account,
-                    title: post.content ? `${product.title} - ${post.content}` : product.title,
-                    link: post.url || null,
-                    platform: post.platform,
-                    date: post.date,
-                    createdAt: post.date ? post.date + 'T00:00:00Z' : null,
-                });
-            }
-        }
+        const expandedProductPosts = buildCampaigns(allProducts);
         const papersAndNews = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
         if (matrixFilter === 'paper') items = papersAndNews.filter(s => s._sourceKind === 'paper');
         else if (matrixFilter === 'news') items = papersAndNews.filter(s => s._sourceKind === 'news');
@@ -1503,17 +1498,18 @@ function renderMatrix() {
             const titleLink = item.link
                 ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
                 : esc(item.title);
-            const platLabel = (PLATFORMS.find(p => p.key === item.platform)?.label || item.platform).split(' ')[0];
-            const metaHtml = `<div class="matrix-item-meta">${platLabel} · ${item.date}</div>`;
+            const loggedPlatLabels = [...(item._loggedPlatforms || [])].map(k => (PLATFORMS.find(pl => pl.key === k)?.label || k).split(' ')[0]).join(', ');
+            const metaHtml = `<div class="matrix-item-meta">${loggedPlatLabels || '—'} · ${item.date}</div>`;
             const cells = accountKeys.map(accKey =>
                 PLATFORMS.map((p, pIdx) => {
-                    const isOwn = accKey === item._productAccount && p.key === item.platform;
+                    const isOwn = accKey === item._productAccount && (item._loggedPlatforms?.has(p.key) ?? false);
+                    const ownDate = isOwn ? (item._platformDates?.[p.key] || item.date) : null;
                     const manualDone = !!(item.pr_matrix?.[accKey]?.[p.key]);
                     const isDone = isOwn || manualDone;
-                    const doneDate = isOwn ? item.date : (item.pr_matrix?.[accKey]?.[p.key] || null);
+                    const doneDate = isOwn ? ownDate : (item.pr_matrix?.[accKey]?.[p.key] || null);
                     const isLast = pIdx === PLATFORMS.length - 1;
                     const inner = isOwn
-                        ? `<div class="matrix-check matrix-check--done" style="cursor:default" title="Logged via campaign (${item.date})">✓</div>`
+                        ? `<div class="matrix-check matrix-check--done" style="cursor:default" title="Logged via campaign (${ownDate})">✓</div>`
                         : `<button class="matrix-check${isDone?' matrix-check--done':''}"
                             data-ppost-id="${esc(item._id)}"
                             data-ppost-account="${accKey}"
