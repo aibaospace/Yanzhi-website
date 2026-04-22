@@ -726,6 +726,7 @@ const CATEGORIES = [
 
 const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢', news:'📰' };
 const CAL_PLAT_COLORS = { linkedin:'#0A66C2', x:'#000000', rednote:'#FF2442', wechat:'#07C160' };
+const CAL_PLAT_BG = { linkedin:'#dbeafe', x:'#f1f5f9', rednote:'#fee2e2', wechat:'#dcfce7', douyin:'#f1f5f9', tiktok:'#f1f5f9', website:'#f8fafc' };
 const LPR_PLATFORMS = [
     {key:'linkedin', label:'LinkedIn'}, {key:'x', label:'X'},
     {key:'rednote', label:'Rednote'}, {key:'wechat', label:'WeChat'},
@@ -1395,10 +1396,31 @@ function renderMatrix() {
     const matrixView = document.getElementById('matrixView');
     if (!matrixView) return;
 
-    let items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news' || s.type === 'product');
-    if (matrixFilter === 'paper')   items = items.filter(s => s._sourceKind === 'paper');
-    if (matrixFilter === 'news')    items = items.filter(s => s._sourceKind === 'news');
-    if (matrixFilter === 'product') items = items.filter(s => s.type === 'product');
+    let items;
+    if (matrixFilter === 'product') {
+        // Expand products into individual posts — each post becomes one matrix row
+        const products = allSources.filter(s => s.type === 'product');
+        const postRows = [];
+        for (const product of products) {
+            for (const post of (product.posts || [])) {
+                postRows.push({
+                    _id: post.id,
+                    _sourceKind: 'product_post',
+                    _productTitle: product.title,
+                    title: post.content || product.title,
+                    link: post.url || null,
+                    platform: post.platform,
+                    date: post.date,
+                    createdAt: post.date ? post.date + 'T00:00:00Z' : null,
+                });
+            }
+        }
+        items = postRows;
+    } else {
+        items = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news' || s.type === 'product');
+        if (matrixFilter === 'paper') items = items.filter(s => s._sourceKind === 'paper');
+        if (matrixFilter === 'news')  items = items.filter(s => s._sourceKind === 'news');
+    }
 
     items.sort((a, b) => {
         const aT = a.createdAt ? new Date(a.createdAt).getTime() : (a._date ? new Date(a._date).getTime() : 0);
@@ -1434,10 +1456,42 @@ function renderMatrix() {
     ).join('');
 
     const rows = items.map(item => {
-        const isPaper = item._sourceKind === 'paper';
+        // ── Product posts: platform badge + content/caption as title ──
+        if (item._sourceKind === 'product_post') {
+            const platColor = CAL_PLAT_COLORS[item.platform] || '#64748b';
+            const platBg    = CAL_PLAT_BG[item.platform] || '#f1f5f9';
+            const platLabel = (PLATFORMS.find(p => p.key === item.platform)?.label || item.platform).split(' ')[0];
+            const typeBadge = `<span class="matrix-type-badge" style="background:${platBg};color:${platColor}">${platLabel}</span>`;
+            const titleLink = item.link
+                ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
+                : esc(item.title);
+            const metaHtml = `<div class="matrix-item-meta">${esc(item._productTitle)} · ${item.date}</div>`;
+            const cells = accountKeys.map(accKey =>
+                PLATFORMS.map((p, pIdx) => {
+                    const isDone = p.key === item.platform;
+                    const isLast = pIdx === PLATFORMS.length - 1;
+                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>
+                        <div class="matrix-check${isDone?' matrix-check--done':''}" style="cursor:default">${isDone ? '✓' : ''}</div>
+                    </td>`;
+                }).join('')
+            ).join('');
+            return `<tr data-item-id="${item._id}">
+                <td class="matrix-td-item">
+                    <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                    ${metaHtml}
+                </td>
+                ${cells}
+            </tr>`;
+        }
+
+        // ── Papers, News, and whole-product items ──
+        const isPaper   = item._sourceKind === 'paper';
+        const isProduct = item.type === 'product' || item.type === 'finding' || item.type === 'project';
         const typeBadge = isPaper
             ? `<span class="matrix-type-badge" style="background:#eff6ff;color:#1d4ed8">Paper</span>`
-            : `<span class="matrix-type-badge" style="background:#fffbeb;color:#92400e">News</span>`;
+            : isProduct
+                ? `<span class="matrix-type-badge" style="background:#f0f9ff;color:#0891b2">Product</span>`
+                : `<span class="matrix-type-badge" style="background:#fffbeb;color:#92400e">News</span>`;
         const titleLink = item.link
             ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
             : esc(item.title);
