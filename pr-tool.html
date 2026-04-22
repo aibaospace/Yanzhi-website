@@ -970,6 +970,11 @@ async function loadData() {
     } catch { document.getElementById('hubCatGrid').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">⚠️</div>Failed to load data.</div>'; }
 }
 
+// Auto-reload when user switches back to this tab (e.g. after saving in campaign.html)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && token) loadData();
+});
+
 // Convert pr_matrix[account][platform] → pr[platform] format for prStatus display
 function buildPrFromMatrix(matrix, account) {
     const pr = {};
