@@ -1,5 +1,450 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=/internal/campaign.html">
-<script>window.location.replace('/internal/campaign.html' + window.location.search + window.location.hash);</script>
-</head><body></body></html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campaign</title>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+
+        /* ── Header ── */
+        .pr-header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 2rem; }
+        .pr-header-inner { max-width: 1100px; margin: 0 auto; height: 60px; display: flex; align-items: center; gap: 1rem; }
+        .pr-back { font-size: 13px; color: #64748b; text-decoration: none; }
+        .pr-back:hover { color: #1d4ed8; text-decoration: underline; }
+        .pr-header-sep { color: #cbd5e1; }
+        .pr-header-title { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .pr-view-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-left: 0.25rem; }
+        .pr-view-btn { padding: 0.3rem 0.875rem; font-size: 0.82rem; font-weight: 600; border: none; background: #f8fafc; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; text-decoration: none; display: inline-block; line-height: 1.6; }
+        .pr-view-btn + .pr-view-btn { border-left: 1px solid #e2e8f0; }
+        .pr-view-btn.active { background: #1e293b; color: #fff; }
+        .pr-view-btn:hover:not(.active) { background: #f1f5f9; }
+
+        /* ── Auth gate ── */
+        .cp-gate { display: none; position: fixed; inset: 0; background: #f8fafc; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; z-index: 999; }
+        .cp-gate.visible { display: flex; }
+        .cp-gate-icon { font-size: 2.5rem; }
+        .cp-gate-title { font-size: 1.25rem; font-weight: 700; }
+        .cp-gate-desc { font-size: 0.9rem; color: #64748b; }
+        .cp-gate-btn { margin-top: 0.5rem; padding: 0.5rem 1.25rem; background: #1e293b; color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+        /* ── Page body ── */
+        .cp-body { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+        /* ── Hero ── */
+        .cp-hero { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+        .cp-hero-icon { font-size: 2rem; flex-shrink: 0; }
+        .cp-hero-info { flex: 1; min-width: 0; }
+        .cp-hero-name { font-size: 1.2rem; font-weight: 700; color: #0f172a; }
+        .cp-hero-desc { font-size: 0.85rem; color: #64748b; margin-top: 0.15rem; }
+        .cp-hero-link { font-size: 0.8rem; color: #1d4ed8; text-decoration: none; display: inline-block; margin-top: 0.25rem; }
+        .cp-hero-link:hover { text-decoration: underline; }
+
+        /* ── News-Management-style list ── */
+        .pt-table { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #fff; }
+
+        /* Filter bar (top of table) */
+        .paper-filters { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+        .paper-filters select { padding: 0.4rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem; background: #f8fafc; color: #1e293b; font-family: inherit; cursor: pointer; }
+
+        /* Column header */
+        .pt-header-row { display: flex; align-items: center; padding: 0.4rem 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+        .pt-row-title-header { flex: 1; }
+
+        /* Data rows */
+        .pt-row { display: flex; align-items: flex-start; padding: 0.6rem 0.75rem; border-bottom: 1px solid #f1f5f9; gap: 0; }
+        .pt-row:last-child { border-bottom: none; }
+        .pt-row:hover { background: #fafbfc; }
+
+        /* Title cell */
+        .pt-row-title { flex: 1; font-size: 0.8rem; color: #1e293b; padding-right: 0.75rem; min-width: 0; }
+        .pt-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; margin-bottom: 0.25rem; }
+        .pt-meta-platform { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+        .pt-meta-date { font-size: 0.68rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 3px; padding: 0 4px; }
+        .pt-row-title-text { font-size: 0.82rem; font-weight: 600; color: #1e293b; line-height: 1.4; word-break: break-word; }
+        .pt-title-link { color: inherit; text-decoration: underline; text-decoration-color: #94a3b8; text-underline-offset: 2px; }
+        .pt-title-link:hover { color: #1d4ed8; text-decoration-color: #1d4ed8; }
+        .pt-row-content { font-size: 0.72rem; color: #64748b; margin-top: 0.2rem; }
+
+        /* Metrics chips */
+        .pt-metrics-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+        .pt-metric-chip { font-size: 0.68rem; color: #475569; background: #f1f5f9; border-radius: 4px; padding: 0.1rem 0.45rem; }
+        .pt-metric-chip strong { font-weight: 700; color: #1e293b; }
+
+        /* Actions column */
+        .pt-row-actions { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; width: 80px; justify-content: flex-end; padding-top: 0.15rem; }
+        .pt-delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 12px; padding: 0.2rem 0.3rem; border-radius: 4px; line-height: 1; }
+        .pt-delete-btn:hover { background: #fef2f2; color: #ef4444; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-size: 0.875rem; transition: all 0.15s; line-height: 1; }
+        .btn--primary { background: #1e293b; color: #fff; border-color: #1e293b; }
+        .btn--primary:hover { background: #0f172a; }
+        .btn--secondary { background: #fff; color: #374151; border-color: #e2e8f0; }
+        .btn--secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .btn--danger { background: #fff; color: #ef4444; border-color: #fca5a5; margin-left: auto; }
+        .btn--danger:hover { background: #fef2f2; }
+        .btn--small { padding: 0.25rem 0.6rem; font-size: 0.8rem; border-radius: 6px; }
+
+        /* Inline form */
+        .paper-form { background: #fff; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 1rem 0.75rem; }
+        .paper-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .paper-form-grid label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .paper-form-grid input, .paper-form-grid select { padding: 0.4rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem; background: #f8fafc; color: #1e293b; font-family: inherit; }
+        .paper-form-grid input:focus, .paper-form-grid select:focus { outline: none; border-color: #94a3b8; background: #fff; }
+        .paper-form-metrics { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; }
+        .paper-form-metrics-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 0.5rem; }
+        .paper-form-metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        .paper-form-metrics-grid label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; font-weight: 600; color: #64748b; }
+        .paper-form-metrics-grid input { padding: 0.35rem 0.5rem; border: 1px solid #e2e8f0; border-radius: 5px; font-size: 0.82rem; background: #f8fafc; color: #1e293b; font-family: inherit; }
+        .paper-form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+
+        /* Empty / loading */
+        .pt-empty { text-align: center; padding: 2.5rem; color: #94a3b8; font-size: 0.875rem; }
+        .cp-loading { text-align: center; padding: 4rem; color: #94a3b8; font-size: 0.9rem; }
+
+        @media (max-width: 700px) {
+            .paper-form-grid { grid-template-columns: 1fr; }
+            .paper-form-metrics-grid { grid-template-columns: 1fr 1fr; }
+            .cp-body { padding: 1rem 1rem 4rem; }
+            .pr-header { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cp-gate" id="cpGate">
+    <div class="cp-gate-icon">🔒</div>
+    <div class="cp-gate-title">Access Restricted</div>
+    <div class="cp-gate-desc">This page is only available to admins and owners.</div>
+    <a class="cp-gate-btn" href="/pr-tool.html">← PR Tool</a>
+</div>
+
+<header class="pr-header">
+    <div class="pr-header-inner">
+        <a href="/pr-tool.html" class="pr-back">← PR Tool</a>
+        <span class="pr-header-sep">|</span>
+        <span class="pr-header-title" id="headerTitle">Campaign</span>
+        <div class="pr-view-toggle">
+            <span class="pr-view-btn active">Posts</span>
+            <a class="pr-view-btn" id="prMatrixLink" href="/pr-tool.html?filter=product" target="_blank" rel="noopener noreferrer">PR Matrix</a>
+        </div>
+    </div>
+</header>
+
+<div class="cp-body" id="cpBody" style="display:none">
+
+    <!-- Hero: product info -->
+    <div class="cp-hero">
+        <div class="cp-hero-icon" id="heroIcon">📦</div>
+        <div class="cp-hero-info">
+            <div class="cp-hero-name" id="heroName">Loading…</div>
+            <div class="cp-hero-desc" id="heroDesc"></div>
+            <a class="cp-hero-link" id="heroLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none">↗ Visit Link</a>
+        </div>
+    </div>
+
+    <!-- Post list (News Management style) -->
+    <div class="pt-table">
+        <div class="paper-filters">
+            <select id="filterPlatform">
+                <option value="all">All Platforms</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="x">X (Twitter)</option>
+                <option value="rednote">Rednote</option>
+                <option value="wechat">WeChat</option>
+            </select>
+            <button class="btn btn--primary btn--small" id="addPostBtn">+ Log Post</button>
+        </div>
+        <div class="pt-header-row">
+            <div class="pt-row-title-header">Posts</div>
+            <div style="width:80px"></div>
+        </div>
+        <div id="postList"><div class="cp-loading">Loading…</div></div>
+    </div>
+
+</div>
+
+<script>
+const API = 'https://conference-tracker-production.up.railway.app';
+
+const PLATFORMS = [
+    { key: 'linkedin', label: 'LinkedIn', color: '#0A66C2', bg: '#dbeafe', metrics: ['views','likes','comments','reposts'] },
+    { key: 'x',        label: 'X',        color: '#1e293b', bg: '#f1f5f9', metrics: ['views','likes','reposts'] },
+    { key: 'rednote',  label: 'Rednote',  color: '#FF2442', bg: '#fee2e2', metrics: ['views','likes','saves','comments'] },
+    { key: 'wechat',   label: 'WeChat',   color: '#07C160', bg: '#dcfce7', metrics: ['reads','likes'] },
+];
+const PLAT_MAP = Object.fromEntries(PLATFORMS.map(p => [p.key, p]));
+
+let token = null, source = null;
+let filterPlatform = 'all';
+let showAdd = false;
+let editingPostId = null;
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+async function init() {
+    token = localStorage.getItem('ct_token');
+    if (!token) { showGate(); return; }
+    try {
+        const res = await fetch(API + '/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) { showGate(); return; }
+        const user = await res.json();
+        if (user.role !== 'owner' && user.role !== 'admin') { showGate(); return; }
+    } catch { showGate(); return; }
+    loadSource();
+}
+
+function showGate() { document.getElementById('cpGate').classList.add('visible'); }
+
+// ── Load ───────────────────────────────────────────────────────────────────────
+async function loadSource() {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+        document.getElementById('postList').innerHTML = '<div class="cp-loading">No product ID specified.</div>';
+        document.getElementById('cpBody').style.display = '';
+        return;
+    }
+    try {
+        const res = await fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) throw new Error();
+        const all = await res.json();
+        source = all.find(s => s.id === id);
+        if (!source) throw new Error('not found');
+    } catch {
+        document.getElementById('postList').innerHTML = '<div class="cp-loading">Failed to load product.</div>';
+        document.getElementById('cpBody').style.display = '';
+        return;
+    }
+    document.getElementById('cpBody').style.display = '';
+    renderHero();
+    renderPostList();
+}
+
+// ── Hero ───────────────────────────────────────────────────────────────────────
+function renderHero() {
+    document.title = source.title + ' — Posts';
+    document.getElementById('headerTitle').textContent = source.title;
+    document.getElementById('heroIcon').textContent = source.icon || '📦';
+    document.getElementById('heroName').textContent = source.title;
+    document.getElementById('heroDesc').textContent = source.description || '';
+    if (source.link) {
+        const lnk = document.getElementById('heroLink');
+        lnk.href = source.link;
+        lnk.style.display = '';
+    }
+    // Link PR Matrix tab to filter by this specific product's account
+    const prLink = document.getElementById('prMatrixLink');
+    if (prLink && source.account) {
+        prLink.href = `/pr-tool.html?filter=product`;
+    }
+}
+
+// ── Render post list ───────────────────────────────────────────────────────────
+function renderPostList() {
+    const posts = [...(source.posts || [])]
+        .filter(p => filterPlatform === 'all' || p.platform === filterPlatform)
+        .sort((a, b) => b.date.localeCompare(a.date));
+
+    let html = '';
+
+    // Inline add form at top
+    if (showAdd && !editingPostId) {
+        html += renderPostForm(null);
+    }
+
+    if (posts.length === 0 && !showAdd) {
+        html += '<div class="pt-empty">No posts logged yet. Click "+ Log Post" to get started.</div>';
+    } else {
+        html += posts.map(p =>
+            editingPostId === p.id ? renderPostForm(p) : renderPostRow(p)
+        ).join('');
+    }
+
+    document.getElementById('postList').innerHTML = html;
+    wirePostListEvents();
+}
+
+function renderPostRow(p) {
+    const plat = PLAT_MAP[p.platform] || { key: p.platform, label: p.platform, color: '#64748b', bg: '#f1f5f9', metrics: [] };
+    const metrics = plat.metrics.filter(m => p.metrics?.[m] != null && p.metrics[m] !== '');
+    const metricsHtml = metrics.length
+        ? `<div class="pt-metrics-row">${metrics.map(m =>
+            `<span class="pt-metric-chip"><strong>${fmtNum(p.metrics[m])}</strong> ${m}</span>`
+          ).join('')}</div>`
+        : '';
+
+    // Title: show content as title if set; URL as link line; fallback "No link"
+    let titleHtml;
+    if (p.content) {
+        titleHtml = esc(p.content);
+    } else if (p.url) {
+        titleHtml = `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" class="pt-title-link">${esc(p.url)}</a>`;
+    } else {
+        titleHtml = `<span style="color:#94a3b8;font-style:italic">No link</span>`;
+    }
+
+    const urlLine = (p.content && p.url)
+        ? `<div class="pt-row-content"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" class="pt-title-link" style="font-size:0.72rem">${esc(p.url)}</a></div>`
+        : '';
+
+    return `<div class="pt-row">
+        <div class="pt-row-title">
+            <div class="pt-row-meta">
+                <span class="pt-meta-platform" style="color:${plat.color};background:${plat.bg}">${plat.label}</span>
+                <span class="pt-meta-date">${p.date}</span>
+            </div>
+            <div class="pt-row-title-text">${titleHtml}</div>
+            ${urlLine}
+            ${metricsHtml}
+        </div>
+        <div class="pt-row-actions">
+            <button class="btn btn--small btn--secondary" data-edit-post="${esc(p.id)}">Edit</button>
+            <button class="pt-delete-btn" data-del-post="${esc(p.id)}" title="Delete">✕</button>
+        </div>
+    </div>`;
+}
+
+function renderPostForm(p) {
+    const currentPlat = PLAT_MAP[p?.platform || 'linkedin'] || { metrics: [] };
+    const platformOptions = PLATFORMS.map(pl =>
+        `<option value="${pl.key}"${(p?.platform || 'linkedin') === pl.key ? ' selected' : ''}>${pl.label}</option>`
+    ).join('');
+    const metricsHtml = currentPlat.metrics.map(m =>
+        `<label>${capitalize(m)}<input type="number" min="0" id="fm_${m}" placeholder="0" value="${p?.metrics?.[m] ?? ''}" /></label>`
+    ).join('');
+
+    return `<div class="paper-form" id="postForm">
+        <div class="paper-form-grid">
+            <label>Platform
+                <select id="fm_platform">${platformOptions}</select>
+            </label>
+            <label>Date
+                <input type="date" id="fm_date" value="${p?.date || new Date().toISOString().slice(0, 10)}" />
+            </label>
+            <label style="grid-column:1/-1">Content / Caption
+                <input type="text" id="fm_content" value="${esc(p?.content || '')}" placeholder="Post description or caption (optional)" />
+            </label>
+            <label style="grid-column:1/-1">Post URL
+                <input type="url" id="fm_url" value="${esc(p?.url || '')}" placeholder="https://…" />
+            </label>
+        </div>
+        <div class="paper-form-metrics">
+            <div class="paper-form-metrics-label">Metrics (optional)</div>
+            <div class="paper-form-metrics-grid" id="fm_metrics_grid">${metricsHtml}</div>
+        </div>
+        <div class="paper-form-actions">
+            <button class="btn btn--primary btn--small" id="fm_save">Save</button>
+            <button class="btn btn--secondary btn--small" id="fm_cancel">Cancel</button>
+            ${p ? `<button class="btn btn--small btn--danger" id="fm_delete">Delete</button>` : ''}
+        </div>
+    </div>`;
+}
+
+function wirePostListEvents() {
+    // Platform change → refresh metrics fields
+    document.getElementById('fm_platform')?.addEventListener('change', function () {
+        const plat = PLAT_MAP[this.value] || { metrics: [] };
+        document.getElementById('fm_metrics_grid').innerHTML = plat.metrics.map(m =>
+            `<label>${capitalize(m)}<input type="number" min="0" id="fm_${m}" placeholder="0" /></label>`
+        ).join('');
+    });
+
+    document.getElementById('fm_save')?.addEventListener('click', savePost);
+    document.getElementById('fm_cancel')?.addEventListener('click', () => {
+        showAdd = false; editingPostId = null; renderPostList();
+    });
+    document.getElementById('fm_delete')?.addEventListener('click', async () => {
+        if (!editingPostId || !confirm('Delete this post?')) return;
+        const posts = (source.posts || []).filter(p => p.id !== editingPostId);
+        editingPostId = null; showAdd = false;
+        await savePosts(posts);
+    });
+
+    document.querySelectorAll('[data-edit-post]').forEach(btn =>
+        btn.addEventListener('click', () => {
+            editingPostId = btn.dataset.editPost;
+            showAdd = false;
+            renderPostList();
+        })
+    );
+    document.querySelectorAll('[data-del-post]').forEach(btn =>
+        btn.addEventListener('click', async () => {
+            if (!confirm('Delete this post?')) return;
+            const posts = (source.posts || []).filter(p => p.id !== btn.dataset.delPost);
+            await savePosts(posts);
+        })
+    );
+}
+
+// ── Save ───────────────────────────────────────────────────────────────────────
+async function savePost() {
+    const platform = document.getElementById('fm_platform').value;
+    const date     = document.getElementById('fm_date').value;
+    if (!date) { alert('Date is required.'); return; }
+    const content = document.getElementById('fm_content').value.trim();
+    const url     = document.getElementById('fm_url').value.trim();
+
+    const plat = PLAT_MAP[platform] || { metrics: [] };
+    const metrics = {};
+    plat.metrics.forEach(m => {
+        const el = document.getElementById('fm_' + m);
+        const v = el ? el.value.trim() : '';
+        if (v !== '') metrics[m] = Number(v);
+    });
+
+    const posts = [...(source.posts || [])];
+    if (editingPostId) {
+        const idx = posts.findIndex(p => p.id === editingPostId);
+        if (idx !== -1) posts[idx] = { ...posts[idx], platform, date, content, url, metrics };
+    } else {
+        posts.push({ id: 'post_' + Date.now(), platform, date, content, url, metrics });
+    }
+
+    showAdd = false; editingPostId = null;
+    await savePosts(posts);
+}
+
+async function savePosts(posts) {
+    try {
+        const res = await fetch(`${API}/api/pr-sources/${source.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ ...source, posts }),
+        });
+        if (!res.ok) throw new Error();
+        source.posts = posts;
+        renderPostList();
+    } catch { alert('Failed to save post.'); }
+}
+
+// ── Filter + Add ───────────────────────────────────────────────────────────────
+document.getElementById('filterPlatform').addEventListener('change', function () {
+    filterPlatform = this.value;
+    renderPostList();
+});
+
+document.getElementById('addPostBtn').addEventListener('click', () => {
+    showAdd = true; editingPostId = null; renderPostList();
+});
+
+// ── Utils ──────────────────────────────────────────────────────────────────────
+function fmtNum(n) {
+    if (n == null) return '—';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return String(n);
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+init();
+</script>
+</body>
+</html>
