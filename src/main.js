@@ -144,6 +144,12 @@ function buildModal() {
 
             <div id="ct-logged-in" style="display:none; padding:1.5rem; text-align:center;">
                 <p id="ct-logged-email" style="font-weight:600; margin-bottom:1rem; color:#1e293b;"></p>
+                <a id="ct-admin-btn" href="/internal/pr-tool.html" style="
+                    display:none; margin-bottom:0.5rem;
+                    padding:0.5rem 1.2rem; background:#1e293b; color:#fff;
+                    border:none; border-radius:6px; cursor:pointer; font-size:0.9rem;
+                    text-decoration:none; font-weight:600;
+                ">Admin Panel</a>
                 <button id="ct-logout-btn" style="
                     padding:0.5rem 1.2rem; background:#ef4444; color:#fff;
                     border:none; border-radius:6px; cursor:pointer; font-size:0.9rem;
@@ -251,6 +257,11 @@ function openAuthModal() {
         fetchMe(token).then(user => {
             if (user) {
                 document.getElementById('ct-logged-email').textContent = user.email;
+                const adminBtn = document.getElementById('ct-admin-btn');
+                if (adminBtn) {
+                    const isElevated = user.role === 'admin' || user.role === 'owner';
+                    adminBtn.style.display = isElevated ? 'inline-block' : 'none';
+                }
                 form.style.display = 'none';
                 tabs.style.display = 'none';
                 loggedIn.style.display = 'block';
