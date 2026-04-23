@@ -472,12 +472,12 @@
 <!-- Tools view -->
 <div class="tools-view" id="toolsView">
     <div class="pr-grid">
-        <a href="/dam.html" target="_blank" rel="noopener noreferrer" class="pr-card">
+        <a href="/internal/dam.html" target="_blank" rel="noopener noreferrer" class="pr-card">
             <div class="pr-card-icon icon--blue">🗂️</div>
             <div class="pr-card-name">DAM · Asset Library</div>
             <div class="pr-card-desc">Upload, tag and search images, videos, copy and brand assets. Keep all campaign materials organized in one searchable library.</div>
         </a>
-        <a href="/matrix-publishing.html" target="_blank" rel="noopener noreferrer" class="pr-card">
+        <a href="/internal/matrix-publishing.html" target="_blank" rel="noopener noreferrer" class="pr-card">
             <div class="pr-card-icon icon--purple">🔄</div>
             <div class="pr-card-name">Matrix Publishing</div>
             <div class="pr-card-desc">Paste one article and let AI reformat it for each platform — adjusting tone, length, hashtags and media requirements automatically.</div>
@@ -1186,7 +1186,7 @@ function renderProductCard(s) {
         schedule?.frequencyDays ? `Every ${schedule.frequencyDays}d` : null,
         nextDate ? `Next: ${nextDate}` : null,
     ].filter(Boolean);
-    return `<a href="/campaign.html?id=${encodeURIComponent(s._id)}" class="hub-product-card">
+    return `<a href="/internal/campaign.html?id=${encodeURIComponent(s._id)}" class="hub-product-card">
         <div class="hub-product-card-icon">${TYPE_ICONS[s.type]||'📦'}</div>
         <div class="hub-product-card-name">${esc(s.title)}</div>
         ${s.description ? `<div class="hub-product-card-desc">${esc(s.description)}</div>` : ''}
@@ -1198,7 +1198,7 @@ function renderProductCard(s) {
 function renderCard(s) {
     const titleHtml = s.link ? `<a href="${s.link}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>` : esc(s.title);
     const hasSaved = Object.values(s.savedContent||{}).some(v=>v&&v.trim());
-    const genUrl = `/matrix-publishing.html?title=${encodeURIComponent(s.title)}&link=${encodeURIComponent(s.link||'')}&sourceId=${encodeURIComponent(s._id)}&sourceKind=${encodeURIComponent(s._sourceKind)}`;
+    const genUrl = `/internal/matrix-publishing.html?title=${encodeURIComponent(s.title)}&link=${encodeURIComponent(s.link||'')}&sourceId=${encodeURIComponent(s._id)}&sourceKind=${encodeURIComponent(s._sourceKind)}`;
     const badges = PLATFORMS.map(p=>{ const date=prDate(s,p.key); return `<button class="hub-pr-badge${date?' hub-pr-badge--done':''}" data-toggle-platform="${p.key}" data-sid="${s._id}" title="${p.label}: ${date?'Done '+date:'click to mark'}">${p.svgHtml}${date?'<span class="hub-pr-check">✓</span>':''}</button>`; }).join('');
     const editBtn = s._sourceKind==='custom' ? `<button class="hub-menu-btn" data-edit-source="${s._id}" title="Edit">⋯</button>` : '';
     const metaTags = [s._conf&&`<span class="hub-tag hub-tag--meta">${esc(s._conf)}</span>`, s._date&&`<span class="hub-tag hub-tag--meta">${s._date}</span>`, s._status&&`<span class="hub-tag hub-tag--${s._status==='rejected'?'status-r':'status'}">${s._status}</span>`].filter(Boolean).join('');
