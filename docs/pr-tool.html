@@ -1,5 +1,1912 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=/internal/pr-tool.html">
-<script>window.location.replace('/internal/pr-tool.html' + window.location.search + window.location.hash);</script>
-</head><body></body></html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PR Tool</title>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+
+        /* ── Header ── */
+        .pr-header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 2rem; }
+        .pr-header-inner { max-width: 1200px; margin: 0 auto; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+        .pr-header-left { display: flex; align-items: center; gap: 1rem; }
+        .pr-back { font-size: 13px; color: #64748b; text-decoration: none; }
+        .pr-back:hover { color: #1d4ed8; text-decoration: underline; }
+        .pr-header-back-detail { display: none; font-size: 13px; color: #64748b; background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; }
+        .pr-header-back-detail:hover { color: #1d4ed8; text-decoration: underline; }
+        .pr-header-back-detail.visible { display: inline; }
+        .pr-header-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+        .pr-header-sep { color: #cbd5e1; font-size: 1.2rem; }
+
+        /* Account switcher */
+        .account-switcher { position: relative; }
+        .account-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.875rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.875rem; font-weight: 600; color: #1e293b; transition: background 0.15s, border-color 0.15s; }
+        .account-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .account-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .account-chevron { font-size: 10px; color: #94a3b8; }
+        .account-dropdown { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); min-width: 200px; overflow: hidden; z-index: 100; }
+        .account-dropdown.open { display: block; }
+        .account-dropdown-label { padding: 0.5rem 0.875rem; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; border-bottom: 1px solid #f1f5f9; }
+        .account-option { display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.875rem; cursor: pointer; transition: background 0.1s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; font-size: 0.875rem; color: #1e293b; }
+        .account-option:hover { background: #f8fafc; }
+        .account-option.active { background: #eff6ff; }
+        .account-option-name { font-weight: 600; flex: 1; }
+        .account-option-check { color: #1d4ed8; font-size: 13px; }
+
+        /* ── Hero bar ── */
+        .pr-hero { max-width: 1200px; margin: 0 auto; padding: 1.25rem 2rem 1rem; }
+        .pr-hero-eyebrow { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem; }
+        .pr-hero-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .pr-hero h1 { font-size: 1.9rem; font-weight: 700; color: #0f172a; flex-shrink: 0; }
+
+        /* Log PR button */
+        .log-pr-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 7px; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+        .log-pr-btn:hover { background: #6d28d9; color: #fff; }
+
+        /* Log PR modal specifics */
+        .lpr-form { display: flex; flex-direction: column; gap: 0.9rem; }
+        .lpr-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .lpr-field select, .lpr-field input, .lpr-field textarea { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.85rem; color: #1e293b; background: #fff; }
+        .lpr-field select:focus, .lpr-field input:focus, .lpr-field textarea:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 2px #ede9fe; }
+        .lpr-field textarea { resize: vertical; min-height: 80px; }
+        .lpr-account-display { padding: 0.45rem 0.6rem; border: 1px solid #e2e8f0; border-radius: 7px; background: #f8fafc; font-size: 0.85rem; color: #1e293b; font-weight: 700; }
+        .lpr-success { display: none; padding: 0.6rem 1rem; background: #dcfce7; color: #15803d; border-radius: 7px; font-size: 0.85rem; font-weight: 600; }
+        .lpr-success.show { display: block; }
+
+        /* PR logs in paper cards */
+        .hub-pr-logs { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.35rem; }
+        .hub-pr-log-entry { display: flex; align-items: flex-start; gap: 0.45rem; font-size: 0.78rem; flex-wrap: wrap; }
+        .hub-pr-log-plat-badge { font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; background: #ede9fe; color: #6d28d9; white-space: nowrap; flex-shrink: 0; }
+        .hub-pr-log-date { color: #94a3b8; font-size: 0.72rem; white-space: nowrap; flex-shrink: 0; margin-top: 0.1rem; }
+        .hub-pr-log-content-text { color: #475569; font-size: 0.75rem; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; flex: 1; min-width: 0; }
+
+        /* View toggle */
+        .pr-view-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+        .pr-view-btn { padding: 0.35rem 0.875rem; font-size: 0.82rem; font-weight: 600; border: none; background: #f8fafc; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+        .pr-view-btn + .pr-view-btn { border-left: 1px solid #e2e8f0; }
+        .pr-view-btn.active { background: #1e293b; color: #fff; }
+
+        /* Detail filters (shown when drilled into a category) */
+        .pr-detail-filters { display: none; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-left: auto; }
+        .pr-detail-filters.visible { display: flex; }
+        .pr-back-crumb { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 7px; background: #fff; font-family: inherit; font-size: 0.82rem; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; }
+        .pr-back-crumb:hover { background: #f1f5f9; color: #1e293b; }
+        .pr-select { padding: 0.35rem 0.65rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.82rem; background: #fff; color: #1e293b; cursor: pointer; }
+        .pr-add-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.875rem; background: #1e293b; color: #fff; border: none; border-radius: 7px; font-family: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .pr-add-btn:hover { background: #0f172a; }
+
+        /* Tools filters */
+        .pr-tools-filters { display: none; align-items: center; gap: 0.375rem; margin-left: auto; }
+        .pr-tools-filters.visible { display: flex; }
+        .pr-filter-btn { padding: 0.3rem 0.875rem; border-radius: 20px; border: 1px solid #e2e8f0; background: #fff; font-family: inherit; font-size: 0.82rem; font-weight: 500; color: #64748b; cursor: pointer; transition: all 0.15s; }
+        .pr-filter-btn:hover { border-color: #cbd5e1; color: #1e293b; }
+        .pr-filter-btn.active { background: #1e293b; border-color: #1e293b; color: #fff; }
+
+        /* ── Hub overview: category cards ── */
+        .hub-view { max-width: 1200px; margin: 0 auto; padding: 0 2rem 3rem; }
+        .hub-overview-stats { display: flex; gap: 1rem; margin-bottom: 1.75rem; flex-wrap: wrap; }
+        .hub-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.875rem 1.25rem; flex: 1; min-width: 120px; }
+        .hub-stat-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+        .hub-stat-label { font-size: 0.72rem; color: #64748b; margin-top: 0.25rem; }
+        .hub-stat--done .hub-stat-num { color: #16a34a; }
+        .hub-stat--progress .hub-stat-num { color: #d97706; }
+        .hub-stat--new .hub-stat-num { color: #64748b; }
+
+        /* Category cards grid */
+        .hub-cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+
+        .hub-cat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.5rem; cursor: pointer; transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s; display: flex; flex-direction: column; gap: 1rem; position: relative; overflow: hidden; }
+        .hub-cat-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.09); transform: translateY(-2px); border-color: #cbd5e1; }
+        .hub-cat-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+        .hub-cat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .hub-cat-count { font-size: 1.6rem; font-weight: 700; color: #0f172a; line-height: 1; }
+        .hub-cat-count-label { font-size: 0.7rem; color: #94a3b8; }
+        .hub-cat-name { font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+        .hub-cat-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+        .hub-cat-progress { display: flex; flex-direction: column; gap: 0.4rem; }
+        .hub-cat-bar-track { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+        .hub-cat-bar-fill { height: 100%; border-radius: 3px; background: #22c55e; transition: width 0.3s; }
+        .hub-cat-bar-fill--partial { background: #f59e0b; }
+        .hub-cat-stats-row { display: flex; gap: 0.75rem; font-size: 0.72rem; color: #64748b; }
+        .hub-cat-stats-row span { display: flex; align-items: center; gap: 0.25rem; }
+        .hub-cat-stats-row .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot--green { background: #22c55e; }
+        .dot--amber { background: #f59e0b; }
+        .dot--gray  { background: #cbd5e1; }
+        .hub-cat-arrow { position: absolute; bottom: 1.25rem; right: 1.25rem; font-size: 1rem; color: #cbd5e1; transition: color 0.15s, transform 0.15s; }
+        .hub-cat-card:hover .hub-cat-arrow { color: #94a3b8; transform: translateX(3px); }
+
+        /* Product card grid (inside Products detail) */
+        .hub-product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 0.5rem; }
+        .hub-product-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s; position: relative; }
+        .hub-product-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.09); transform: translateY(-2px); border-color: #cbd5e1; }
+        .hub-product-card-icon { font-size: 2rem; }
+        .hub-product-card-name { font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+        .hub-product-card-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
+        .hub-product-card-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .hub-product-card-stat { font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; }
+        .hub-product-card-stat--active { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+        .hub-product-card-arrow { position: absolute; bottom: 1.25rem; right: 1.25rem; font-size: 1rem; color: #cbd5e1; transition: color 0.15s, transform 0.15s; }
+        .hub-product-card:hover .hub-product-card-arrow { color: #94a3b8; transform: translateX(3px); }
+        @media (max-width: 600px) { .hub-product-grid { grid-template-columns: 1fr; } }
+
+        /* Color themes per category */
+        .hub-cat-card--paper    { border-top: 3px solid #3b82f6; }
+        .hub-cat-card--finding  { border-top: 3px solid #8b5cf6; }
+        .hub-cat-card--product  { border-top: 3px solid #0ea5e9; }
+        .hub-cat-card--project  { border-top: 3px solid #10b981; }
+        .hub-cat-card--announcement { border-top: 3px solid #f59e0b; }
+        .icon--blue   { background: #eff6ff; }
+        .icon--purple { background: #f5f3ff; }
+        .icon--sky    { background: #f0f9ff; }
+        .icon--green  { background: #ecfdf5; }
+        .icon--amber  { background: #fffbeb; }
+
+        /* ── Hub detail: source list ── */
+        .hub-detail { display: none; }
+        .hub-detail.visible { display: block; }
+        .hub-detail-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.875rem; border-bottom: 1px solid #e2e8f0; }
+        .hub-detail-icon { font-size: 1.5rem; }
+        .hub-detail-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+        .hub-detail-count { font-size: 0.8rem; color: #94a3b8; }
+
+        /* Section */
+        .hub-section-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin: 1.25rem 0 0.5rem; padding-bottom: 0.35rem; border-bottom: 1px solid #f1f5f9; }
+
+        /* Cards */
+        .hub-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 0.5rem; overflow: hidden; transition: box-shadow 0.15s; }
+        .hub-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .hub-card-main { display: flex; align-items: flex-start; gap: 0.875rem; padding: 0.875rem 1rem; }
+        .hub-card-type-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+        .hub-card-body { flex: 1; min-width: 0; }
+        .hub-card-title { font-size: 0.875rem; font-weight: 600; color: #1e293b; line-height: 1.35; }
+        .hub-card-title a { color: inherit; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 2px; }
+        .hub-card-title a:hover { color: #1d4ed8; text-decoration-color: #1d4ed8; }
+        .hub-card-meta { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; align-items: center; }
+        .hub-tag { font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px; border: 1px solid; white-space: nowrap; }
+        .hub-tag--paper       { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+        .hub-tag--finding     { color: #7c3aed; background: #f5f3ff; border-color: #ddd6fe; }
+        .hub-tag--product     { color: #0369a1; background: #f0f9ff; border-color: #bae6fd; }
+        .hub-tag--project     { color: #065f46; background: #ecfdf5; border-color: #a7f3d0; }
+        .hub-tag--announcement{ color: #92400e; background: #fffbeb; border-color: #fde68a; }
+        .hub-tag--meta        { color: #475569; background: #f8fafc; border-color: #e2e8f0; }
+        .hub-tag--status      { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
+        .hub-tag--status-r    { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
+        .hub-priority-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .hub-priority-dot--high { background: #ef4444; }
+        .hub-priority-dot--medium { background: #f59e0b; }
+        .hub-priority-dot--low { background: #94a3b8; }
+
+        .hub-card-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+        .hub-gen-btn { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.28rem 0.65rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: all 0.15s; white-space: nowrap; }
+        .hub-gen-btn:hover { background: #1e293b; color: #fff; border-color: #1e293b; }
+        .hub-content-btn { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.28rem 0.55rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+        .hub-content-btn:hover { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .hub-content-btn--has { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; }
+        .hub-menu-btn { background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.28rem 0.5rem; cursor: pointer; font-size: 14px; color: #94a3b8; }
+        .hub-menu-btn:hover { background: #f1f5f9; color: #475569; }
+
+        /* PR badges */
+        .hub-card-footer { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem 0.65rem 3rem; flex-wrap: wrap; }
+        .hub-pr-badges { display: flex; gap: 0.35rem; align-items: center; }
+        .hub-pr-badge { position: relative; width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid #e2e8f0; background: #f8fafc; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; padding: 0; flex-shrink: 0; }
+        .hub-pr-badge:hover { border-color: #94a3b8; background: #f1f5f9; transform: scale(1.08); }
+        .hub-pr-badge--done { border-color: #86efac; background: #f0fdf4; box-shadow: 0 0 0 2px #bbf7d0; }
+        .hub-pr-badge--done:hover { background: #fef2f2; border-color: #fca5a5; box-shadow: 0 0 0 2px #fecaca; }
+        .hub-pr-check { position: absolute; top: -5px; right: -5px; width: 12px; height: 12px; border-radius: 50%; background: #22c55e; color: #fff; font-size: 7px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; }
+
+        /* Metrics panel */
+        .hub-metrics-panel { border-top: 1px solid #f1f5f9; padding: 0.875rem 1rem 0.875rem 3rem; display: none; background: #fafafa; }
+        .hub-metrics-panel.open { display: block; }
+        .hub-metrics-header { font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .hub-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem 1rem; margin-bottom: 0.75rem; }
+        .hub-metrics-field { display: flex; flex-direction: column; gap: 0.2rem; }
+        .hub-metrics-field label { font-size: 0.68rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+        .hub-metrics-field input { padding: 0.35rem 0.55rem; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 0.82rem; background: #fff; color: #1e293b; }
+        .hub-metrics-field input:focus { outline: none; border-color: #94a3b8; background: #fff; }
+        .hub-metrics-wide { grid-column: 1 / -1; }
+        .hub-metrics-save { padding: 0.35rem 0.875rem; background: #1e293b; color: #fff; border: none; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .hub-metrics-save:hover { background: #0f172a; }
+        .hub-metrics-unmark { padding: 0.35rem 0.875rem; background: none; border: 1px solid #e2e8f0; color: #ef4444; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-left: 0.5rem; }
+        .hub-metrics-unmark:hover { background: #fef2f2; border-color: #fca5a5; }
+
+        /* ── Tools view ── */
+        .tools-view { max-width: 1200px; margin: 0 auto; padding: 0.75rem 2rem 3rem; display: none; }
+        .tools-view.visible { display: block; }
+        .pr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+        .pr-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s; position: relative; text-decoration: none; color: inherit; display: block; }
+        .pr-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); border-color: #cbd5e1; }
+        .pr-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+        .pr-card-name { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.4rem; }
+        .pr-card-desc { font-size: 0.82rem; color: #64748b; line-height: 1.55; }
+        .pr-card-badge { position: absolute; top: 1rem; right: 1rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 20px; background: #f1f5f9; color: #94a3b8; }
+        .icon--blue   { background: #eff6ff; }
+        .icon--amber  { background: #fffbeb; }
+        .icon--purple { background: #faf5ff; }
+        .icon--rose   { background: #fff1f2; }
+        .icon--cyan   { background: #ecfeff; }
+        .icon--orange { background: #fff7ed; }
+        .icon--indigo { background: #eef2ff; }
+        .icon--teal   { background: #f0fdfa; }
+
+        /* ── Auth gate ── */
+        .pr-gate { display: none; position: fixed; inset: 0; background: #f8fafc; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; z-index: 999; }
+        .pr-gate.visible { display: flex; }
+        .pr-gate-icon { font-size: 2.5rem; }
+        .pr-gate-title { font-size: 1.25rem; font-weight: 700; }
+        .pr-gate-desc { font-size: 0.9rem; color: #64748b; }
+        .pr-gate-btn { margin-top: 0.5rem; padding: 0.5rem 1.25rem; background: #1e293b; color: #fff; border: none; border-radius: 8px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+        /* ── Modals ── */
+        .hub-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+        .hub-modal-overlay.open { display: flex; }
+        .hub-modal { background: #fff; border-radius: 12px; width: 620px; max-width: 95vw; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .hub-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
+        .hub-modal-title { font-size: 0.95rem; font-weight: 700; }
+        .hub-modal-close { background: none; border: none; font-size: 16px; color: #94a3b8; cursor: pointer; padding: 0.25rem; }
+        .hub-modal-close:hover { color: #1e293b; }
+        .hub-modal-body { padding: 1.25rem; overflow-y: auto; flex: 1; }
+        .hub-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .hub-form-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .hub-form-field input, .hub-form-field select, .hub-form-field textarea { padding: 0.45rem 0.65rem; border: 1px solid #e2e8f0; border-radius: 7px; font-family: inherit; font-size: 0.875rem; background: #f8fafc; color: #1e293b; }
+        .hub-form-field input:focus, .hub-form-field select:focus, .hub-form-field textarea:focus { outline: none; border-color: #94a3b8; background: #fff; }
+        .hub-form-field textarea { resize: vertical; min-height: 70px; }
+        .hub-form-full { grid-column: 1 / -1; }
+        .hub-form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .hub-btn-primary { padding: 0.45rem 1rem; background: #1e293b; color: #fff; border: none; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+        .hub-btn-primary:hover { background: #0f172a; }
+        .hub-btn-secondary { padding: 0.45rem 1rem; background: none; border: 1px solid #e2e8f0; color: #475569; border-radius: 7px; font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+        .hub-btn-secondary:hover { background: #f8fafc; }
+        .hub-content-tabs { display: flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 1rem; }
+        .hub-content-tab { padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600; border: none; background: none; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
+        .hub-content-tab.active { color: #1e293b; border-bottom-color: #1e293b; }
+        .hub-content-text { white-space: pre-wrap; font-size: 0.875rem; line-height: 1.7; color: #334155; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; min-height: 120px; }
+        .hub-copy-btn { margin-top: 0.75rem; padding: 0.35rem 0.875rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 0.8rem; font-weight: 600; color: #475569; cursor: pointer; }
+        .hub-copy-btn:hover { background: #e2e8f0; }
+        .hub-copy-btn.copied { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+
+        .hub-empty { text-align: center; padding: 4rem 2rem; color: #94a3b8; }
+        .hub-empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .hub-loading { text-align: center; padding: 3rem; color: #94a3b8; }
+
+        /* ── Product calendar ── */
+        .hub-cal { margin-bottom: 1.5rem; }
+        .hub-cal-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .hub-cal-nav { background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.2rem 0.6rem; cursor: pointer; font-size: 0.85rem; color: #64748b; font-family: inherit; }
+        .hub-cal-nav:hover { background: #f1f5f9; }
+        .hub-cal-month { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+        .hub-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .hub-cal-dow { text-align: center; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; padding: 0.25rem 0; }
+        .hub-cal-day { min-height: 64px; background: #fff; border: 1px solid #f1f5f9; border-radius: 6px; padding: 4px 5px; }
+        .hub-cal-day--today { border-color: #1d4ed8; background: #eff6ff; }
+        .hub-cal-day--other { background: #fafafa; }
+        .hub-cal-day-num { font-size: 0.68rem; font-weight: 600; color: #94a3b8; margin-bottom: 3px; }
+        .hub-cal-day--today .hub-cal-day-num { color: #1d4ed8; }
+        .hub-cal-entry { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; flex-wrap: wrap; }
+        .hub-cal-entry-name { font-size: 0.6rem; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
+        .hub-cal-plat { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+        /* ── PR Matrix view ── */
+        .matrix-view { padding: 0 2rem 3rem; }
+        .matrix-filter-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .matrix-filter-btn { padding: 0.3rem 0.9rem; border: 1.5px solid #e2e8f0; border-radius: 20px; background: #fff; color: #64748b; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .matrix-filter-btn.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+        .matrix-filter-btn:hover:not(.active) { background: #f1f5f9; }
+        .matrix-log-btn { margin-left: auto; padding: 0.3rem 0.875rem; font-size: 0.82rem; font-weight: 700; border: 1.5px solid #6d28d9; background: #ede9fe; color: #6d28d9; border-radius: 20px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .matrix-log-btn:hover { background: #6d28d9; color: #fff; }
+        .matrix-count { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+        .matrix-scroll { overflow-x: auto; }
+        .matrix-table { border-collapse: collapse; width: 100%; min-width: 900px; background: #fff; font-size: 0.82rem; }
+        .matrix-table th, .matrix-table td { border: none; }
+        .matrix-th-item { padding: 0.5rem 0.75rem; text-align: left; font-weight: 700; color: #1e293b; background: #f8fafc; border-bottom: 2px solid #e2e8f0; min-width: 260px; position: sticky; left: 0; z-index: 2; }
+        .matrix-th-acc { text-align: center; padding: 0.4rem 0.5rem; font-weight: 700; font-size: 0.75rem; border-bottom: 1px solid #e2e8f0; border-right: 2px solid #e2e8f0; }
+        .matrix-acc-label { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+        .matrix-acc-dot { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0; }
+        .matrix-th-plat { text-align: center; padding: 0.3rem 0.2rem; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .matrix-td-item { padding: 0.5rem 0.75rem; background: #fff; position: sticky; left: 0; z-index: 1; border-right: 2px solid #e2e8f0; min-width: 260px; max-width: 320px; vertical-align: middle; }
+        .matrix-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+        .matrix-table tbody tr:hover { background: #fafafa; }
+        .matrix-table tbody tr:hover .matrix-td-item { background: #fafafa; }
+        .matrix-row--target { background: #fffbeb !important; }
+        .matrix-row--target .matrix-td-item { background: #fffbeb !important; }
+        .matrix-td-cell { text-align: center; padding: 0.3rem 0.15rem; vertical-align: middle; }
+        .matrix-td-cell--done { background: #f0fdf4; }
+        .matrix-item-title { font-size: 0.8rem; font-weight: 500; color: #1e293b; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .matrix-item-title a { color: #1d4ed8; text-decoration: none; font-weight: 500; }
+        .matrix-item-title a:hover { text-decoration: underline; }
+        .matrix-item-meta { font-size: 0.7rem; color: #94a3b8; margin-top: 0.15rem; }
+        .matrix-type-badge { display: inline-block; font-size: 0.65rem; padding: 0.05rem 0.3rem; border-radius: 3px; margin-bottom: 0.2rem; background: #f1f5f9; color: #64748b; font-weight: 600; }
+        .matrix-owner { display: flex; align-items: center; gap: 0.3rem; margin-top: 0.2rem; font-size: 0.72rem; color: #64748b; }
+        .matrix-owner-avatar { width: 16px; height: 16px; border-radius: 50%; background: #e2e8f0; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #475569; flex-shrink: 0; }
+        .matrix-check { width: 22px; height: 22px; border-radius: 5px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #64748b; transition: all 0.15s; padding: 0; }
+        .matrix-check:hover { border-color: #94a3b8; background: #f1f5f9; }
+        .matrix-check--done { background: #22c55e; border-color: #16a34a; color: #fff; font-weight: 700; }
+        .matrix-check--done:hover { background: #16a34a; border-color: #15803d; }
+
+        @media (max-width: 900px) {
+            .hub-cat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .pr-hero-row { flex-direction: column; align-items: flex-start; }
+            .pr-detail-filters { margin-left: 0; }
+            .hub-metrics-grid { grid-template-columns: 1fr 1fr; }
+            .hub-form-grid { grid-template-columns: 1fr; }
+            .hub-cat-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="pr-gate" id="prGate">
+    <div class="pr-gate-icon">🔒</div>
+    <div class="pr-gate-title">Access Restricted</div>
+    <div class="pr-gate-desc">This page is only available to admins and owners.</div>
+    <a class="pr-gate-btn" href="https://www.yanzhiwang.com">← Back to Homepage</a>
+</div>
+
+<!-- Header -->
+<header class="pr-header">
+    <div class="pr-header-inner">
+        <div class="pr-header-left">
+            <a href="https://www.yanzhiwang.com" class="pr-back">← Homepage</a>
+            <span class="pr-header-sep">|</span>
+            <button class="pr-header-back-detail" id="headerBackBtn">← PR Hub</button>
+            <span class="pr-header-sep" id="headerBackSep" style="display:none">|</span>
+            <span class="pr-header-title" id="headerTitle">PR Tool</span>
+        </div>
+        <div class="account-switcher">
+            <button class="account-btn" id="accountBtn">
+                <span class="account-avatar" id="accountAvatar"></span>
+                <span id="accountName">Yanzhiwang</span>
+                <span class="account-chevron">▼</span>
+            </button>
+            <div class="account-dropdown" id="accountDropdown">
+                <div class="account-dropdown-label">Switch Account</div>
+                <button class="account-option" data-account="all">
+                    <span class="account-avatar" style="background:#64748b;">≡</span>
+                    <span class="account-option-name">All Accounts</span>
+                    <span class="account-option-check" id="check-all" style="display:none">✓</span>
+                </button>
+                <button class="account-option active" data-account="yanzhiwang">
+                    <span class="account-avatar" style="background:#1d4ed8;">Y</span>
+                    <span class="account-option-name">Yanzhiwang</span>
+                    <span class="account-option-check" id="check-yanzhiwang">✓</span>
+                </button>
+                <button class="account-option" data-account="embodyx">
+                    <span class="account-avatar" style="background:#7c3aed;">E</span>
+                    <span class="account-option-name">EmbodyX</span>
+                    <span class="account-option-check" id="check-embodyx" style="display:none">✓</span>
+                </button>
+                <button class="account-option" data-account="moxin">
+                    <span class="account-avatar" style="background:#0891b2;">M</span>
+                    <span class="account-option-name">Moxin</span>
+                    <span class="account-option-check" id="check-moxin" style="display:none">✓</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Hero -->
+<div class="pr-hero">
+    <div class="pr-hero-eyebrow" id="heroEyebrow"></div>
+    <div class="pr-hero-row">
+        <h1>PR &amp; Content Operations</h1>
+
+        <!-- View toggle -->
+        <div class="pr-view-toggle">
+            <button class="pr-view-btn active" data-view="matrix">📋 PR Matrix</button>
+            <button class="pr-view-btn" data-view="hub">📊 PR Hub</button>
+            <button class="pr-view-btn" data-view="tools">🛠 Tools</button>
+        </div>
+
+        <!-- Detail filters: shown when drilled into a category -->
+        <div class="pr-detail-filters" id="detailFilters">
+            <button class="pr-back-crumb" id="hubBackBtn">← All Categories</button>
+            <select class="pr-select" id="filterStatus">
+                <option value="">All Status</option>
+                <option value="none">Not Started</option>
+                <option value="partial">In Progress</option>
+                <option value="done">All Done</option>
+            </select>
+            <select class="pr-select" id="filterPlatform">
+                <option value="">All Platforms</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="x">X</option>
+                <option value="rednote">Rednote</option>
+                <option value="wechat">WeChat</option>
+            </select>
+            <button class="pr-add-btn" id="addSourceBtn" style="display:none">＋ Add Source</button>
+            <button class="log-pr-btn" id="logPrPaperBtn" style="display:none">✏️ Log PR</button>
+            <button class="log-pr-btn" id="logPrNewsBtn" style="display:none">✏️ Log PR</button>
+        </div>
+
+        <!-- Tools filters -->
+        <div class="pr-tools-filters" id="toolsFilters">
+            <button class="pr-filter-btn active" data-filter="all">All</button>
+            <button class="pr-filter-btn" data-filter="x">X</button>
+            <button class="pr-filter-btn" data-filter="rednotes">Rednotes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Matrix view (default homepage) -->
+<div class="matrix-view" id="matrixView">
+    <div class="matrix-filter-bar">
+        <button class="matrix-filter-btn active" data-mfilter="all">All</button>
+        <button class="matrix-filter-btn" data-mfilter="paper">Papers</button>
+        <button class="matrix-filter-btn" data-mfilter="news">News</button>
+        <button class="matrix-filter-btn" data-mfilter="product">Products</button>
+        <span class="matrix-count" id="matrixCount"></span>
+        <button class="matrix-log-btn" id="matrixLogPrBtn">✏️ Log PR</button>
+    </div>
+    <div id="matrixBody"><div class="hub-loading">Loading…</div></div>
+</div>
+
+<!-- PR Hub view -->
+<div class="hub-view" id="hubView" style="display:none">
+
+    <!-- Overview: category cards -->
+    <div id="hubOverview">
+        <div id="overviewStats" class="hub-overview-stats"></div>
+        <div id="hubCatGrid" class="hub-cat-grid"><div class="hub-loading">Loading…</div></div>
+    </div>
+
+    <!-- Detail: filtered list for one category -->
+    <div class="hub-detail" id="hubDetail">
+        <div class="hub-detail-header">
+            <span class="hub-detail-icon" id="detailIcon"></span>
+            <span class="hub-detail-title" id="detailTitle"></span>
+            <span class="hub-detail-count" id="detailCount"></span>
+        </div>
+        <div id="sourceList"></div>
+    </div>
+</div>
+
+<!-- Tools view -->
+<div class="tools-view" id="toolsView">
+    <div class="pr-grid">
+        <a href="/dam.html" target="_blank" rel="noopener noreferrer" class="pr-card">
+            <div class="pr-card-icon icon--blue">🗂️</div>
+            <div class="pr-card-name">DAM · Asset Library</div>
+            <div class="pr-card-desc">Upload, tag and search images, videos, copy and brand assets. Keep all campaign materials organized in one searchable library.</div>
+        </a>
+        <a href="/matrix-publishing.html" target="_blank" rel="noopener noreferrer" class="pr-card">
+            <div class="pr-card-icon icon--purple">🔄</div>
+            <div class="pr-card-name">Matrix Publishing</div>
+            <div class="pr-card-desc">Paste one article and let AI reformat it for each platform — adjusting tone, length, hashtags and media requirements automatically.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--amber">🔥</div>
+            <div class="pr-card-name">Keyword Intelligence</div>
+            <div class="pr-card-desc">Track industry hot words, surface trending discussion topics and monitor curated brand posts from key accounts.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--teal">✍️</div>
+            <div class="pr-card-name">Content Brief</div>
+            <div class="pr-card-desc">Enter a topic and AI generates a structured content brief with angles, hooks, key messages and talking points for your writers.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--green">⏰</div>
+            <div class="pr-card-name">Publish Time Predictor</div>
+            <div class="pr-card-desc">AI-recommended optimal posting windows per platform, based on your audience engagement patterns and historical data.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--rose">✅</div>
+            <div class="pr-card-name">Approval Flow</div>
+            <div class="pr-card-desc">Move content through Draft → Review → Approved → Scheduled with role-based sign-offs and comment threads at each stage.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--indigo">📅</div>
+            <div class="pr-card-name">Master Calendar</div>
+            <div class="pr-card-desc">A unified calendar showing every post published across all your accounts — see publishing frequency at a glance by day and channel.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--cyan">📬</div>
+            <div class="pr-card-name">Unified Inbox</div>
+            <div class="pr-card-desc">Aggregate comments, mentions and interactions from all platforms into one feed. Prioritize, reply and track response status.</div>
+        </a>
+        <a href="#" class="pr-card">
+            <span class="pr-card-badge">Coming Soon</span>
+            <div class="pr-card-icon icon--orange">📊</div>
+            <div class="pr-card-name">Report</div>
+            <div class="pr-card-desc">Auto-generate visual reports of views, likes, shares and comments across all platforms. Export as PDF for stakeholder reviews.</div>
+        </a>
+    </div>
+</div>
+
+<!-- Source form modal -->
+<div class="hub-modal-overlay" id="sourceModal">
+    <div class="hub-modal">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title" id="sourceModalTitle">Add Source</div>
+            <button class="hub-modal-close" id="sourceModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="hub-form-grid">
+                <div class="hub-form-field hub-form-full"><label>Title *</label><input id="f-title" placeholder="e.g. HIERAMP: Coarse-to-Fine Autoregressive Amplification" /></div>
+                <div class="hub-form-field"><label>Type</label>
+                    <select id="f-type">
+                        <option value="finding">🔬 Research Finding</option>
+                        <option value="product">📦 Product</option>
+                        <option value="project">🚀 Project</option>
+                        <option value="announcement">📢 Announcement</option>
+                    </select>
+                </div>
+                <div class="hub-form-field"><label>Priority</label>
+                    <select id="f-priority">
+                        <option value="high">🔴 High</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="low">⚪ Low</option>
+                    </select>
+                </div>
+                <div class="hub-form-field hub-form-full"><label>Description</label><textarea id="f-description" placeholder="One-line summary"></textarea></div>
+                <div class="hub-form-field hub-form-full"><label>Link</label><input id="f-link" placeholder="https://…" /></div>
+                <div class="hub-form-field hub-form-full"><label>Notes</label><input id="f-notes" placeholder="Internal notes" /></div>
+            </div>
+            <div class="hub-form-actions">
+                <button class="hub-btn-primary" id="sourceModalSave">Save</button>
+                <button class="hub-btn-secondary" id="sourceModalCancel">Cancel</button>
+                <button class="hub-btn-secondary" id="sourceModalDelete" style="margin-left:auto;color:#ef4444;border-color:#fca5a5;display:none">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log PR modal -->
+<div class="hub-modal-overlay" id="logPrModal">
+    <div class="hub-modal" style="width:480px">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title">Log PR Publication</div>
+            <button class="hub-modal-close" id="logPrModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="lpr-form">
+                <div class="lpr-field">
+                    <label>Paper</label>
+                    <select id="lpr-paper"><option value="">Loading papers…</option></select>
+                </div>
+                <div class="lpr-field">
+                    <label>Account</label>
+                    <div class="lpr-account-display" id="lpr-account-display"></div>
+                    <input type="hidden" id="lpr-account" />
+                </div>
+                <div class="lpr-field">
+                    <label>Platform</label>
+                    <select id="lpr-platform">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="x">X</option>
+                        <option value="rednote">Rednote</option>
+                        <option value="wechat">WeChat</option>
+                        <option value="douyin">抖音</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="website">Website</option>
+                    </select>
+                </div>
+                <div class="lpr-field">
+                    <label>Publication Date</label>
+                    <input type="date" id="lpr-date" />
+                </div>
+                <div class="lpr-field">
+                    <label>URL</label>
+                    <input type="url" id="lpr-url" placeholder="https://…" />
+                </div>
+                <div class="lpr-field">
+                    <label>Content</label>
+                    <textarea id="lpr-content" rows="4" placeholder="Paste or type the PR content you published…"></textarea>
+                </div>
+                <div class="lpr-success" id="lpr-success">✓ Saved successfully!</div>
+            </div>
+            <div class="hub-form-actions" style="margin-top:1.25rem">
+                <button class="hub-btn-primary" id="lpr-save">Save</button>
+                <button class="hub-btn-secondary" id="lpr-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log PR News modal -->
+<div class="hub-modal-overlay" id="logPrNewsModal">
+    <div class="hub-modal" style="width:480px">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title">Log PR Publication (News)</div>
+            <button class="hub-modal-close" id="logPrNewsModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="lpr-form">
+                <div class="lpr-field">
+                    <label>News</label>
+                    <select id="lprn-news"><option value="">Loading news…</option></select>
+                </div>
+                <div class="lpr-field">
+                    <label>Account</label>
+                    <div class="lpr-account-display" id="lprn-account-display"></div>
+                    <input type="hidden" id="lprn-account" />
+                </div>
+                <div class="lpr-field">
+                    <label>Platform</label>
+                    <select id="lprn-platform">
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="x">X</option>
+                        <option value="rednote">Rednote</option>
+                        <option value="wechat">WeChat</option>
+                        <option value="douyin">抖音</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="website">Website</option>
+                    </select>
+                </div>
+                <div class="lpr-field">
+                    <label>Publication Date</label>
+                    <input type="date" id="lprn-date" />
+                </div>
+                <div class="lpr-field">
+                    <label>URL</label>
+                    <input type="url" id="lprn-url" placeholder="https://…" />
+                </div>
+                <div class="lpr-field">
+                    <label>Content</label>
+                    <textarea id="lprn-content" rows="4" placeholder="Paste or type the PR content you published…"></textarea>
+                </div>
+                <div class="lpr-success" id="lprn-success">✓ Saved successfully!</div>
+            </div>
+            <div class="hub-form-actions" style="margin-top:1.25rem">
+                <button class="hub-btn-primary" id="lprn-save">Save</button>
+                <button class="hub-btn-secondary" id="lprn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content viewer modal -->
+<div class="hub-modal-overlay" id="contentModal">
+    <div class="hub-modal">
+        <div class="hub-modal-header">
+            <div class="hub-modal-title" id="contentModalTitle">Saved Content</div>
+            <button class="hub-modal-close" id="contentModalClose">✕</button>
+        </div>
+        <div class="hub-modal-body">
+            <div class="hub-content-tabs">
+                <button class="hub-content-tab active" data-tab="wechat">公众号</button>
+                <button class="hub-content-tab" data-tab="rednote">小红书</button>
+                <button class="hub-content-tab" data-tab="x">X</button>
+                <button class="hub-content-tab" data-tab="linkedin">LinkedIn</button>
+            </div>
+            <div class="hub-content-text" id="contentText"></div>
+            <button class="hub-copy-btn" id="contentCopyBtn">⎘ Copy</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'https://conference-tracker-production.up.railway.app';
+
+const PLATFORMS = [
+    { key: 'linkedin', label: 'LinkedIn',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'likes', label:'Likes' }, { key:'comments', label:'Comments' }, { key:'reposts', label:'Reposts' }] },
+    { key: 'x', label: 'X (Twitter)',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'likes', label:'Likes' }, { key:'reposts', label:'Reposts' }] },
+    { key: 'rednote', label: 'Rednote (小红书)',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#FF2442"/><rect x="28" y="22" width="44" height="56" rx="6" fill="white" opacity=".95"/><rect x="36" y="38" width="28" height="5" rx="2.5" fill="#FF2442"/><rect x="36" y="48" width="28" height="5" rx="2.5" fill="#FF2442"/><rect x="36" y="58" width="20" height="5" rx="2.5" fill="#FF2442"/><rect x="40" y="22" width="20" height="8" rx="4" fill="#FF2442"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'likes', label:'Likes' }, { key:'saves', label:'Saves' }, { key:'comments', label:'Comments' }] },
+    { key: 'wechat', label: 'WeChat (公众号)',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.295.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.602-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-7.064-6.122h.002zm-3.01 3.98c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.906 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982z" fill="#07C160"/></svg>`,
+      metrics: [{ key:'reads', label:'Reads' }, { key:'likes', label:'Likes' }] },
+    { key: 'douyin', label: '抖音',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'likes', label:'Likes' }, { key:'comments', label:'Comments' }] },
+    { key: 'tiktok', label: 'TikTok',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/><circle cx="18.5" cy="5.5" r="2" fill="#FF0050"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'likes', label:'Likes' }, { key:'comments', label:'Comments' }] },
+    { key: 'website', label: 'Website',
+      svgHtml: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+      metrics: [{ key:'views', label:'Views' }, { key:'clicks', label:'Clicks' }] },
+];
+
+const CATEGORIES = [
+    { type: 'paper',        icon: '📄', name: 'Papers',        desc: 'Research papers auto-synced from paper management.', iconClass: 'icon--blue',   cardClass: 'hub-cat-card--paper',        canAdd: false },
+    { type: 'news',         icon: '📰', name: 'News',          desc: 'News articles and media coverage.',                 iconClass: 'icon--amber',  cardClass: 'hub-cat-card--announcement', canAdd: false },
+    { type: 'finding',      icon: '🔬', name: 'Findings',      desc: 'Research findings and notable results to promote.',  iconClass: 'icon--purple', cardClass: 'hub-cat-card--finding',      canAdd: true  },
+    { type: 'product',      icon: '📦', name: 'Products',      desc: 'Product launches and feature announcements.',        iconClass: 'icon--sky',    cardClass: 'hub-cat-card--product',      canAdd: true  },
+    { type: 'project',      icon: '🚀', name: 'Projects',      desc: 'Ongoing projects and milestones worth sharing.',     iconClass: 'icon--green',  cardClass: 'hub-cat-card--project',      canAdd: true  },
+];
+
+const TYPE_ICONS = { paper:'📄', finding:'🔬', product:'📦', project:'🚀', announcement:'📢', news:'📰' };
+const CAL_PLAT_COLORS = { linkedin:'#0A66C2', x:'#000000', rednote:'#FF2442', wechat:'#07C160' };
+const CAL_PLAT_BG = { linkedin:'#dbeafe', x:'#f1f5f9', rednote:'#fee2e2', wechat:'#dcfce7', douyin:'#f1f5f9', tiktok:'#f1f5f9', website:'#f8fafc' };
+const LPR_PLATFORMS = [
+    {key:'linkedin', label:'LinkedIn'}, {key:'x', label:'X'},
+    {key:'rednote', label:'Rednote'}, {key:'wechat', label:'WeChat'},
+    {key:'douyin', label:'抖音'}, {key:'tiktok', label:'TikTok'},
+    {key:'website', label:'Website'},
+];
+
+let allSources = [], token = null, editingSourceId = null, contentViewSource = null, contentViewTab = 'wechat', openMetricsKey = null;
+let currentView = 'matrix';   // 'matrix' | 'hub' | 'tools'
+let currentHubType = null;    // null = overview, string = drilled into category
+let calendarMonth = new Date().toISOString().slice(0, 7); // "2026-04"
+let matrixFilter = 'all';     // 'all' | 'paper' | 'news' | 'product'
+
+// ── Account switcher ──────────────────────────────────────────────────────────
+const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y',bg:'#eff6ff'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E',bg:'#faf5ff'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M',bg:'#f0f9ff'} };
+let currentAccount = localStorage.getItem('pr_account') || 'yanzhiwang';
+
+function applyMatrixFilter(key) {
+    matrixAccountFilter = key;
+    const acc = key === 'all' ? null : ACCOUNTS[key];
+    document.getElementById('accountName').textContent = acc ? acc.name : 'All Accounts';
+    const av = document.getElementById('accountAvatar');
+    av.textContent = acc ? acc.initial : '≡'; av.style.background = acc ? acc.color : '#64748b';
+    const ey = document.getElementById('heroEyebrow');
+    ey.textContent = acc ? acc.name : 'All Accounts'; ey.style.color = acc ? acc.color : '#64748b';
+    document.querySelectorAll('.account-option').forEach(btn => {
+        const active = btn.dataset.account === key;
+        btn.classList.toggle('active', active);
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
+    });
+    if (allSources.length) renderMatrix();
+}
+
+function syncHubDisplay() {
+    const acc = ACCOUNTS[currentAccount];
+    if (!acc) return;
+    document.getElementById('accountName').textContent = acc.name;
+    const av = document.getElementById('accountAvatar');
+    av.textContent = acc.initial; av.style.background = acc.color;
+    const ey = document.getElementById('heroEyebrow');
+    ey.textContent = acc.name; ey.style.color = acc.color;
+    document.querySelectorAll('.account-option').forEach(btn => {
+        const active = btn.dataset.account === currentAccount;
+        btn.classList.toggle('active', active);
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
+    });
+}
+
+function applyAccount(key) {
+    const acc = ACCOUNTS[key];
+    currentAccount = key;
+    localStorage.setItem('pr_account', key);
+    document.getElementById('accountName').textContent = acc.name;
+    const av = document.getElementById('accountAvatar');
+    av.textContent = acc.initial; av.style.background = acc.color;
+    const ey = document.getElementById('heroEyebrow');
+    ey.textContent = acc.name; ey.style.color = acc.color;
+    document.querySelectorAll('.account-option').forEach(btn => {
+        const active = btn.dataset.account === key;
+        btn.classList.toggle('active', active);
+        const check = document.getElementById('check-' + btn.dataset.account);
+        if (check) check.style.display = active ? '' : 'none';
+    });
+    if (allSources.length) {
+        // Refresh pr for news items based on new account's pr_matrix
+        allSources.filter(s => s._sourceKind === 'news').forEach(s => {
+            s.pr = buildPrFromMatrix(s.pr_matrix || {}, key);
+        });
+        goBackToOverview(); renderOverview();
+        if (currentView === 'matrix') renderMatrix();
+    }
+}
+document.getElementById('accountBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('accountDropdown').classList.toggle('open'); });
+document.addEventListener('click', () => document.getElementById('accountDropdown').classList.remove('open'));
+document.querySelectorAll('.account-option').forEach(btn => btn.addEventListener('click', () => {
+    const key = btn.dataset.account;
+    document.getElementById('accountDropdown').classList.remove('open');
+    if (currentView === 'matrix') {
+        applyMatrixFilter(key);
+    } else {
+        if (key !== 'all') applyAccount(key);
+    }
+}));
+applyAccount(currentAccount);
+applyMatrixFilter('all'); // matrix default: show all accounts
+// Apply filter from URL param (e.g. ?filter=paper from Paper Management link)
+const _urlFilter = new URLSearchParams(window.location.search).get('filter');
+if (_urlFilter === 'paper' || _urlFilter === 'news' || _urlFilter === 'product') {
+    matrixFilter = _urlFilter;
+    document.querySelectorAll('[data-mfilter]').forEach(b => b.classList.toggle('active', b.dataset.mfilter === matrixFilter));
+}
+
+// ── View toggle (Matrix / Hub / Tools) ───────────────────────────────────────
+document.querySelectorAll('.pr-view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentView = btn.dataset.view;
+        document.querySelectorAll('.pr-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+        document.getElementById('matrixView').style.display = currentView === 'matrix' ? '' : 'none';
+        document.getElementById('hubView').style.display    = currentView === 'hub'   ? '' : 'none';
+        document.getElementById('toolsView').classList.toggle('visible', currentView === 'tools');
+        document.getElementById('toolsFilters').classList.toggle('visible', currentView === 'tools');
+        if (currentView === 'matrix') {
+            applyMatrixFilter(matrixAccountFilter);
+        } else if (currentView === 'hub') {
+            syncHubDisplay();
+            updateHeroFilters();
+        } else {
+            document.getElementById('detailFilters').classList.remove('visible');
+        }
+    });
+});
+
+// Matrix filter pills
+document.querySelectorAll('[data-mfilter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        matrixFilter = btn.dataset.mfilter;
+        document.querySelectorAll('[data-mfilter]').forEach(b => b.classList.toggle('active', b.dataset.mfilter === matrixFilter));
+        renderMatrix();
+    });
+});
+document.getElementById('matrixLogPrBtn').addEventListener('click', () => {
+    if (matrixFilter === 'news') openLogPrNewsModal();
+    else if (matrixFilter === 'product') openLogPrModal();
+    else openLogPrModal();
+});
+
+// Tools filter pills
+document.querySelectorAll('.pr-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.pr-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
+// ── Hub navigation ────────────────────────────────────────────────────────────
+function updateHeroFilters() {
+    const detailFilters = document.getElementById('detailFilters');
+    if (currentView !== 'hub' || !currentHubType) {
+        detailFilters.classList.remove('visible');
+        return;
+    }
+    const cat = CATEGORIES.find(c => c.type === currentHubType);
+    detailFilters.classList.add('visible');
+    document.getElementById('addSourceBtn').style.display = cat?.canAdd ? '' : 'none';
+    document.getElementById('logPrPaperBtn').style.display = currentHubType === 'paper' ? '' : 'none';
+    document.getElementById('logPrNewsBtn').style.display  = currentHubType === 'news'  ? '' : 'none';
+}
+
+function setHeaderBack(cat) {
+    const btn  = document.getElementById('headerBackBtn');
+    const sep  = document.getElementById('headerBackSep');
+    const title = document.getElementById('headerTitle');
+    if (cat) {
+        btn.textContent = '← PR Hub';
+        btn.classList.add('visible');
+        sep.style.display = '';
+        title.textContent = cat.name;
+    } else {
+        btn.classList.remove('visible');
+        sep.style.display = 'none';
+        title.textContent = 'PR Tool';
+    }
+}
+
+function drillInto(type) {
+    currentHubType = type;
+    const cat = CATEGORIES.find(c => c.type === type);
+    document.getElementById('hubOverview').style.display = 'none';
+    document.getElementById('hubDetail').classList.add('visible');
+    setHeaderBack(cat);
+    updateHeroFilters();
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterPlatform').value = '';
+    renderDetail();
+}
+
+function goBackToOverview() {
+    currentHubType = null;
+    document.getElementById('hubOverview').style.display = '';
+    document.getElementById('hubDetail').classList.remove('visible');
+    document.getElementById('detailFilters').classList.remove('visible');
+    setHeaderBack(null);
+    openMetricsKey = null;
+}
+
+document.getElementById('hubBackBtn').addEventListener('click', goBackToOverview);
+document.getElementById('headerBackBtn').addEventListener('click', goBackToOverview);
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function init() {
+    token = localStorage.getItem('ct_token');
+    if (!token) { showGate(); return; }
+    try {
+        const res = await fetch(API + '/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) { showGate(); return; }
+        const user = await res.json();
+        if (user.role !== 'owner' && user.role !== 'admin') { showGate(); return; }
+    } catch { showGate(); return; }
+    const urlAccount = new URLSearchParams(location.search).get('account');
+    if (urlAccount && ACCOUNTS[urlAccount]) applyAccount(urlAccount);
+    const urlView = new URLSearchParams(location.search).get('view');
+    if (urlView === 'hub' || urlView === 'tools') {
+        document.querySelector(`[data-view="${urlView}"]`)?.click();
+    }
+    loadData();
+}
+function showGate() { document.getElementById('prGate').classList.add('visible'); }
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+async function loadData() {
+    try {
+        const [pr, ps, ns] = await Promise.all([
+            fetch(API + '/api/papers',     { headers: { Authorization: 'Bearer ' + token } }),
+            fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } }),
+            fetch(API + '/api/news',       { headers: { Authorization: 'Bearer ' + token } }),
+        ]);
+        const papers    = pr.ok ? await pr.json() : [];
+        const prSources = ps.ok ? await ps.json() : [];
+        const newsItems = ns.ok ? await ns.json() : [];
+
+        const seen = new Map();
+        for (const p of papers) {
+            const key = (p.title || '').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+            if (!seen.has(key)) seen.set(key, { _id:p.id, _sourceKind:'paper', type:'paper', account:'__all__', title:p.title||'', description:[p.conferenceName, p.track&&p.track!=='Main'?p.track:null].filter(Boolean).join(' · '), link:p.link||'', priority:'medium', pr:p.pr||{}, savedContent:p.savedContent||{}, notes:p.notes||'', pr_logs:p.pr_logs||[], pr_matrix:p.pr_matrix||{}, _status:p.status||'', _conf:p.conferenceName||'', _date:p.date||(p.year?`${p.year}-01-01`:''), createdAt:p.createdAt||'', _owner:p.studentName||'' });
+        }
+        const customItems = prSources.map(s => ({ ...s, _id:s.id, _sourceKind:'custom' }));
+        const paperItems = [...seen.values()].sort((a, b) => (b._date || '').localeCompare(a._date || ''));
+        const newsSourceItems = newsItems.map(n => ({
+            ...n, _id:n.id, _sourceKind:'news', type:'news', account:'__all__',
+            description: n.source || '', priority:'medium',
+            pr: buildPrFromMatrix(n.pr_matrix || {}, currentAccount),
+            pr_logs: n.pr_logs || [], pr_matrix: n.pr_matrix || {},
+            _date: n.date || '', createdAt: n.createdAt || '',
+        }));
+        allSources = [...customItems, ...paperItems, ...newsSourceItems];
+        renderOverview();
+        if (currentView === 'matrix') renderMatrix();
+        if (currentHubType) renderDetail();
+    } catch { document.getElementById('hubCatGrid').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">⚠️</div>Failed to load data.</div>'; }
+}
+
+// Auto-reload when user switches back to this tab (e.g. after saving in campaign.html)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && token) loadData();
+});
+
+// Convert pr_matrix[account][platform] → pr[platform] format for prStatus display
+function buildPrFromMatrix(matrix, account) {
+    const pr = {};
+    const accData = matrix[account] || {};
+    for (const [platform, date] of Object.entries(accData)) {
+        if (date) pr[platform] = { date };
+    }
+    return pr;
+}
+
+// ── Account filter ────────────────────────────────────────────────────────────
+function accountSources() {
+    return allSources.filter(s => s.account === '__all__' || (s.account || 'yanzhiwang') === currentAccount);
+}
+
+// ── PR helpers ────────────────────────────────────────────────────────────────
+function prDate(s, p) { const v = s.pr?.[p]; if (!v) return null; return typeof v==='string'?v:(v.date||null); }
+function prObj(s, p) { const v = s.pr?.[p]; if (!v) return {}; return typeof v==='object'?v:{date:v}; }
+function prStatus(s) { const done = PLATFORMS.filter(p=>!!prDate(s,p.key)).length; return done===0?'none':done===PLATFORMS.length?'done':'partial'; }
+
+// ── Overview render ───────────────────────────────────────────────────────────
+function renderOverview() {
+    const sources = accountSources();
+    const total = sources.length;
+    const done  = sources.filter(s=>prStatus(s)==='done').length;
+    const part  = sources.filter(s=>prStatus(s)==='partial').length;
+    const none  = sources.filter(s=>prStatus(s)==='none').length;
+    document.getElementById('overviewStats').innerHTML = `
+        <div class="hub-stat"><div class="hub-stat-num">${total}</div><div class="hub-stat-label">Total Sources</div></div>
+        <div class="hub-stat hub-stat--done"><div class="hub-stat-num">${done}</div><div class="hub-stat-label">All Platforms Done</div></div>
+        <div class="hub-stat hub-stat--progress"><div class="hub-stat-num">${part}</div><div class="hub-stat-label">In Progress</div></div>
+        <div class="hub-stat hub-stat--new"><div class="hub-stat-num">${none}</div><div class="hub-stat-label">Not Started</div></div>`;
+
+    const grid = document.getElementById('hubCatGrid');
+    grid.innerHTML = CATEGORIES.map(cat => {
+        const items = sources.filter(s => s.type === cat.type);
+        const catDone    = items.filter(s=>prStatus(s)==='done').length;
+        const catPartial = items.filter(s=>prStatus(s)==='partial').length;
+        const catNone    = items.filter(s=>prStatus(s)==='none').length;
+        const pct = items.length ? Math.round((catDone / items.length) * 100) : 0;
+        const barClass = pct === 100 ? '' : catPartial > 0 ? ' hub-cat-bar-fill--partial' : '';
+        return `<div class="hub-cat-card ${cat.cardClass}" data-cat-type="${cat.type}" role="button" tabindex="0">
+            <div class="hub-cat-card-top">
+                <div class="hub-cat-icon ${cat.iconClass}">${cat.icon}</div>
+                <div style="text-align:right">
+                    <div class="hub-cat-count">${items.length}</div>
+                    <div class="hub-cat-count-label">sources</div>
+                </div>
+            </div>
+            <div>
+                <div class="hub-cat-name">${cat.name}</div>
+                <div class="hub-cat-desc">${cat.desc}</div>
+            </div>
+            <div class="hub-cat-progress">
+                <div class="hub-cat-bar-track"><div class="hub-cat-bar-fill${barClass}" style="width:${pct}%"></div></div>
+                <div class="hub-cat-stats-row">
+                    <span><span class="dot dot--green"></span>${catDone} done</span>
+                    <span><span class="dot dot--amber"></span>${catPartial} in progress</span>
+                    <span><span class="dot dot--gray"></span>${catNone} not started</span>
+                </div>
+            </div>
+            <span class="hub-cat-arrow">→</span>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('[data-cat-type]').forEach(card => {
+        const handler = () => drillInto(card.dataset.catType);
+        card.addEventListener('click', handler);
+        card.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') handler(); });
+    });
+}
+
+// ── Detail render ─────────────────────────────────────────────────────────────
+function renderDetail() {
+    const cat = CATEGORIES.find(c => c.type === currentHubType);
+    if (!cat) return;
+    document.getElementById('detailIcon').textContent  = cat.icon;
+    document.getElementById('detailTitle').textContent = cat.name;
+
+    // Products get a calendar + card grid linking to campaign pages
+    if (currentHubType === 'product') {
+        const products = accountSources().filter(s => s.type === 'product');
+        document.getElementById('detailCount').textContent = `${products.length} products`;
+        document.getElementById('sourceList').innerHTML =
+            renderProductCalendar(products) +
+            `<div class="hub-product-grid">${products.map(renderProductCard).join('')}</div>`;
+        document.getElementById('calPrev').addEventListener('click', () => {
+            const [y, m] = calendarMonth.split('-').map(Number);
+            const d = new Date(y, m - 2, 1);
+            calendarMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            renderDetail();
+        });
+        document.getElementById('calNext').addEventListener('click', () => {
+            const [y, m] = calendarMonth.split('-').map(Number);
+            const d = new Date(y, m, 1);
+            calendarMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+            renderDetail();
+        });
+        return;
+    }
+
+    const status   = document.getElementById('filterStatus').value;
+    const platform = document.getElementById('filterPlatform').value;
+    const filtered = accountSources().filter(s =>
+        s.type === currentHubType &&
+        (!status   || prStatus(s) === status) &&
+        (!platform || !!prDate(s, platform))
+    );
+    document.getElementById('detailCount').textContent = `${filtered.length} sources`;
+
+    const list = document.getElementById('sourceList');
+    if (filtered.length === 0) { list.innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">🔍</div>No sources match the filters.</div>'; return; }
+
+    const groups = [
+        { key:'partial', label:'🔄 In Progress',        items: filtered.filter(s=>prStatus(s)==='partial') },
+        { key:'none',    label:'⭕ Not Started',         items: filtered.filter(s=>prStatus(s)==='none') },
+        { key:'done',    label:'✅ All Platforms Done',  items: filtered.filter(s=>prStatus(s)==='done') },
+    ].filter(g=>g.items.length>0);
+
+    list.innerHTML = groups.map(g=>`<div class="hub-section-title">${g.label} (${g.items.length})</div>${g.items.map(s=>renderCard(s)).join('')}`).join('');
+
+    list.querySelectorAll('[data-toggle-platform]').forEach(btn=>btn.addEventListener('click',()=>{
+        const sid=btn.dataset.sid, platform=btn.dataset.togglePlatform, src=allSources.find(s=>s._id===sid);
+        if(!src) return;
+        const key=sid+'-'+platform;
+        if(openMetricsKey===key){closeMetricsPanel();return;}
+        if(openMetricsKey) closeMetricsPanel();
+        openMetricsKey=key; openMetricsPanel(src,platform);
+    }));
+    list.querySelectorAll('[data-show-content]').forEach(btn=>btn.addEventListener('click',()=>{const s=allSources.find(x=>x._id===btn.dataset.showContent);if(s)openContentModal(s);}));
+    list.querySelectorAll('[data-edit-source]').forEach(btn=>btn.addEventListener('click',()=>{const s=allSources.find(x=>x._id===btn.dataset.editSource);if(s&&s._sourceKind==='custom')openSourceModal(s);}));
+}
+
+function renderProductCalendar(products) {
+    const dateMap = {};
+    for (const p of products) {
+        for (const post of (p.posts || [])) {
+            // Primary logged platform at the post's date
+            if (!dateMap[post.date]) dateMap[post.date] = [];
+            if (!dateMap[post.date].some(e => e.title === p.title && e.platform === post.platform)) {
+                dateMap[post.date].push({ title: p.title, content: post.content || '', platform: post.platform });
+            }
+            // Additional platforms marked via PR Matrix (may be on different dates)
+            for (const [, platforms] of Object.entries(post.pr_matrix || {})) {
+                for (const [platform, date] of Object.entries(platforms)) {
+                    if (!date) continue;
+                    if (!dateMap[date]) dateMap[date] = [];
+                    if (!dateMap[date].some(e => e.title === p.title && e.platform === platform)) {
+                        dateMap[date].push({ title: p.title, content: post.content || '', platform });
+                    }
+                }
+            }
+        }
+    }
+    const [year, month] = calendarMonth.split('-').map(Number);
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay  = new Date(year, month, 0);
+    const today    = new Date().toISOString().slice(0, 10);
+    const startDow = firstDay.getDay();
+    const totalCells = startDow + lastDay.getDate();
+    const trailingCells = (7 - (totalCells % 7)) % 7;
+    const monthName = firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const DOWS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += `<div class="hub-cal-day hub-cal-day--other"></div>`;
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+        const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday = ds === today;
+        const entries = dateMap[ds] || [];
+        const entriesHtml = entries.map(e => {
+            const platLabel = (PLATFORMS.find(pl => pl.key === e.platform)?.label || e.platform).split(' ')[0];
+            const tooltip = [e.title, e.content, platLabel].filter(Boolean).join(' - ');
+            return `<div class="hub-cal-entry"><span class="hub-cal-plat" style="background:${CAL_PLAT_COLORS[e.platform]||'#94a3b8'}"></span><span class="hub-cal-entry-name" title="${esc(tooltip)}">${esc(e.title)}</span></div>`;
+        }).join('');
+        cells += `<div class="hub-cal-day${isToday?' hub-cal-day--today':''}"><div class="hub-cal-day-num">${d}</div>${entriesHtml}</div>`;
+    }
+    for (let i = 0; i < trailingCells; i++) cells += `<div class="hub-cal-day hub-cal-day--other"></div>`;
+    return `<div class="hub-cal">
+        <div class="hub-cal-header">
+            <button class="hub-cal-nav" id="calPrev">‹</button>
+            <span class="hub-cal-month">${monthName}</span>
+            <button class="hub-cal-nav" id="calNext">›</button>
+        </div>
+        <div class="hub-cal-grid">
+            ${DOWS.map(d=>`<div class="hub-cal-dow">${d}</div>`).join('')}
+            ${cells}
+        </div>
+    </div>`;
+}
+
+function renderProductCard(s) {
+    const posts = s.posts || [];
+    const schedule = s.schedule || null;
+    const postCount = posts.length;
+    const sorted = [...posts].sort((a,b) => b.date.localeCompare(a.date));
+    const lastPost = sorted[0];
+    const today = new Date().toISOString().slice(0,10);
+    let nextDate = null;
+    if (schedule?.startDate && schedule?.frequencyDays) {
+        const start = new Date(schedule.startDate + 'T00:00:00');
+        const freq = schedule.frequencyDays;
+        let d = new Date(start);
+        while (d.toISOString().slice(0,10) <= today) d.setDate(d.getDate() + freq);
+        nextDate = d.toISOString().slice(0,10);
+    }
+    const stats = [
+        postCount > 0 ? `${postCount} posts` : 'No posts yet',
+        lastPost ? `Last: ${lastPost.date}` : null,
+        schedule?.frequencyDays ? `Every ${schedule.frequencyDays}d` : null,
+        nextDate ? `Next: ${nextDate}` : null,
+    ].filter(Boolean);
+    return `<a href="/campaign.html?id=${encodeURIComponent(s._id)}" class="hub-product-card">
+        <div class="hub-product-card-icon">${TYPE_ICONS[s.type]||'📦'}</div>
+        <div class="hub-product-card-name">${esc(s.title)}</div>
+        ${s.description ? `<div class="hub-product-card-desc">${esc(s.description)}</div>` : ''}
+        <div class="hub-product-card-stats">${stats.map((st,i) => `<span class="hub-product-card-stat${i===0&&postCount>0?' hub-product-card-stat--active':''}">${st}</span>`).join('')}</div>
+        <span class="hub-product-card-arrow">→</span>
+    </a>`;
+}
+
+function renderCard(s) {
+    const titleHtml = s.link ? `<a href="${s.link}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>` : esc(s.title);
+    const hasSaved = Object.values(s.savedContent||{}).some(v=>v&&v.trim());
+    const genUrl = `/matrix-publishing.html?title=${encodeURIComponent(s.title)}&link=${encodeURIComponent(s.link||'')}&sourceId=${encodeURIComponent(s._id)}&sourceKind=${encodeURIComponent(s._sourceKind)}`;
+    const badges = PLATFORMS.map(p=>{ const date=prDate(s,p.key); return `<button class="hub-pr-badge${date?' hub-pr-badge--done':''}" data-toggle-platform="${p.key}" data-sid="${s._id}" title="${p.label}: ${date?'Done '+date:'click to mark'}">${p.svgHtml}${date?'<span class="hub-pr-check">✓</span>':''}</button>`; }).join('');
+    const editBtn = s._sourceKind==='custom' ? `<button class="hub-menu-btn" data-edit-source="${s._id}" title="Edit">⋯</button>` : '';
+    const metaTags = [s._conf&&`<span class="hub-tag hub-tag--meta">${esc(s._conf)}</span>`, s._date&&`<span class="hub-tag hub-tag--meta">${s._date}</span>`, s._status&&`<span class="hub-tag hub-tag--${s._status==='rejected'?'status-r':'status'}">${s._status}</span>`].filter(Boolean).join('');
+    const accountLogs = (s.pr_logs || [])
+        .filter(l => l.account === currentAccount)
+        .sort((a, b) => b.date.localeCompare(a.date));
+    const prLogsHtml = accountLogs.length ? `<div class="hub-pr-logs">
+        ${accountLogs.map(l => {
+            const platLabel = LPR_PLATFORMS.find(p => p.key === l.platform)?.label || l.platform;
+            const dateFmt = new Date(l.date + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+            return `<div class="hub-pr-log-entry">
+                <span class="hub-pr-log-plat-badge">${esc(platLabel)}</span>
+                <span class="hub-pr-log-date">${dateFmt}</span>
+                ${l.content ? `<span class="hub-pr-log-content-text">${esc(l.content)}</span>` : ''}
+            </div>`;
+        }).join('')}
+    </div>` : '';
+
+    return `<div class="hub-card" id="card-${s._id}">
+        <div class="hub-card-main">
+            <div class="hub-card-type-icon">${TYPE_ICONS[s.type]||'📌'}</div>
+            <div class="hub-card-body">
+                <div class="hub-card-title">${titleHtml}</div>
+                <div class="hub-card-meta"><span class="hub-priority-dot hub-priority-dot--${s.priority||'medium'}"></span>${metaTags}</div>
+            </div>
+            <div class="hub-card-actions">
+                <a class="hub-gen-btn" href="${genUrl}" target="_blank" rel="noopener noreferrer">✨ Generate</a>
+                <button class="hub-content-btn${hasSaved?' hub-content-btn--has':''}" data-show-content="${s._id}">${hasSaved?'📋 Content':'📋 No content'}</button>
+                ${editBtn}
+            </div>
+        </div>
+        <div class="hub-card-footer"><div class="hub-pr-badges">${badges}</div></div>
+        ${prLogsHtml}
+        <div class="hub-metrics-panel" id="metrics-panel-${s._id}"></div>
+    </div>`;
+}
+
+// ── Metrics panel ─────────────────────────────────────────────────────────────
+function openMetricsPanel(src, platform) {
+    const panelEl = document.getElementById(`metrics-panel-${src._id}`); if(!panelEl) return;
+    const p = PLATFORMS.find(x=>x.key===platform); if(!p) return;
+    const ex = prObj(src, platform);
+    const fields = p.metrics.map(m=>`<div class="hub-metrics-field"><label>${m.label}</label><input type="number" id="mf-${src._id}-${platform}-${m.key}" value="${ex[m.key]??''}" placeholder="—"/></div>`).join('');
+    panelEl.innerHTML = `
+        <div class="hub-metrics-header">${p.svgHtml} <span>${p.label}</span>${ex.date?`<span style="color:#64748b;font-weight:400">· Published ${ex.date}</span>`:''}</div>
+        <div class="hub-metrics-grid">
+            <div class="hub-metrics-field"><label>Publish Date</label><input type="date" id="mf-${src._id}-${platform}-date" value="${ex.date||new Date().toISOString().slice(0,10)}"/></div>
+            <div class="hub-metrics-field"><label>Post URL</label><input type="url" id="mf-${src._id}-${platform}-postUrl" value="${ex.postUrl||''}" placeholder="https://…"/></div>
+            ${fields}
+        </div>
+        <div><button class="hub-metrics-save" id="mf-save-${src._id}-${platform}">Save</button>${ex.date?`<button class="hub-metrics-unmark" id="mf-unmark-${src._id}-${platform}">Unmark</button>`:''}</div>`;
+    panelEl.classList.add('open');
+    document.getElementById(`mf-save-${src._id}-${platform}`)?.addEventListener('click',()=>saveMetrics(src,platform,p));
+    document.getElementById(`mf-unmark-${src._id}-${platform}`)?.addEventListener('click',()=>unmark(src,platform));
+}
+
+function closeMetricsPanel() {
+    if(!openMetricsKey) return;
+    const src = allSources.find(s => openMetricsKey.startsWith(s._id+'-'));
+    if(src) { const el=document.getElementById(`metrics-panel-${src._id}`); if(el){el.classList.remove('open');el.innerHTML='';} }
+    openMetricsKey = null;
+}
+
+async function saveMetrics(src, platform, platformDef) {
+    const date = document.getElementById(`mf-${src._id}-${platform}-date`)?.value||null;
+    const postUrl = document.getElementById(`mf-${src._id}-${platform}-postUrl`)?.value||null;
+    const metrics = {};
+    platformDef.metrics.forEach(m=>{ const v=document.getElementById(`mf-${src._id}-${platform}-${m.key}`)?.value; metrics[m.key]=v!==''&&v!=null?Number(v):null; });
+    await persistPr(src,{ ...(src.pr||{}), [platform]:{date,postUrl:postUrl||null,...metrics} });
+}
+
+async function unmark(src, platform) {
+    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}`
+              : src._sourceKind==='news'  ? `${API}/api/news/${src._id}`
+              : `${API}/api/pr-sources/${src._id}`;
+    try {
+        if (src._sourceKind === 'news') {
+            // Clear platform from pr_matrix for current account only
+            const freshRes = await fetch(`${API}/api/news`, { headers: { Authorization: 'Bearer ' + token } });
+            const allNews = freshRes.ok ? await freshRes.json() : [];
+            const found = allNews.find(n => n.id === src._id);
+            if (!found) throw new Error('News not found');
+            const newMatrix = { ...(found.pr_matrix || {}) };
+            if (newMatrix[currentAccount]) {
+                newMatrix[currentAccount] = { ...newMatrix[currentAccount] };
+                delete newMatrix[currentAccount][platform];
+            }
+            const newPr = buildPrFromMatrix(newMatrix, currentAccount);
+            const body = { ...found, pr_matrix: newMatrix };
+            const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
+            if(!res.ok) throw new Error();
+            src.pr = newPr; src.pr_matrix = newMatrix; openMetricsKey=null;
+            renderOverview(); renderDetail();
+            if (currentView === 'matrix') renderMatrix();
+            return;
+        }
+
+        // Fetch fresh paper data (same approach as Log PR)
+        let paperData = src;
+        if (src._sourceKind === 'paper') {
+            const freshRes = await fetch(`${API}/api/papers`, { headers: { Authorization: 'Bearer ' + token } });
+            const allPapers = freshRes.ok ? await freshRes.json() : [];
+            const found = allPapers.find(p => p.id === src._id);
+            if (!found) throw new Error('Paper not found');
+            paperData = found;
+        }
+
+        // Compute everything from fresh data
+        const ex = prObj({ pr: paperData.pr }, platform);
+        const newPr = { ...(paperData.pr||{}), [platform]: { ...ex, date: null } };
+        const newLogs = (paperData.pr_logs || []).filter(l => l.platform !== platform);
+
+        // Clear this platform from ALL accounts in pr_matrix
+        const newMatrix = {};
+        for (const [acc, platforms] of Object.entries(paperData.pr_matrix || {})) {
+            const filtered = { ...platforms };
+            delete filtered[platform];
+            newMatrix[acc] = filtered;
+        }
+
+        const body = { ...paperData, pr: newPr, pr_logs: newLogs, pr_matrix: newMatrix };
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
+        if(!res.ok) throw new Error();
+
+        src.pr = newPr; src.pr_logs = newLogs; src.pr_matrix = newMatrix; openMetricsKey=null;
+        renderOverview(); renderDetail();
+        if (currentView === 'matrix') renderMatrix();
+    } catch(e) { alert('Failed to unmark: ' + e.message); }
+}
+
+async function persistPr(src, newPr) {
+    const url = src._sourceKind==='paper' ? `${API}/api/papers/${src._id}`
+              : src._sourceKind==='news'  ? `${API}/api/news/${src._id}`
+              : `${API}/api/pr-sources/${src._id}`;
+    try {
+        let body = { ...src, pr: newPr };
+        if (src._sourceKind === 'news') {
+            // Also update pr_matrix for the current account
+            const newMatrix = { ...(src.pr_matrix || {}) };
+            for (const [platform, val] of Object.entries(newPr)) {
+                if (!newMatrix[currentAccount]) newMatrix[currentAccount] = {};
+                newMatrix[currentAccount][platform] = val?.date || null;
+            }
+            body = { ...src, pr: newPr, pr_matrix: newMatrix };
+            src.pr_matrix = newMatrix;
+        }
+        const res = await fetch(url,{ method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify(body) });
+        if(!res.ok) throw new Error();
+        src.pr = newPr; openMetricsKey=null;
+        renderOverview();
+        renderDetail();
+        if (currentView === 'matrix') renderMatrix();
+    } catch { alert('Failed to save. Please try again.'); }
+}
+
+// ── Content modal ─────────────────────────────────────────────────────────────
+function openContentModal(src) {
+    contentViewSource=src; contentViewTab='wechat';
+    document.getElementById('contentModalTitle').textContent = src.title.slice(0,60)+(src.title.length>60?'…':'');
+    document.querySelectorAll('.hub-content-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===contentViewTab));
+    updateContentView();
+    document.getElementById('contentModal').classList.add('open');
+}
+function updateContentView() { document.getElementById('contentText').textContent = contentViewSource?.savedContent?.[contentViewTab]||'(No content saved for this platform)'; }
+document.querySelectorAll('.hub-content-tab').forEach(tab=>tab.addEventListener('click',()=>{ contentViewTab=tab.dataset.tab; document.querySelectorAll('.hub-content-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===contentViewTab)); updateContentView(); }));
+document.getElementById('contentModalClose').addEventListener('click',()=>document.getElementById('contentModal').classList.remove('open'));
+document.getElementById('contentCopyBtn').addEventListener('click',function(){ navigator.clipboard.writeText(document.getElementById('contentText').textContent).then(()=>{ this.textContent='✓ Copied'; this.classList.add('copied'); setTimeout(()=>{this.textContent='⎘ Copy';this.classList.remove('copied');},2000); }); });
+
+// ── Source modal ──────────────────────────────────────────────────────────────
+document.getElementById('addSourceBtn').addEventListener('click',()=>openSourceModal(null));
+document.getElementById('sourceModalCancel').addEventListener('click',closeSourceModal);
+document.getElementById('sourceModalClose').addEventListener('click',closeSourceModal);
+
+function openSourceModal(s) {
+    editingSourceId=s?s._id:null;
+    document.getElementById('sourceModalTitle').textContent=s?'Edit Source':'Add Source';
+    document.getElementById('f-title').value=s?.title||'';
+    document.getElementById('f-type').value=s?.type||currentHubType||'finding';
+    document.getElementById('f-priority').value=s?.priority||'medium';
+    document.getElementById('f-description').value=s?.description||'';
+    document.getElementById('f-link').value=s?.link||'';
+    document.getElementById('f-notes').value=s?.notes||'';
+    document.getElementById('sourceModalDelete').style.display=s?'inline-block':'none';
+    document.getElementById('sourceModal').classList.add('open');
+}
+function closeSourceModal(){ document.getElementById('sourceModal').classList.remove('open'); editingSourceId=null; }
+
+document.getElementById('sourceModalSave').addEventListener('click',async()=>{
+    const title=document.getElementById('f-title').value.trim();
+    if(!title){alert('Title is required.');return;}
+    const body={title,type:document.getElementById('f-type').value,priority:document.getElementById('f-priority').value,description:document.getElementById('f-description').value.trim(),link:document.getElementById('f-link').value.trim(),notes:document.getElementById('f-notes').value.trim(),account:currentAccount};
+    try {
+        const url=editingSourceId?`${API}/api/pr-sources/${editingSourceId}`:`${API}/api/pr-sources`;
+        const res=await fetch(url,{method:editingSourceId?'PUT':'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify(body)});
+        if(!res.ok)throw new Error();
+        closeSourceModal(); loadData();
+    } catch { alert('Failed to save source.'); }
+});
+
+document.getElementById('sourceModalDelete').addEventListener('click',async()=>{
+    if(!editingSourceId||!confirm('Delete this source?'))return;
+    try { await fetch(`${API}/api/pr-sources/${editingSourceId}`,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); closeSourceModal(); loadData(); }
+    catch { alert('Failed to delete.'); }
+});
+
+document.getElementById('sourceModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSourceModal();});
+document.getElementById('contentModal').addEventListener('click',e=>{if(e.target===e.currentTarget)document.getElementById('contentModal').classList.remove('open');});
+
+['filterStatus','filterPlatform'].forEach(id=>document.getElementById(id).addEventListener('change', renderDetail));
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── PR Matrix view ────────────────────────────────────────────────────────────
+function renderMatrix() {
+    const matrixView = document.getElementById('matrixView');
+    if (!matrixView) return;
+
+    // Group product posts by (product, content) → one campaign row per unique announcement
+    function buildCampaigns(products) {
+        const map = new Map();
+        for (const product of products) {
+            for (const post of (product.posts || [])) {
+                const content = post.content || '';
+                const key = `${product.id}::${content}`;
+                if (!map.has(key)) {
+                    map.set(key, {
+                        _id: post.id, _sourceKind: 'product_post',
+                        _productId: product.id, _productTitle: product.title, _productAccount: product.account,
+                        _loggedPlatforms: new Set(), _platformDates: {},
+                        title: content ? `${product.title} - ${content}` : product.title,
+                        link: post.url || null, date: post.date,
+                        createdAt: post.date ? post.date + 'T00:00:00Z' : null, pr_matrix: {},
+                    });
+                }
+                const c = map.get(key);
+                c._loggedPlatforms.add(post.platform);
+                c._platformDates[post.platform] = post.date;
+                if (!c.date || post.date > c.date) { c.date = post.date; c.createdAt = post.date + 'T00:00:00Z'; }
+                for (const [acc, plats] of Object.entries(post.pr_matrix || {})) {
+                    if (!c.pr_matrix[acc]) c.pr_matrix[acc] = {};
+                    for (const [plat, d] of Object.entries(plats)) { if (d && !c.pr_matrix[acc][plat]) c.pr_matrix[acc][plat] = d; }
+                }
+            }
+        }
+        return [...map.values()];
+    }
+
+    let items;
+    const allProducts = allSources.filter(s => s.type === 'product');
+    if (matrixFilter === 'product') {
+        items = buildCampaigns(allProducts);
+    } else {
+        const expandedProductPosts = buildCampaigns(allProducts);
+        const papersAndNews = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
+        if (matrixFilter === 'paper') items = papersAndNews.filter(s => s._sourceKind === 'paper');
+        else if (matrixFilter === 'news') items = papersAndNews.filter(s => s._sourceKind === 'news');
+        else items = [...papersAndNews, ...expandedProductPosts]; // 'all'
+    }
+
+    items.sort((a, b) => {
+        const aT = a.createdAt ? new Date(a.createdAt).getTime() : (a._date ? new Date(a._date).getTime() : 0);
+        const bT = b.createdAt ? new Date(b.createdAt).getTime() : (b._date ? new Date(b._date).getTime() : 0);
+        return bT - aT;
+    });
+
+    document.getElementById('matrixCount').textContent = `${items.length} items`;
+
+    if (items.length === 0) {
+        document.getElementById('matrixBody').innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">🔍</div>No items found.</div>';
+        return;
+    }
+
+    const accountKeys = matrixAccountFilter === 'all' ? Object.keys(ACCOUNTS) : [matrixAccountFilter];
+    // Header row 1: account groups with colored bg, each spanning all platforms
+    const thAccounts = accountKeys.map(accKey => {
+        const acc = ACCOUNTS[accKey];
+        return `<th colspan="${PLATFORMS.length}" class="matrix-th-acc" style="color:${acc.color};background:${acc.bg}">
+            <div class="matrix-acc-label">
+                <span class="matrix-acc-dot" style="background:${acc.color}">${acc.initial}</span>
+                ${acc.name}
+            </div>
+        </th>`;
+    }).join('');
+
+    // Header row 2: platform icons — last platform of each account gets border-right
+    const thPlats = accountKeys.map(accKey =>
+        PLATFORMS.map((p, pIdx) => {
+            const isLast = pIdx === PLATFORMS.length - 1;
+            return `<th class="matrix-th-plat"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''} title="${p.label}">${p.svgHtml}</th>`;
+        }).join('')
+    ).join('');
+
+    const rows = items.map(item => {
+        // ── Product posts: "Product" badge + "Product Name - Caption" title ──
+        if (item._sourceKind === 'product_post') {
+            const typeBadge = `<span class="matrix-type-badge" style="background:#f0f9ff;color:#0891b2">Product</span>`;
+            const titleLink = item.link
+                ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
+                : esc(item.title);
+            const loggedPlatLabels = [...(item._loggedPlatforms || [])].map(k => (PLATFORMS.find(pl => pl.key === k)?.label || k).split(' ')[0]).join(', ');
+            const metaHtml = `<div class="matrix-item-meta">${loggedPlatLabels || '—'} · ${item.date}</div>`;
+            const cells = accountKeys.map(accKey =>
+                PLATFORMS.map((p, pIdx) => {
+                    const isOwn = accKey === item._productAccount && (item._loggedPlatforms?.has(p.key) ?? false);
+                    const ownDate = isOwn ? (item._platformDates?.[p.key] || item.date) : null;
+                    const manualDone = !!(item.pr_matrix?.[accKey]?.[p.key]);
+                    const isDone = isOwn || manualDone;
+                    const doneDate = isOwn ? ownDate : (item.pr_matrix?.[accKey]?.[p.key] || null);
+                    const isLast = pIdx === PLATFORMS.length - 1;
+                    const inner = isOwn
+                        ? `<div class="matrix-check matrix-check--done" style="cursor:default" title="Logged via campaign (${ownDate})">✓</div>`
+                        : `<button class="matrix-check${isDone?' matrix-check--done':''}"
+                            data-ppost-id="${esc(item._id)}"
+                            data-ppost-account="${accKey}"
+                            data-ppost-platform="${p.key}"
+                            title="${isDone ? 'Done: '+doneDate+'. Click to unmark.' : 'Mark done · '+(ACCOUNTS[accKey]?.name||accKey)+' · '+p.label.split(' ')[0]}">${isDone ? '✓' : ''}</button>`;
+                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>${inner}</td>`;
+                }).join('')
+            ).join('');
+            return `<tr data-item-id="${item._id}">
+                <td class="matrix-td-item">
+                    <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                    ${metaHtml}
+                </td>
+                ${cells}
+            </tr>`;
+        }
+
+        // ── Papers, News, and whole-product items ──
+        const isPaper   = item._sourceKind === 'paper';
+        const isProduct = item.type === 'product' || item.type === 'finding' || item.type === 'project';
+        const typeBadge = isPaper
+            ? `<span class="matrix-type-badge" style="background:#eff6ff;color:#1d4ed8">Paper</span>`
+            : isProduct
+                ? `<span class="matrix-type-badge" style="background:#f0f9ff;color:#0891b2">Product</span>`
+                : `<span class="matrix-type-badge" style="background:#fffbeb;color:#92400e">News</span>`;
+        const titleLink = item.link
+            ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.title)}</a>`
+            : esc(item.title);
+        const metaParts = [item._conf, item._date ? item._date.slice(0,4) : null].filter(Boolean);
+        const metaHtml = metaParts.length ? `<div class="matrix-item-meta">${esc(metaParts.join(' · '))}</div>` : '';
+        const ownerHtml = item._owner ? `<div class="matrix-owner"><span class="matrix-owner-avatar">${esc(item._owner[0].toUpperCase())}</span>${esc(item._owner)}</div>` : '';
+
+        const cells = accountKeys.map(accKey =>
+            PLATFORMS.map((p, pIdx) => {
+                const date = (item.pr_matrix?.[accKey]?.[p.key]) || null;
+                const done = !!date;
+                const isLast = pIdx === PLATFORMS.length - 1;
+                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>
+                    <button class="matrix-check${done?' matrix-check--done':''}"
+                        data-matrix-id="${item._id}"
+                        data-matrix-account="${accKey}"
+                        data-matrix-platform="${p.key}"
+                        title="${done ? 'Done: '+date+'. Click to unmark.' : 'Mark done · '+esc(ACCOUNTS[accKey].name)+' · '+esc(p.label)}">${done ? '✓' : ''}</button>
+                </td>`;
+            }).join('')
+        ).join('');
+
+        return `<tr data-item-id="${item._id}">
+            <td class="matrix-td-item">
+                <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                ${metaHtml}${ownerHtml}
+            </td>
+            ${cells}
+        </tr>`;
+    }).join('');
+
+    document.getElementById('matrixBody').innerHTML = `<div class="matrix-scroll">
+        <table class="matrix-table">
+            <thead>
+                <tr><th class="matrix-th-item" rowspan="2">Item</th>${thAccounts}</tr>
+                <tr>${thPlats}</tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
+    </div>`;
+
+    document.getElementById('matrixBody').querySelectorAll('[data-matrix-id]').forEach(btn => {
+        btn.addEventListener('click', () => toggleMatrixCell(btn.dataset.matrixId, btn.dataset.matrixAccount, btn.dataset.matrixPlatform));
+    });
+    document.getElementById('matrixBody').querySelectorAll('[data-ppost-id]').forEach(btn => {
+        btn.addEventListener('click', () => toggleProductPostCell(btn.dataset.ppostId, btn.dataset.ppostAccount, btn.dataset.ppostPlatform));
+    });
+
+    // Scroll to and highlight target row from ?paper=ID or ?news=ID URL param
+    const _targetItemId = new URLSearchParams(window.location.search).get('paper')
+                        || new URLSearchParams(window.location.search).get('news');
+    if (_targetItemId) {
+        const targetRow = document.querySelector(`tr[data-item-id="${_targetItemId}"]`);
+        if (targetRow) {
+            document.querySelectorAll('tr[data-item-id]').forEach(r => r.classList.remove('matrix-row--target'));
+            targetRow.classList.add('matrix-row--target');
+            setTimeout(() => targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+        }
+    }
+}
+
+async function toggleProductPostCell(postId, account, platform) {
+    const product = allSources.find(s => s.type === 'product' && (s.posts || []).some(p => p.id === postId));
+    if (!product) return;
+    const postIdx = (product.posts || []).findIndex(p => p.id === postId);
+    if (postIdx === -1) return;
+    const refPost = product.posts[postIdx];
+    const content = refPost.content || '';
+    const today = new Date().toISOString().slice(0, 10);
+    const platLabel = (PLATFORMS.find(pl => pl.key === platform)?.label || platform).split(' ')[0];
+    const campaignTitle = content ? `${product.title} - ${content}` : product.title;
+
+    const hasMark = !!(refPost.pr_matrix?.[account]?.[platform]);
+    const originalPosts = JSON.parse(JSON.stringify(product.posts));
+
+    if (hasMark) {
+        // Remove old pr_matrix mark (backwards compat)
+        if (!confirm(`Remove PR mark for ${platLabel}?`)) return;
+        const matrix = JSON.parse(JSON.stringify(refPost.pr_matrix || {}));
+        if (matrix[account]) delete matrix[account][platform];
+        product.posts[postIdx] = { ...refPost, pr_matrix: matrix };
+    } else {
+        // Create a real post — same format as campaign.html
+        if (!confirm(`Add a ${platLabel} post for "${campaignTitle}" dated ${today}?`)) return;
+        product.posts = [...product.posts, {
+            id: 'post_' + Date.now(),
+            platform,
+            date: today,
+            content,
+            url: '',
+            metrics: {},
+        }];
+    }
+
+    try {
+        const res = await fetch(`${API}/api/pr-sources/${product.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify(product),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        renderOverview();
+        renderMatrix();
+        if (currentHubType) renderDetail();
+    } catch(e) {
+        product.posts = originalPosts;
+        alert('Failed to save: ' + e.message);
+    }
+}
+
+async function toggleMatrixCell(itemId, account, platform) {
+    const src = allSources.find(s => s._id === itemId);
+    if (!src) return;
+    const date = (src.pr_matrix?.[account]?.[platform]) || null;
+    if (date) {
+        if (!confirm(`Remove PR mark for ${platform} (${ACCOUNTS[account]?.name || account}) on ${date}?`)) return;
+        await unmarkMatrix(src, account, platform);
+    } else {
+        await quickMarkPr(src, account, platform);
+    }
+}
+
+async function unmarkMatrix(src, account, platform) {
+    const url = src._sourceKind === 'paper'
+        ? `${API}/api/papers/${src._id}`
+        : `${API}/api/news/${src._id}`;
+    try {
+        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
+        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const fresh = all.find(x => x.id === src._id);
+        if (!fresh) throw new Error('Not found');
+        const newMatrix = { ...(fresh.pr_matrix || {}) };
+        if (newMatrix[account]) {
+            newMatrix[account] = { ...newMatrix[account] };
+            delete newMatrix[account][platform];
+        }
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix }) });
+        if (!res.ok) throw new Error('Unmark failed');
+        src.pr_matrix = newMatrix;
+        src.pr = buildPrFromMatrix(newMatrix, currentAccount);
+        renderOverview();
+        renderMatrix();
+    } catch(e) { alert('Failed to unmark: ' + e.message); }
+}
+
+async function quickMarkPr(src, account, platform) {
+    const date = new Date().toISOString().slice(0, 10);
+    const url = src._sourceKind === 'paper'
+        ? `${API}/api/papers/${src._id}`
+        : `${API}/api/news/${src._id}`;
+    try {
+        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
+        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        const fresh = all.find(x => x.id === src._id);
+        if (!fresh) throw new Error('Not found');
+        const newMatrix = { ...(fresh.pr_matrix||{}), [account]: { ...(fresh.pr_matrix?.[account]||{}), [platform]: date } };
+        const newPr = { ...(fresh.pr||{}), [platform]: { ...(fresh.pr?.[platform]||{}), date } };
+        const newLogs = [...(fresh.pr_logs||[]), { account, platform, date, url: null, content: null }];
+        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix, pr: newPr, pr_logs: newLogs }) });
+        if (!res.ok) throw new Error('Save failed');
+        src.pr_matrix = newMatrix;
+        src.pr = buildPrFromMatrix(newMatrix, currentAccount);
+        src.pr_logs = newLogs;
+        renderOverview();
+        renderMatrix();
+    } catch(e) { alert('Failed to mark: ' + e.message); }
+}
+
+init();
+
+// ── Log PR ────────────────────────────────────────────────────────────────────
+let lprPapers = [];
+
+async function openLogPrModal() {
+    // Set account to current account (read-only)
+    const accName = ACCOUNTS[currentAccount]?.name || currentAccount;
+    document.getElementById('lpr-account-display').textContent = accName;
+    document.getElementById('lpr-account').value = currentAccount;
+    // Default date to today
+    document.getElementById('lpr-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lpr-success').classList.remove('show');
+    document.getElementById('lpr-content').value = '';
+    document.getElementById('lpr-url').value = '';
+
+    // Load arxiv papers if not yet loaded
+    if (lprPapers.length === 0) {
+        try {
+            const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
+            if (res.ok) {
+                const all = await res.json();
+                lprPapers = all.filter(p => p.arxiv).sort((a, b) => {
+                    const aD = a.date || `${a.year}-01-01`;
+                    const bD = b.date || `${b.year}-01-01`;
+                    return bD.localeCompare(aD);
+                });
+            }
+        } catch { }
+    }
+
+    const sel = document.getElementById('lpr-paper');
+    sel.innerHTML = lprPapers.length
+        ? lprPapers.map(p => `<option value="${esc(p.id)}">${esc(p.title || '(Untitled)')}</option>`).join('')
+        : '<option value="">No arXiv papers found</option>';
+
+    fillLprUrl();
+    document.getElementById('logPrModal').classList.add('open');
+}
+
+function fillLprUrl() {
+    const paperId  = document.getElementById('lpr-paper').value;
+    const platform = document.getElementById('lpr-platform').value;
+    const paper = lprPapers.find(p => p.id === paperId);
+    const existing = paper?.pr?.[platform]?.postUrl || '';
+    document.getElementById('lpr-url').value = existing;
+}
+
+function closeLogPrModal() {
+    document.getElementById('logPrModal').classList.remove('open');
+}
+
+document.getElementById('logPrPaperBtn').addEventListener('click', openLogPrModal);
+document.getElementById('logPrModalClose').addEventListener('click', closeLogPrModal);
+document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
+document.getElementById('lpr-paper').addEventListener('change', fillLprUrl);
+document.getElementById('lpr-platform').addEventListener('change', fillLprUrl);
+
+document.getElementById('lpr-save').addEventListener('click', async () => {
+    const paperId  = document.getElementById('lpr-paper').value;
+    const account  = document.getElementById('lpr-account').value;
+    const platform = document.getElementById('lpr-platform').value;
+    const date     = document.getElementById('lpr-date').value;
+    const url      = document.getElementById('lpr-url').value.trim();
+    const content  = document.getElementById('lpr-content').value.trim();
+
+    if (!paperId || !date) { alert('Please select a paper and date.'); return; }
+
+    const btn = document.getElementById('lpr-save');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+        // Fetch current paper data
+        const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
+        const all = await res.json();
+        const paper = all.find(p => p.id === paperId);
+        if (!paper) throw new Error('Paper not found');
+
+        // Merge new pr_matrix entry (stores latest date per account/platform)
+        const newMatrix = {
+            ...(paper.pr_matrix || {}),
+            [account]: {
+                ...(paper.pr_matrix?.[account] || {}),
+                [platform]: date,
+            },
+        };
+
+        // Append to pr_logs array (stores history with content)
+        const newLogs = [
+            ...(paper.pr_logs || []),
+            { account, platform, date, url: url || null, content: content || null },
+        ];
+
+        // Also update pr[platform].date so the badge checkmark appears
+        const newPr = {
+            ...(paper.pr || {}),
+            [platform]: { ...(paper.pr?.[platform] || {}), date },
+        };
+
+        const saveRes = await fetch(API + '/api/papers/' + paperId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ ...paper, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
+        });
+        if (!saveRes.ok) throw new Error('Save failed');
+
+        // Update local allSources so re-render shows new log immediately
+        const src = allSources.find(s => s._id === paperId);
+        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = newPr; }
+        lprPapers = []; // invalidate cache
+
+        document.getElementById('lpr-success').classList.add('show');
+        btn.textContent = 'Save';
+        btn.disabled = false;
+        setTimeout(() => { closeLogPrModal(); renderOverview(); renderDetail(); }, 1200);
+    } catch (e) {
+        alert('Error: ' + e.message);
+        btn.textContent = 'Save';
+        btn.disabled = false;
+    }
+});
+
+// ── Log PR (News) ─────────────────────────────────────────────────────────────
+let lprNewsItems = [];
+
+async function openLogPrNewsModal() {
+    const accName = ACCOUNTS[currentAccount]?.name || currentAccount;
+    document.getElementById('lprn-account-display').textContent = accName;
+    document.getElementById('lprn-account').value = currentAccount;
+    document.getElementById('lprn-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lprn-success').classList.remove('show');
+    document.getElementById('lprn-content').value = '';
+    document.getElementById('lprn-url').value = '';
+
+    if (lprNewsItems.length === 0) {
+        try {
+            const res = await fetch(API + '/api/news', { headers: { Authorization: 'Bearer ' + token } });
+            if (res.ok) lprNewsItems = (await res.json()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+        } catch { }
+    }
+
+    const sel = document.getElementById('lprn-news');
+    sel.innerHTML = lprNewsItems.length
+        ? lprNewsItems.map(n => `<option value="${esc(n.id)}">${esc(n.title || '(Untitled)')}</option>`).join('')
+        : '<option value="">No news items found</option>';
+
+    document.getElementById('logPrNewsModal').classList.add('open');
+}
+
+function closeLogPrNewsModal() {
+    document.getElementById('logPrNewsModal').classList.remove('open');
+}
+
+document.getElementById('logPrNewsBtn').addEventListener('click', openLogPrNewsModal);
+document.getElementById('logPrNewsModalClose').addEventListener('click', closeLogPrNewsModal);
+document.getElementById('lprn-cancel').addEventListener('click', closeLogPrNewsModal);
+document.getElementById('logPrNewsModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeLogPrNewsModal(); });
+
+document.getElementById('lprn-save').addEventListener('click', async () => {
+    const newsId   = document.getElementById('lprn-news').value;
+    const account  = document.getElementById('lprn-account').value;
+    const platform = document.getElementById('lprn-platform').value;
+    const date     = document.getElementById('lprn-date').value;
+    const url      = document.getElementById('lprn-url').value.trim();
+    const content  = document.getElementById('lprn-content').value.trim();
+
+    if (!newsId || !date) { alert('Please select a news item and date.'); return; }
+
+    const btn = document.getElementById('lprn-save');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    try {
+        const res = await fetch(API + '/api/news', { headers: { Authorization: 'Bearer ' + token } });
+        const all = await res.json();
+        const item = all.find(n => n.id === newsId);
+        if (!item) throw new Error('News item not found');
+
+        const newMatrix = {
+            ...(item.pr_matrix || {}),
+            [account]: { ...(item.pr_matrix?.[account] || {}), [platform]: date },
+        };
+        const newLogs = [...(item.pr_logs || []), { account, platform, date, url: url || null, content: content || null }];
+        const newPr = { ...(item.pr || {}), [platform]: { ...(item.pr?.[platform] || {}), date } };
+
+        const saveRes = await fetch(API + '/api/news/' + newsId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ ...item, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
+        });
+        if (!saveRes.ok) throw new Error('Save failed');
+
+        const src = allSources.find(s => s._id === newsId);
+        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = buildPrFromMatrix(newMatrix, currentAccount); }
+        lprNewsItems = [];
+
+        document.getElementById('lprn-success').classList.add('show');
+        btn.textContent = 'Save'; btn.disabled = false;
+        setTimeout(() => { closeLogPrNewsModal(); renderOverview(); renderDetail(); }, 1200);
+    } catch (e) {
+        alert('Error: ' + e.message);
+        btn.textContent = 'Save'; btn.disabled = false;
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab Projects - Yanzhi Wang</title>
+    <meta name="description" content="Lab projects from Yanzhi Wang's research group at Northeastern University. Featuring world models, embodied AI, and cognitive architecture research.">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        main h1 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-item {
+            padding: 1.5rem 0;
+        }
+
+        .project-item h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .project-item h3 a {
+            color: #000;
+            text-decoration: none;
+            border-bottom: 1px solid #000;
+        }
+
+        .project-item h3 a:hover {
+            opacity: 0.7;
+        }
+
+        .project-item p {
+            color: #444;
+            margin-bottom: 0;
+            line-height: 1.7;
+        }
+
+        .project-note {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <shared-header></shared-header>
+
+    <div class="container">
+        <main class="main-content">
+            <h1>Lab Projects</h1>
+
+            <section>
+                <div class="project-item">
+                    <h3><a href="https://arxiv.org/pdf/2604.16592" target="_blank">Human Cognition in Machines: A Unified Perspective of World Models</a></h3>
+                    <p>Our latest report (led by Timothy Rupprecht and our team at the PAIR Center) introduces a unified framework for World Models grounded in Cognitive Architecture Theory. By auditing current SOTAs across video, embodied, and epistemic domains, we provide a roadmap to bridge the gap between machine and human-like cognition.</p>
+                    <div class="project-links" style="margin-top: 0.75rem;">
+                        <a href="https://x.com/Yanzhi_Wang_/status/2049139603584454709?s=20" target="_blank" style="font-size: 0.9rem; font-weight: 500; color: #000; text-decoration: underline;">Discussion on X</a>
+                    </div>
+                    <p class="project-note">This theoretical framework serves as a core pillar for our work at <a href="https://www.embodyx.io/" target="_blank" style="color: #888; border-bottom: 1px solid #888;">EmbodyX</a>.</p>
+                </div>
+            </section>
+        </main>
+
+        <shared-footer></shared-footer>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

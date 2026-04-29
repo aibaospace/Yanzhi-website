@@ -12,6 +12,7 @@ export default defineConfig({
                 teaching: 'teaching.html',
                 students: 'students.html',
                 news: 'news.html',
+                projects: 'projects.html',
                 opensource: 'opensource.html',
                 prTool: 'pr-tool.html',
                 dam: 'dam.html',
