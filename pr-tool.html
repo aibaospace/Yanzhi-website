@@ -576,8 +576,12 @@
         <div class="hub-modal-body">
             <div class="lpr-form">
                 <div class="lpr-field">
-                    <label>Paper</label>
-                    <select id="lpr-paper"><option value="">Loading papers…</option></select>
+                    <label>Item</label>
+                    <select id="lpr-paper"><option value="">Loading…</option></select>
+                </div>
+                <div class="lpr-field" id="lpr-new-title-field" style="display:none">
+                    <label>New Item Title</label>
+                    <input type="text" id="lpr-new-title" placeholder="Enter title for new item…" />
                 </div>
                 <div class="lpr-field">
                     <label>Account</label>
@@ -1750,25 +1754,29 @@ async function openLogPrModal() {
     document.getElementById('lpr-content').value = '';
     document.getElementById('lpr-url').value = '';
 
-    // Load arxiv papers if not yet loaded
+    // Load all items (papers, news, pr-sources)
     if (lprPapers.length === 0) {
         try {
-            const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
-            if (res.ok) {
-                const all = await res.json();
-                lprPapers = all.filter(p => p.arxiv).sort((a, b) => {
-                    const aD = a.date || `${a.year}-01-01`;
-                    const bD = b.date || `${b.year}-01-01`;
-                    return bD.localeCompare(aD);
-                });
-            }
+            const [papersRes, newsRes, srcRes] = await Promise.all([
+                fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } }),
+                fetch(API + '/api/news', { headers: { Authorization: 'Bearer ' + token } }),
+                fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } }),
+            ]);
+            const papers = papersRes.ok ? (await papersRes.json()).filter(p => p.arxiv) : [];
+            const news = newsRes.ok ? (await newsRes.json()).filter(n => n.inPrMatrix) : [];
+            const sources = srcRes.ok ? await srcRes.json() : [];
+            lprPapers = [
+                ...papers.map(p => ({ ...p, _lprType: 'paper', _lprLabel: '[Paper] ' + (p.title || '(Untitled)') })),
+                ...news.map(n => ({ ...n, _lprType: 'news', _lprLabel: '[News] ' + (n.title || '(Untitled)') })),
+                ...sources.map(s => ({ ...s, _lprType: 'source', _lprLabel: '[Product] ' + (s.title || '(Untitled)') })),
+            ];
         } catch { }
     }
 
     const sel = document.getElementById('lpr-paper');
-    sel.innerHTML = lprPapers.length
-        ? lprPapers.map(p => `<option value="${esc(p.id)}">${esc(p.title || '(Untitled)')}</option>`).join('')
-        : '<option value="">No arXiv papers found</option>';
+    const opts = lprPapers.map(p => `<option value="${esc(p.id)}" data-type="${p._lprType}">${esc(p._lprLabel)}</option>`).join('');
+    sel.innerHTML = opts + '<option value="__new__">+ New Item…</option>';
+    document.getElementById('lpr-new-title-field').style.display = 'none';
 
     fillLprUrl();
     document.getElementById('logPrModal').classList.add('open');
@@ -1789,7 +1797,11 @@ function closeLogPrModal() {
 document.getElementById('logPrPaperBtn').addEventListener('click', openLogPrModal);
 document.getElementById('logPrModalClose').addEventListener('click', closeLogPrModal);
 document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
-document.getElementById('lpr-paper').addEventListener('change', fillLprUrl);
+document.getElementById('lpr-paper').addEventListener('change', () => {
+    const isNew = document.getElementById('lpr-paper').value === '__new__';
+    document.getElementById('lpr-new-title-field').style.display = isNew ? '' : 'none';
+    if (!isNew) fillLprUrl();
+});
 document.getElementById('lpr-platform').addEventListener('change', fillLprUrl);
 
 document.getElementById('lpr-save').addEventListener('click', async () => {
@@ -1800,56 +1812,85 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
     const url      = document.getElementById('lpr-url').value.trim();
     const content  = document.getElementById('lpr-content').value.trim();
 
-    if (!paperId || !date) { alert('Please select a paper and date.'); return; }
+    const isNew = paperId === '__new__';
+    const newTitle = document.getElementById('lpr-new-title').value.trim();
+    if (!isNew && !paperId) { alert('Please select an item.'); return; }
+    if (isNew && !newTitle) { alert('Please enter a title for the new item.'); return; }
+    if (!date) { alert('Please select a date.'); return; }
 
     const btn = document.getElementById('lpr-save');
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
     try {
-        // Fetch current paper data
-        const res = await fetch(API + '/api/papers', { headers: { Authorization: 'Bearer ' + token } });
-        const all = await res.json();
-        const paper = all.find(p => p.id === paperId);
-        if (!paper) throw new Error('Paper not found');
+        if (isNew) {
+            // Create new PR source
+            const newSource = {
+                type: 'announcement',
+                title: newTitle,
+                description: '',
+                link: url || '',
+                priority: 'medium',
+                notes: content || '',
+            };
+            const createRes = await fetch(API + '/api/pr-sources', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: JSON.stringify(newSource),
+            });
+            if (!createRes.ok) throw new Error('Failed to create item');
+            const created = await createRes.json();
+            // Mark pr_matrix on the new item
+            const prMatrix = { [account]: { [platform]: date } };
+            await fetch(API + '/api/pr-sources/' + created.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: JSON.stringify({ pr_matrix: prMatrix }),
+            });
+            lprPapers = [];
+        } else {
+            // Find item type from dropdown
+            const selOpt = document.querySelector(`#lpr-paper option[value="${paperId}"]`);
+            const itemType = selOpt?.dataset?.type || 'paper';
 
-        // Merge new pr_matrix entry (stores latest date per account/platform)
-        const newMatrix = {
-            ...(paper.pr_matrix || {}),
-            [account]: {
-                ...(paper.pr_matrix?.[account] || {}),
-                [platform]: date,
-            },
-        };
-
-        // Append to pr_logs array (stores history with content)
-        const newLogs = [
-            ...(paper.pr_logs || []),
-            { account, platform, date, url: url || null, content: content || null },
-        ];
-
-        // Also update pr[platform].date so the badge checkmark appears
-        const newPr = {
-            ...(paper.pr || {}),
-            [platform]: { ...(paper.pr?.[platform] || {}), date },
-        };
-
-        const saveRes = await fetch(API + '/api/papers/' + paperId, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ ...paper, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
-        });
-        if (!saveRes.ok) throw new Error('Save failed');
-
-        // Update local allSources so re-render shows new log immediately
-        const src = allSources.find(s => s._id === paperId);
-        if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = newPr; }
-        lprPapers = []; // invalidate cache
+            if (itemType === 'source') {
+                // Update PR source
+                const srcRes = await fetch(API + '/api/pr-sources', { headers: { Authorization: 'Bearer ' + token } });
+                const sources = await srcRes.json();
+                const source = sources.find(s => s.id === paperId);
+                if (!source) throw new Error('Item not found');
+                const newMatrix = { ...(source.pr_matrix || {}), [account]: { ...(source.pr_matrix?.[account] || {}), [platform]: date } };
+                await fetch(API + '/api/pr-sources/' + paperId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify({ ...source, pr_matrix: newMatrix }),
+                });
+            } else {
+                // Update paper or news
+                const endpoint = itemType === 'news' ? '/api/news' : '/api/papers';
+                const res = await fetch(API + endpoint, { headers: { Authorization: 'Bearer ' + token } });
+                const all = await res.json();
+                const item = all.find(p => p.id === paperId);
+                if (!item) throw new Error('Item not found');
+                const newMatrix = { ...(item.pr_matrix || {}), [account]: { ...(item.pr_matrix?.[account] || {}), [platform]: date } };
+                const newLogs = [...(item.pr_logs || []), { account, platform, date, url: url || null, content: content || null }];
+                const newPr = { ...(item.pr || {}), [platform]: { ...(item.pr?.[platform] || {}), date } };
+                const saveRes = await fetch(API + endpoint + '/' + paperId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify({ ...item, pr_matrix: newMatrix, pr_logs: newLogs, pr: newPr }),
+                });
+                if (!saveRes.ok) throw new Error('Save failed');
+                const src = allSources.find(s => s._id === paperId);
+                if (src) { src.pr_matrix = newMatrix; src.pr_logs = newLogs; src.pr = newPr; }
+            }
+            lprPapers = [];
+        }
 
         document.getElementById('lpr-success').classList.add('show');
         btn.textContent = 'Save';
         btn.disabled = false;
-        setTimeout(() => { closeLogPrModal(); renderOverview(); renderDetail(); }, 1200);
+        setTimeout(() => { closeLogPrModal(); renderOverview(); renderMatrix(); renderDetail(); }, 1200);
     } catch (e) {
         alert('Error: ' + e.message);
         btn.textContent = 'Save';
