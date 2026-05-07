@@ -717,6 +717,17 @@ const PLATFORMS = [
       metrics: [{ key:'views', label:'Views' }, { key:'clicks', label:'Clicks' }] },
 ];
 
+const CORP_PLATFORMS = [
+    { key: 'csdn', label: 'CSDN' },
+    { key: 'aitech', label: 'AI科技大本营' },
+    { key: 'gosim', label: 'GOSIM开源创新汇' },
+];
+function hasCorpPr(item, accKey) {
+    const acc = item.corp_pr_matrix?.[accKey];
+    if (!acc) return false;
+    return Object.values(acc).some(v => v);
+}
+
 const CATEGORIES = [
     { type: 'paper',        icon: '📄', name: 'Papers',        desc: 'Research papers auto-synced from paper management.', iconClass: 'icon--blue',   cardClass: 'hub-cat-card--paper',        canAdd: false },
     { type: 'news',         icon: '📰', name: 'News',          desc: 'News articles and media coverage.',                 iconClass: 'icon--amber',  cardClass: 'hub-cat-card--announcement', canAdd: false },
@@ -1476,7 +1487,7 @@ function renderMatrix() {
     // Header row 1: account groups with colored bg, each spanning all platforms
     const thAccounts = accountKeys.map(accKey => {
         const acc = ACCOUNTS[accKey];
-        return `<th colspan="${PLATFORMS.length}" class="matrix-th-acc" style="color:${acc.color};background:${acc.bg}">
+        return `<th colspan="${PLATFORMS.length + 1}" class="matrix-th-acc" style="color:${acc.color};background:${acc.bg}">
             <div class="matrix-acc-label">
                 <span class="matrix-acc-dot" style="background:${acc.color}">${acc.initial}</span>
                 ${acc.name}
@@ -1484,12 +1495,17 @@ function renderMatrix() {
         </th>`;
     }).join('');
 
-    // Header row 2: platform icons — last platform of each account gets border-right
+    // Header row 2: platform icons + Corp column
     const thPlats = accountKeys.map(accKey =>
-        PLATFORMS.map((p, pIdx) => {
-            const isLast = pIdx === PLATFORMS.length - 1;
-            return `<th class="matrix-th-plat"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''} title="${p.label}">${p.svgHtml}</th>`;
-        }).join('')
+        PLATFORMS.map(p => {
+            return `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`;
+        }).join('') +
+        `<th class="matrix-th-plat" style="border-right:2px solid #e2e8f0" title="Corporate PR">
+            <a href="/conferences/#corp-pr-matrix" target="_blank" style="text-decoration:none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>
+            </a>
+            <div style="font-size:0.55rem;color:#64748b;margin-top:1px">Corp</div>
+        </th>`
     ).join('');
 
     const rows = items.map(item => {
@@ -1501,14 +1517,13 @@ function renderMatrix() {
                 : esc(item.title);
             const loggedPlatLabels = [...(item._loggedPlatforms || [])].map(k => (PLATFORMS.find(pl => pl.key === k)?.label || k).split(' ')[0]).join(', ');
             const metaHtml = `<div class="matrix-item-meta">${loggedPlatLabels || '—'} · ${item.date}</div>`;
-            const cells = accountKeys.map(accKey =>
-                PLATFORMS.map((p, pIdx) => {
+            const cells = accountKeys.map(accKey => {
+                const platCells = PLATFORMS.map(p => {
                     const isOwn = accKey === item._productAccount && (item._loggedPlatforms?.has(p.key) ?? false);
                     const ownDate = isOwn ? (item._platformDates?.[p.key] || item.date) : null;
                     const manualDone = !!(item.pr_matrix?.[accKey]?.[p.key]);
                     const isDone = isOwn || manualDone;
                     const doneDate = isOwn ? ownDate : (item.pr_matrix?.[accKey]?.[p.key] || null);
-                    const isLast = pIdx === PLATFORMS.length - 1;
                     const inner = isOwn
                         ? `<div class="matrix-check matrix-check--done" style="cursor:default" title="Logged via campaign (${ownDate})">✓</div>`
                         : `<button class="matrix-check${isDone?' matrix-check--done':''}"
@@ -1516,9 +1531,12 @@ function renderMatrix() {
                             data-ppost-account="${accKey}"
                             data-ppost-platform="${p.key}"
                             title="${isDone ? 'Done: '+doneDate+'. Click to unmark.' : 'Mark done · '+(ACCOUNTS[accKey]?.name||accKey)+' · '+p.label.split(' ')[0]}">${isDone ? '✓' : ''}</button>`;
-                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>${inner}</td>`;
-                }).join('')
-            ).join('');
+                    return `<td class="matrix-td-cell${isDone?' matrix-td-cell--done':''}">${inner}</td>`;
+                }).join('');
+                const corpDone = hasCorpPr(item, accKey);
+                const corpCell = `<td class="matrix-td-cell${corpDone?' matrix-td-cell--done':''}" style="border-right:2px solid #e2e8f0"><a href="/conferences/#corp-pr-matrix" target="_blank" class="matrix-check${corpDone?' matrix-check--done':''}" style="text-decoration:none;display:flex;align-items:center;justify-content:center">${corpDone?'✓':''}</a></td>`;
+                return platCells + corpCell;
+            }).join('');
             return `<tr data-item-id="${item._id}">
                 <td class="matrix-td-item">
                     <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
@@ -1543,20 +1561,22 @@ function renderMatrix() {
         const metaHtml = metaParts.length ? `<div class="matrix-item-meta">${esc(metaParts.join(' · '))}</div>` : '';
         const ownerHtml = item._owner ? `<div class="matrix-owner"><span class="matrix-owner-avatar">${esc(item._owner[0].toUpperCase())}</span>${esc(item._owner)}</div>` : '';
 
-        const cells = accountKeys.map(accKey =>
-            PLATFORMS.map((p, pIdx) => {
+        const cells = accountKeys.map(accKey => {
+            const platCells = PLATFORMS.map(p => {
                 const date = (item.pr_matrix?.[accKey]?.[p.key]) || null;
                 const done = !!date;
-                const isLast = pIdx === PLATFORMS.length - 1;
-                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}"${isLast ? ' style="border-right:2px solid #e2e8f0"' : ''}>
+                return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
                     <button class="matrix-check${done?' matrix-check--done':''}"
                         data-matrix-id="${item._id}"
                         data-matrix-account="${accKey}"
                         data-matrix-platform="${p.key}"
                         title="${done ? 'Done: '+date+'. Click to unmark.' : 'Mark done · '+esc(ACCOUNTS[accKey].name)+' · '+esc(p.label)}">${done ? '✓' : ''}</button>
                 </td>`;
-            }).join('')
-        ).join('');
+            }).join('');
+            const corpDone = hasCorpPr(item, accKey);
+            const corpCell = `<td class="matrix-td-cell${corpDone?' matrix-td-cell--done':''}" style="border-right:2px solid #e2e8f0"><a href="/conferences/#corp-pr-matrix" target="_blank" class="matrix-check${corpDone?' matrix-check--done':''}" style="text-decoration:none;display:flex;align-items:center;justify-content:center">${corpDone?'✓':''}</a></td>`;
+            return platCells + corpCell;
+        }).join('');
 
         return `<tr data-item-id="${item._id}">
             <td class="matrix-td-item">
