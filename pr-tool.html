@@ -1628,7 +1628,10 @@ async function toggleProductPostCell(postId, account, platform) {
     const platLabel = (PLATFORMS.find(pl => pl.key === platform)?.label || platform).split(' ')[0];
     const campaignTitle = content ? `${product.title} - ${content}` : product.title;
 
-    const hasMark = !!(refPost.pr_matrix?.[account]?.[platform]);
+    const isOwnAccount = account === product.account;
+    const hasMatrixMark = !!(refPost.pr_matrix?.[account]?.[platform]);
+    const hasOwnPost = isOwnAccount && (product.posts || []).some(p => p.platform === platform && (p.content || '') === content && p.id !== postId);
+    const hasMark = hasMatrixMark || hasOwnPost;
     const originalPosts = JSON.parse(JSON.stringify(product.posts));
 
     if (hasMark) {
@@ -1638,16 +1641,23 @@ async function toggleProductPostCell(postId, account, platform) {
         if (matrix[account]) delete matrix[account][platform];
         product.posts[postIdx] = { ...refPost, pr_matrix: matrix };
     } else {
-        // Create a real post — same format as campaign.html
         if (!confirm(`Add a ${platLabel} post for "${campaignTitle}" dated ${today}?`)) return;
-        product.posts = [...product.posts, {
-            id: 'post_' + Date.now(),
-            platform,
-            date: today,
-            content,
-            url: '',
-            metrics: {},
-        }];
+        const isOwnAccount = account === product.account;
+        if (isOwnAccount) {
+            product.posts = [...product.posts, {
+                id: 'post_' + Date.now(),
+                platform,
+                date: today,
+                content,
+                url: '',
+                metrics: {},
+            }];
+        } else {
+            const matrix = JSON.parse(JSON.stringify(refPost.pr_matrix || {}));
+            if (!matrix[account]) matrix[account] = {};
+            matrix[account][platform] = today;
+            product.posts[postIdx] = { ...refPost, pr_matrix: matrix };
+        }
     }
 
     try {
