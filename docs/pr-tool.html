@@ -579,11 +579,29 @@
                     <label>Item</label>
                     <select id="lpr-paper"><option value="">Loading…</option></select>
                 </div>
-                <div class="lpr-field" id="lpr-new-title-field" style="display:none">
-                    <label>New Item Title</label>
-                    <input type="text" id="lpr-new-title" placeholder="Enter title for new item…" />
+                <div id="lpr-new-fields" style="display:none">
+                    <div class="lpr-field" style="margin-top:0.9rem">
+                        <label>New Item Title</label>
+                        <input type="text" id="lpr-new-title" placeholder="Enter title…" />
+                    </div>
+                    <div class="lpr-field" style="margin-top:0.9rem">
+                        <label>Type</label>
+                        <select id="lpr-new-type">
+                            <option value="paper">Paper</option>
+                            <option value="product">Product</option>
+                            <option value="news">News</option>
+                        </select>
+                    </div>
+                    <div class="lpr-field" style="margin-top:0.9rem">
+                        <label>Account</label>
+                        <select id="lpr-new-account">
+                            <option value="yanzhiwang">Yanzhiwang</option>
+                            <option value="embodyx">EmbodyX</option>
+                            <option value="moxin">Moxin</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="lpr-field">
+                <div class="lpr-field" id="lpr-account-field">
                     <label>Account</label>
                     <div class="lpr-account-display" id="lpr-account-display"></div>
                     <input type="hidden" id="lpr-account" />
@@ -1775,8 +1793,10 @@ async function openLogPrModal() {
 
     const sel = document.getElementById('lpr-paper');
     const opts = lprPapers.map(p => `<option value="${esc(p.id)}" data-type="${p._lprType}">${esc(p._lprLabel)}</option>`).join('');
-    sel.innerHTML = opts + '<option value="__new__">+ New Item…</option>';
-    document.getElementById('lpr-new-title-field').style.display = 'none';
+    sel.innerHTML = '<option value="__new__">+ New Item…</option>' + opts;
+    sel.value = lprPapers.length > 0 ? lprPapers[0].id : '__new__';
+    document.getElementById('lpr-new-fields').style.display = 'none';
+    document.getElementById('lpr-account-field').style.display = '';
 
     fillLprUrl();
     document.getElementById('logPrModal').classList.add('open');
@@ -1799,14 +1819,14 @@ document.getElementById('logPrModalClose').addEventListener('click', closeLogPrM
 document.getElementById('lpr-cancel').addEventListener('click', closeLogPrModal);
 document.getElementById('lpr-paper').addEventListener('change', () => {
     const isNew = document.getElementById('lpr-paper').value === '__new__';
-    document.getElementById('lpr-new-title-field').style.display = isNew ? '' : 'none';
+    document.getElementById('lpr-new-fields').style.display = isNew ? '' : 'none';
+    document.getElementById('lpr-account-field').style.display = isNew ? 'none' : '';
     if (!isNew) fillLprUrl();
 });
 document.getElementById('lpr-platform').addEventListener('change', fillLprUrl);
 
 document.getElementById('lpr-save').addEventListener('click', async () => {
     const paperId  = document.getElementById('lpr-paper').value;
-    const account  = document.getElementById('lpr-account').value;
     const platform = document.getElementById('lpr-platform').value;
     const date     = document.getElementById('lpr-date').value;
     const url      = document.getElementById('lpr-url').value.trim();
@@ -1814,6 +1834,9 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
 
     const isNew = paperId === '__new__';
     const newTitle = document.getElementById('lpr-new-title').value.trim();
+    const newType = document.getElementById('lpr-new-type').value;
+    const newAccount = document.getElementById('lpr-new-account').value;
+    const account = isNew ? newAccount : document.getElementById('lpr-account').value;
     if (!isNew && !paperId) { alert('Please select an item.'); return; }
     if (isNew && !newTitle) { alert('Please enter a title for the new item.'); return; }
     if (!date) { alert('Please select a date.'); return; }
@@ -1826,12 +1849,13 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         if (isNew) {
             // Create new PR source
             const newSource = {
-                type: 'announcement',
+                type: newType,
                 title: newTitle,
                 description: '',
                 link: url || '',
                 priority: 'medium',
                 notes: content || '',
+                account: newAccount,
             };
             const createRes = await fetch(API + '/api/pr-sources', {
                 method: 'POST',
