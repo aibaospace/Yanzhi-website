@@ -329,6 +329,8 @@
         .matrix-check:hover { border-color: #94a3b8; background: #f1f5f9; }
         .matrix-check--done { background: #22c55e; border-color: #16a34a; color: #fff; font-weight: 700; }
         .matrix-check--done:hover { background: #16a34a; border-color: #15803d; }
+        .matrix-delete-btn { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: none; background: none; color: #cbd5e1; cursor: pointer; font-size: 0.75rem; border-radius: 50%; vertical-align: middle; margin-left: 0.3rem; transition: all 0.15s; }
+        .matrix-delete-btn:hover { background: #fee2e2; color: #dc2626; }
 
         @media (max-width: 900px) {
             .hub-cat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1563,7 +1565,7 @@ function renderMatrix() {
             }).join('');
             return `<tr data-item-id="${item._id}">
                 <td class="matrix-td-item">
-                    <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                    <div class="matrix-item-title">${typeBadge} ${titleLink} <button class="matrix-delete-btn" data-delete-id="${item._id}" data-delete-kind="product" title="Delete">✕</button></div>
                     ${metaHtml}
                 </td>
                 ${cells}
@@ -1602,9 +1604,10 @@ function renderMatrix() {
             return platCells + corpCell;
         }).join('');
 
+        const deleteBtn = `<button class="matrix-delete-btn" data-delete-id="${item._id}" data-delete-kind="${item._sourceKind}" title="Delete">✕</button>`;
         return `<tr data-item-id="${item._id}">
             <td class="matrix-td-item">
-                <div class="matrix-item-title">${typeBadge} ${titleLink}</div>
+                <div class="matrix-item-title">${typeBadge} ${titleLink} ${deleteBtn}</div>
                 ${metaHtml}${ownerHtml}
             </td>
             ${cells}
@@ -1626,6 +1629,9 @@ function renderMatrix() {
     });
     document.getElementById('matrixBody').querySelectorAll('[data-ppost-id]').forEach(btn => {
         btn.addEventListener('click', () => toggleProductPostCell(btn.dataset.ppostId, btn.dataset.ppostAccount, btn.dataset.ppostPlatform));
+    });
+    document.getElementById('matrixBody').querySelectorAll('[data-delete-id]').forEach(btn => {
+        btn.addEventListener('click', () => deleteMatrixItem(btn.dataset.deleteId, btn.dataset.deleteKind));
     });
 
     // Scroll to and highlight target row from ?paper=ID or ?news=ID URL param
@@ -1761,6 +1767,25 @@ async function quickMarkPr(src, account, platform) {
         renderOverview();
         renderMatrix();
     } catch(e) { alert('Failed to mark: ' + e.message); }
+}
+
+async function deleteMatrixItem(itemId, kind) {
+    const src = allSources.find(s => s._id === itemId);
+    if (!src) return;
+    const title = src.title || '(Untitled)';
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    try {
+        let endpoint;
+        if (kind === 'custom' || kind === 'product') endpoint = `${API}/api/pr-sources/${itemId}`;
+        else if (kind === 'paper') endpoint = `${API}/api/papers/${itemId}`;
+        else endpoint = `${API}/api/news/${itemId}`;
+        const res = await fetch(endpoint, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } });
+        if (!res.ok) throw new Error('Delete failed');
+        allSources = allSources.filter(s => s._id !== itemId);
+        renderOverview();
+        renderMatrix();
+        if (currentHubType) renderDetail();
+    } catch (e) { alert('Failed to delete: ' + e.message); }
 }
 
 init();
