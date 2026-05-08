@@ -1914,7 +1914,7 @@ document.getElementById('lpr-save').addEventListener('click', async () => {
         document.getElementById('lpr-success').classList.add('show');
         btn.textContent = 'Save';
         btn.disabled = false;
-        setTimeout(() => { closeLogPrModal(); renderOverview(); renderMatrix(); renderDetail(); }, 1200);
+        setTimeout(() => { closeLogPrModal(); loadData(); }, 1200);
     } catch (e) {
         alert('Error: ' + e.message);
         btn.textContent = 'Save';
