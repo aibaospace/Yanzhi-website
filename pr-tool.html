@@ -1481,15 +1481,17 @@ function renderMatrix() {
     }
 
     let items;
-    const allProducts = allSources.filter(s => s.type === 'product');
+    const allProducts = allSources.filter(s => s.type === 'product' || (s._sourceKind === 'custom' && s.type === 'product'));
+    const customNonProduct = allSources.filter(s => s._sourceKind === 'custom' && s.type !== 'product');
     if (matrixFilter === 'product') {
         items = buildCampaigns(allProducts);
     } else {
         const expandedProductPosts = buildCampaigns(allProducts);
         const papersAndNews = allSources.filter(s => s._sourceKind === 'paper' || s._sourceKind === 'news');
-        if (matrixFilter === 'paper') items = papersAndNews.filter(s => s._sourceKind === 'paper');
-        else if (matrixFilter === 'news') items = papersAndNews.filter(s => s._sourceKind === 'news');
-        else items = [...papersAndNews, ...expandedProductPosts]; // 'all'
+        const allNonProduct = [...papersAndNews, ...customNonProduct];
+        if (matrixFilter === 'paper') items = allNonProduct.filter(s => s._sourceKind === 'paper' || s.type === 'paper');
+        else if (matrixFilter === 'news') items = allNonProduct.filter(s => s._sourceKind === 'news' || s.type === 'news');
+        else items = [...allNonProduct, ...expandedProductPosts]; // 'all'
     }
 
     items.sort((a, b) => {
@@ -1710,21 +1712,31 @@ async function toggleMatrixCell(itemId, account, platform) {
     }
 }
 
+function getItemApiUrl(src) {
+    if (src._sourceKind === 'custom') return `${API}/api/pr-sources/${src._id}`;
+    if (src._sourceKind === 'paper') return `${API}/api/papers/${src._id}`;
+    return `${API}/api/news/${src._id}`;
+}
+async function fetchFreshItem(src) {
+    if (src._sourceKind === 'custom') {
+        const all = await fetch(`${API}/api/pr-sources`, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+        return all.find(x => x.id === src._id);
+    }
+    const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
+    const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
+    return all.find(x => x.id === src._id);
+}
+
 async function unmarkMatrix(src, account, platform) {
-    const url = src._sourceKind === 'paper'
-        ? `${API}/api/papers/${src._id}`
-        : `${API}/api/news/${src._id}`;
     try {
-        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
-        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
-        const fresh = all.find(x => x.id === src._id);
+        const fresh = await fetchFreshItem(src);
         if (!fresh) throw new Error('Not found');
         const newMatrix = { ...(fresh.pr_matrix || {}) };
         if (newMatrix[account]) {
             newMatrix[account] = { ...newMatrix[account] };
             delete newMatrix[account][platform];
         }
-        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix }) });
+        const res = await fetch(getItemApiUrl(src), { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix }) });
         if (!res.ok) throw new Error('Unmark failed');
         src.pr_matrix = newMatrix;
         src.pr = buildPrFromMatrix(newMatrix, currentAccount);
@@ -1735,18 +1747,13 @@ async function unmarkMatrix(src, account, platform) {
 
 async function quickMarkPr(src, account, platform) {
     const date = new Date().toISOString().slice(0, 10);
-    const url = src._sourceKind === 'paper'
-        ? `${API}/api/papers/${src._id}`
-        : `${API}/api/news/${src._id}`;
     try {
-        const endpoint = src._sourceKind === 'paper' ? `${API}/api/papers` : `${API}/api/news`;
-        const all = await fetch(endpoint, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.json());
-        const fresh = all.find(x => x.id === src._id);
+        const fresh = await fetchFreshItem(src);
         if (!fresh) throw new Error('Not found');
         const newMatrix = { ...(fresh.pr_matrix||{}), [account]: { ...(fresh.pr_matrix?.[account]||{}), [platform]: date } };
         const newPr = { ...(fresh.pr||{}), [platform]: { ...(fresh.pr?.[platform]||{}), date } };
         const newLogs = [...(fresh.pr_logs||[]), { account, platform, date, url: null, content: null }];
-        const res = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix, pr: newPr, pr_logs: newLogs }) });
+        const res = await fetch(getItemApiUrl(src), { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body: JSON.stringify({ ...fresh, pr_matrix: newMatrix, pr: newPr, pr_logs: newLogs }) });
         if (!res.ok) throw new Error('Save failed');
         src.pr_matrix = newMatrix;
         src.pr = buildPrFromMatrix(newMatrix, currentAccount);
