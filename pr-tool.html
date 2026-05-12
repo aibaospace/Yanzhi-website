@@ -777,7 +777,8 @@ let calendarMonth = new Date().toISOString().slice(0, 7); // "2026-04"
 let matrixFilter = 'all';     // 'all' | 'paper' | 'news' | 'product'
 
 // ── Account switcher ──────────────────────────────────────────────────────────
-const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y',bg:'#eff6ff'}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E',bg:'#faf5ff'}, moxin:{name:'Moxin',color:'#0891b2',initial:'M',bg:'#f0f9ff'} };
+const ACCOUNTS = { yanzhiwang:{name:'Yanzhiwang',color:'#1d4ed8',initial:'Y',bg:'#eff6ff',exclude:['wechat','douyin','tiktok']}, embodyx:{name:'EmbodyX',color:'#7c3aed',initial:'E',bg:'#faf5ff',exclude:['douyin','tiktok']}, moxin:{name:'Moxin',color:'#0891b2',initial:'M',bg:'#f0f9ff',exclude:[]} };
+function getAccountPlatforms(accKey) { return PLATFORMS.filter(p => !(ACCOUNTS[accKey]?.exclude || []).includes(p.key)); }
 let currentAccount = localStorage.getItem('pr_account') || 'yanzhiwang';
 
 function applyMatrixFilter(key) {
@@ -1513,7 +1514,8 @@ function renderMatrix() {
     // Header row 1: account groups with colored bg, each spanning all platforms
     const thAccounts = accountKeys.map(accKey => {
         const acc = ACCOUNTS[accKey];
-        return `<th colspan="${PLATFORMS.length + 1}" class="matrix-th-acc" style="color:${acc.color};background:${acc.bg}">
+        const accPlats = getAccountPlatforms(accKey);
+        return `<th colspan="${accPlats.length + 1}" class="matrix-th-acc" style="color:${acc.color};background:${acc.bg}">
             <div class="matrix-acc-label">
                 <span class="matrix-acc-dot" style="background:${acc.color}">${acc.initial}</span>
                 ${acc.name}
@@ -1521,9 +1523,9 @@ function renderMatrix() {
         </th>`;
     }).join('');
 
-    // Header row 2: platform icons + Corp column
+    // Header row 2: platform icons + Corp column (per account)
     const thPlats = accountKeys.map(accKey =>
-        PLATFORMS.map(p => {
+        getAccountPlatforms(accKey).map(p => {
             return `<th class="matrix-th-plat" title="${p.label}">${p.svgHtml}</th>`;
         }).join('') +
         `<th class="matrix-th-plat" style="border-right:2px solid #e2e8f0" title="Corporate PR">
@@ -1544,7 +1546,7 @@ function renderMatrix() {
             const loggedPlatLabels = [...(item._loggedPlatforms || [])].map(k => (PLATFORMS.find(pl => pl.key === k)?.label || k).split(' ')[0]).join(', ');
             const metaHtml = `<div class="matrix-item-meta">${loggedPlatLabels || '—'} · ${item.date}</div>`;
             const cells = accountKeys.map(accKey => {
-                const platCells = PLATFORMS.map(p => {
+                const platCells = getAccountPlatforms(accKey).map(p => {
                     const isOwn = accKey === item._productAccount && (item._loggedPlatforms?.has(p.key) ?? false);
                     const ownDate = isOwn ? (item._platformDates?.[p.key] || item.date) : null;
                     const manualDone = !!(item.pr_matrix?.[accKey]?.[p.key]);
@@ -1588,7 +1590,7 @@ function renderMatrix() {
         const ownerHtml = item._owner ? `<div class="matrix-owner"><span class="matrix-owner-avatar">${esc(item._owner[0].toUpperCase())}</span>${esc(item._owner)}</div>` : '';
 
         const cells = accountKeys.map(accKey => {
-            const platCells = PLATFORMS.map(p => {
+            const platCells = getAccountPlatforms(accKey).map(p => {
                 const date = (item.pr_matrix?.[accKey]?.[p.key]) || null;
                 const done = !!date;
                 return `<td class="matrix-td-cell${done?' matrix-td-cell--done':''}">
