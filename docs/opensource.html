@@ -143,10 +143,38 @@
         .os-tag--vla { background: #fef9c3; color: #854d0e; }
         .os-tag--quant { background: #d1fae5; color: #065f46; }
 
+        .os-card--wide {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .os-card--wide .os-card-info h3 { margin-top: 0; }
+        .os-video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .os-video-cell { position: relative; border-radius: 8px; overflow: hidden; background: #000; }
+        .os-video-cell video { width: 100%; display: block; border-radius: 8px; }
+        .os-video-label {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
             .os-hero { padding: 1.5rem; }
             .os-hero h2 { font-size: 1.3rem; }
             .os-cards { grid-template-columns: 1fr; }
+            .os-card--wide { grid-template-columns: 1fr; }
         }
     </style>
   <script type="module" crossorigin src="/assets/main-3KSXog88.js"></script>
@@ -169,11 +197,31 @@
                 </div>
                 <h3 style="font-size: 1.15rem; color: #1e293b; margin: 1.5rem 0 1rem; font-weight: 700;">Models</h3>
                 <div class="os-cards">
-                    <div class="os-card">
-                        <h3><span class="os-tag os-tag--model">Model</span> <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PhyWorld</a></h3>
-                        <p>Physics-faithful world model for video generation. Two-stage post-training: flow-matching fine-tuning for visual consistency, then DPO to align dynamics with physical laws. Achieves 0.769 on VBench.</p>
-                        <div class="os-card-links">
-                            <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
+                    <div class="os-card os-card--wide">
+                        <div class="os-video-grid">
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">PhyWorld (Ours)</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/cosmos/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">Cosmos</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/ltx/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">LTX</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/omniweave/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">OmniWeave</span>
+                            </div>
+                        </div>
+                        <div class="os-card-info">
+                            <h3><span class="os-tag os-tag--model">Model</span> <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PhyWorld</a></h3>
+                            <p>Physics-faithful world model for video generation. Uses a two-stage post-training approach — flow-matching fine-tuning for visual consistency, then Direct Preference Optimization to align generated dynamics with physical laws. Achieves 0.769 on VBench and 3.09 on PhyGround benchmark.</p>
+                            <div class="os-card-links">
+                                <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
+                            </div>
                         </div>
                     </div>
                 </div>
