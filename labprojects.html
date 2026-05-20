@@ -164,7 +164,10 @@
             border-radius: 4px;
         }
 
+        .lab-nav-grid a:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
         @media (max-width: 768px) {
+            .lab-nav-grid { grid-template-columns: repeat(2, 1fr) !important; }
             .os-hero { padding: 1.5rem; }
             .os-hero h2 { font-size: 1.3rem; }
             .os-cards { grid-template-columns: 1fr; }
@@ -180,10 +183,27 @@
         <main class="main-content">
             <h1>Lab Projects</h1>
 
-            <p style="color: #64748b; margin-bottom: 2.5rem; line-height: 1.7;">Our lab focuses on world modeling, embodied AI, efficient deep learning, and neuromorphic computing. In collaboration with <a href="https://www.embodyx.io/" target="_blank" style="color: #64748b; font-weight: 600; border-bottom: 1px solid #94a3b8;">EmbodyX</a>, we open-source our models, benchmarks, and tools.</p>
+            <div class="lab-nav-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 3rem;">
+                <a href="#world-model" style="text-decoration: none; background: #fef2f2; border: 1.5px solid #fca5a5; border-radius: 12px; padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #991b1b; margin-bottom: 0.5rem;">World Model</div>
+                    <div style="font-size: 0.88rem; color: #64748b; line-height: 1.5;">Physics-faithful video generation, cognitive architectures, and spatiotemporal reasoning.</div>
+                </a>
+                <a href="#embodied-ai" style="text-decoration: none; background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 12px; padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #1e40af; margin-bottom: 0.5rem;">Embodied AI</div>
+                    <div style="font-size: 0.88rem; color: #64748b; line-height: 1.5;">Resource-aware robotic reasoning and real-time decision-making for physical agents.</div>
+                </a>
+                <a href="#moxin" style="text-decoration: none; background: #f5f3ff; border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #5b21b6; margin-bottom: 0.5rem;">Moxin</div>
+                    <div style="font-size: 0.88rem; color: #64748b; line-height: 1.5;">Open-source foundation models spanning language, vision-language, and vision-language-action.</div>
+                </a>
+                <a href="#quantization" style="text-decoration: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;">
+                    <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #166534; margin-bottom: 0.5rem;">Quantization</div>
+                    <div style="font-size: 0.88rem; color: #64748b; line-height: 1.5;">High-performance quantized models for efficient local inference on consumer hardware.</div>
+                </a>
+            </div>
 
             <!-- ═══ World Model ═══ -->
-            <div class="os-section">
+            <div class="os-section" id="world-model">
                 <div class="os-hero os-hero--wm">
                     <span class="os-hero-tag">Research Initiative</span>
                     <h2>World Model & Embodied AI</h2>
@@ -262,7 +282,7 @@
                     </div>
                 </div>
 
-                <h3 style="font-size: 1.3rem; color: #1e293b; margin: 2rem 0 1rem; font-weight: 700;">Papers</h3>
+                <h3 id="embodied-ai" style="font-size: 1.3rem; color: #1e293b; margin: 2rem 0 1rem; font-weight: 700;">Papers</h3>
                 <div class="os-cards">
                     <div class="os-card">
                         <h3><span class="os-tag os-tag--paper">Paper</span> <a href="https://arxiv.org/abs/2602.20159" target="_blank">The Reasoning Scaling Law</a></h3>
@@ -293,8 +313,8 @@
                 </div>
             </div>
 
-            <!-- ═══ Moxin LM ═══ -->
-            <div class="os-section">
+            <!-- ═══ Moxin ═══ -->
+            <div class="os-section" id="moxin">
                 <div class="os-hero os-hero--moxin">
                     <span class="os-hero-tag">Open Source Models</span>
                     <h2>Moxin</h2>
@@ -332,7 +352,7 @@
             </div>
 
             <!-- ═══ Quantization ═══ -->
-            <div class="os-section">
+            <div class="os-section" id="quantization">
                 <div class="os-hero os-hero--quant">
                     <span class="os-hero-tag">Efficiency Tools</span>
                     <h2>Quantization</h2>
