@@ -14,6 +14,7 @@ export default defineConfig({
                 news: 'news.html',
                 projects: 'projects.html',
                 opensource: 'opensource.html',
+                labprojects: 'labprojects.html',
                 prTool: 'pr-tool.html',
                 dam: 'dam.html',
                 matrixPublishing: 'matrix-publishing.html',
