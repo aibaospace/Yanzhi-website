@@ -17,193 +17,137 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* World Model Hero Section */
-        .wm-hero {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        .os-section { margin-bottom: 3rem; }
+
+        .os-hero {
             border-radius: 16px;
-            padding: 2.5rem 2.5rem 2rem;
-            margin-bottom: 3rem;
+            padding: 2rem 2.5rem 1.75rem;
+            margin-bottom: 1.5rem;
             color: #fff;
             position: relative;
             overflow: hidden;
         }
-        .wm-hero::before {
+        .os-hero::before {
             content: '';
             position: absolute;
             top: -50%;
             right: -20%;
             width: 400px;
             height: 400px;
-            background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
             pointer-events: none;
         }
-        .wm-hero::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .wm-hero-tag {
+        .os-hero--wm { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); }
+        .os-hero--moxin { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); }
+        .os-hero--quant { background: linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%); }
+
+        .os-hero-tag {
             display: inline-block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: #818cf8;
-            background: rgba(99,102,241,0.15);
-            padding: 0.25rem 0.75rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 20px;
-            margin-bottom: 1rem;
-        }
-        .wm-hero h2 {
-            font-size: 2rem;
-            font-weight: 700;
             margin-bottom: 0.75rem;
+        }
+        .os-hero--wm .os-hero-tag { color: #818cf8; background: rgba(99,102,241,0.2); }
+        .os-hero--moxin .os-hero-tag { color: #c4b5fd; background: rgba(196,181,253,0.15); }
+        .os-hero--quant .os-hero-tag { color: #86efac; background: rgba(134,239,172,0.15); }
+
+        .os-hero h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
             color: #fff;
             border: none;
             padding: 0;
         }
-        .wm-hero-desc {
-            font-size: 1rem;
-            line-height: 1.7;
-            color: #94a3b8;
-            max-width: 700px;
-            margin-bottom: 1.5rem;
+        .os-hero-desc {
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.65);
+            max-width: 650px;
+            margin: 0;
         }
-        .wm-hero-powered {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-        .wm-hero-powered a {
-            color: #818cf8;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(129,140,248,0.3);
-        }
-        .wm-hero-powered a:hover { opacity: 0.8; }
+        .os-hero-desc a { color: rgba(255,255,255,0.8); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .os-hero-desc a:hover { color: #fff; }
 
-        /* World Model Article Cards */
-        .wm-articles {
+        .os-cards {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.25rem;
-            margin-bottom: 2rem;
         }
-        .wm-article {
+        .os-card {
             background: #fff;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .wm-article:hover {
+        .os-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.06);
         }
-        .wm-article h3 {
-            font-size: 1.1rem;
+        .os-card h3 {
+            font-size: 1.05rem;
             margin: 0 0 0.5rem;
+            color: #1e293b;
             line-height: 1.4;
         }
-        .wm-article h3 a {
+        .os-card h3 a {
             color: #1e293b;
             text-decoration: none;
             border-bottom: 1px solid #cbd5e1;
         }
-        .wm-article h3 a:hover { color: #4f46e5; border-color: #4f46e5; }
-        .wm-article p {
-            font-size: 0.9rem;
+        .os-card h3 a:hover { color: #4f46e5; border-color: #4f46e5; }
+        .os-card p {
+            font-size: 0.88rem;
             color: #64748b;
             line-height: 1.6;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            flex-grow: 1;
         }
-        .wm-article-links {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .wm-article-links a {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #4f46e5;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        .wm-article-links a:hover { text-decoration: underline; }
-        .wm-tag {
-            display: inline-block;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            margin-right: 0.4rem;
-            vertical-align: middle;
-        }
-        .wm-tag--paper { background: #ede9fe; color: #5b21b6; }
-        .wm-tag--benchmark { background: #fef3c7; color: #92400e; }
-        .wm-tag--model { background: #dbeafe; color: #1d4ed8; }
-        .wm-tag--framework { background: #dcfce7; color: #166534; }
-
-        /* Bench cards (PhyWorld + PhyGround) */
-        .wm-bench-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        .wm-bench-card {
-            background: linear-gradient(135deg, #fafafe 0%, #f1f5f9 100%);
-            border: 1.5px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .wm-bench-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            border-color: #818cf8;
-        }
-        .wm-bench-card h4 {
-            font-size: 1.05rem;
-            margin: 0 0 0.5rem;
-            color: #1e293b;
-        }
-        .wm-bench-card p {
-            font-size: 0.85rem;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 0.75rem;
-        }
-        .wm-bench-card .card-links {
+        .os-card-links {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
+            margin-top: auto;
         }
-        .wm-bench-card .card-links a {
+        .os-card-links a {
             font-size: 0.8rem;
             font-weight: 600;
             color: #4f46e5;
             text-decoration: none;
         }
-        .wm-bench-card .card-links a:hover { text-decoration: underline; }
-        .wm-note {
-            font-size: 0.82rem;
-            color: #94a3b8;
-            font-style: italic;
-            margin-top: 0.5rem;
+        .os-card-links a:hover { text-decoration: underline; }
+
+        .os-tag {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 4px;
+            margin-right: 0.35rem;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
-        .wm-note a { color: #94a3b8; border-bottom: 1px solid #cbd5e1; text-decoration: none; }
-        .wm-note a:hover { color: #64748b; }
+        .os-tag--paper { background: #ede9fe; color: #5b21b6; }
+        .os-tag--benchmark { background: #fef3c7; color: #92400e; }
+        .os-tag--model { background: #dbeafe; color: #1d4ed8; }
+        .os-tag--framework { background: #dcfce7; color: #166534; }
+        .os-tag--llm { background: #e0e7ff; color: #3730a3; }
+        .os-tag--vlm { background: #fce7f3; color: #9d174d; }
+        .os-tag--vla { background: #fef9c3; color: #854d0e; }
+        .os-tag--quant { background: #d1fae5; color: #065f46; }
 
         @media (max-width: 768px) {
-            .wm-hero { padding: 1.5rem; }
-            .wm-hero h2 { font-size: 1.5rem; }
-            .wm-bench-grid { grid-template-columns: 1fr; }
+            .os-hero { padding: 1.5rem; }
+            .os-hero h2 { font-size: 1.3rem; }
+            .os-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -215,128 +159,116 @@
         <main class="main-content">
             <h1>Open Source Projects</h1>
 
-            <!-- ═══ World Model Section ═══ -->
-            <div class="wm-hero">
-                <span class="wm-hero-tag">Research Initiative</span>
-                <h2>World Model & Embodied AI</h2>
-                <p class="wm-hero-desc">Building the foundation for machines that understand and reason about the physical world — from cognitive architectures and physics-faithful video generation to resource-aware robotic reasoning.</p>
-                <p class="wm-hero-powered">A core research pillar at <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a> and the <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PAIR Center</a></p>
+            <!-- ═══ World Model ═══ -->
+            <div class="os-section">
+                <div class="os-hero os-hero--wm">
+                    <span class="os-hero-tag">Research Initiative</span>
+                    <h2>World Model & Embodied AI</h2>
+                    <p class="os-hero-desc">Building the foundation for machines that understand and reason about the physical world — from cognitive architectures and physics-faithful video generation to resource-aware robotic reasoning. A core pillar at <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a>.</p>
+                </div>
+                <div class="os-cards">
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--paper">Paper</span> <a href="https://arxiv.org/abs/2602.20159" target="_blank">The Reasoning Scaling Law</a></h3>
+                        <p>While visual quality plateaus early, reasoning capabilities exhibit a distinct "emergence" phase — increasing reasoning-specific training data by 1000x enables genuine generalization. Introduces VBVR-Bench.</p>
+                        <div class="os-card-links">
+                            <a href="https://arxiv.org/abs/2602.20159" target="_blank">arXiv</a>
+                            <a href="https://x.com/Yanzhi_Wang_/status/2054236913872040379?s=20" target="_blank">X</a>
+                            <a href="https://www.linkedin.com/pulse/reasoning-scaling-law-why-logic-1000x-more-important-than-pixels-y0bde/" target="_blank">LinkedIn</a>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--framework">Framework</span> <a href="https://arxiv.org/pdf/2604.16592" target="_blank">Human Cognition in Machines</a></h3>
+                        <p>A unified framework for World Models grounded in Cognitive Architecture Theory. Audits SOTAs across video, embodied, and epistemic domains to bridge machine and human-like cognition.</p>
+                        <div class="os-card-links">
+                            <a href="https://arxiv.org/pdf/2604.16592" target="_blank">arXiv</a>
+                            <a href="https://x.com/Yanzhi_Wang_/status/2049139603584454709?s=20" target="_blank">X</a>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--paper">Paper</span> <a href="https://arxiv.org/abs/2603.16673" target="_blank">RARRL: Robots Think Before They Act</a></h3>
+                        <p>CMU &times; EmbodyX. Resource-Aware Reasoning via RL enables robots to dynamically decide when to reason vs. act, achieving 60%+ reduction in reasoning time on ALFRED benchmarks.</p>
+                        <div class="os-card-links">
+                            <a href="https://arxiv.org/abs/2603.16673" target="_blank">arXiv</a>
+                            <a href="https://x.com/EmbodyX_/status/2054238355496317335?s=20" target="_blank">X</a>
+                            <a href="https://www.linkedin.com/pulse/breakthrough-embodied-ai-cmu-embodyx-enable-robots-think-before-lnsve/" target="_blank">LinkedIn</a>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--model">Model</span> <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PhyWorld</a></h3>
+                        <p>Physics-faithful world model for video generation. Two-stage post-training: flow-matching fine-tuning for visual consistency, then DPO to align dynamics with physical laws. Achieves 0.769 on VBench.</p>
+                        <div class="os-card-links">
+                            <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--benchmark">Benchmark</span> <a href="https://phyground.github.io/" target="_blank">PhyGround</a></h3>
+                        <p>Evaluates how well video models adhere to physical laws. 250 prompts across 13 physics laws, 37K+ labels from 459 annotators. Includes PhyJudge-9B, an open-source physics-specialized VLM.</p>
+                        <div class="os-card-links">
+                            <a href="https://phyground.github.io/" target="_blank">Project Page</a>
+                            <a href="https://arxiv.org/abs/2605.10806" target="_blank">arXiv</a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <section class="project-section" style="border: none;">
-                <h2 style="font-size: 1.4rem;">Research Articles</h2>
-                <div class="wm-articles">
-                    <div class="wm-article">
-                        <h3>
-                            <span class="wm-tag wm-tag--paper">Paper</span>
-                            <a href="https://arxiv.org/abs/2602.20159" target="_blank">The Reasoning Scaling Law: Why Scaling Logic is 1000x More Important Than Scaling Pixels</a>
-                        </h3>
-                        <p>While visual quality plateaus early, reasoning capabilities exhibit a distinct "emergence" phase — increasing reasoning-specific training data by three orders of magnitude enables genuine generalization. Introduces VBVR-Bench for verifiable video reasoning evaluation.</p>
-                        <div class="wm-article-links">
-                            <a href="https://arxiv.org/abs/2602.20159" target="_blank">arXiv</a>
-                            <a href="https://x.com/Yanzhi_Wang_/status/2054236913872040379?s=20" target="_blank">Discussion on X</a>
-                            <a href="https://www.linkedin.com/pulse/reasoning-scaling-law-why-logic-1000x-more-important-than-pixels-y0bde/" target="_blank">Discussion on LinkedIn</a>
-                        </div>
-                    </div>
-
-                    <div class="wm-article">
-                        <h3>
-                            <span class="wm-tag wm-tag--framework">Framework</span>
-                            <a href="https://arxiv.org/pdf/2604.16592" target="_blank">Human Cognition in Machines: A Unified Perspective of World Models</a>
-                        </h3>
-                        <p>A unified framework for World Models grounded in Cognitive Architecture Theory. Audits current SOTAs across video, embodied, and epistemic domains, providing a roadmap to bridge the gap between machine and human-like cognition.</p>
-                        <div class="wm-article-links">
-                            <a href="https://arxiv.org/pdf/2604.16592" target="_blank">arXiv</a>
-                            <a href="https://x.com/Yanzhi_Wang_/status/2049139603584454709?s=20" target="_blank">Discussion on X</a>
-                        </div>
-                    </div>
-
-                    <div class="wm-article">
-                        <h3>
-                            <span class="wm-tag wm-tag--paper">Paper</span>
-                            <a href="https://arxiv.org/abs/2603.16673" target="_blank">Robots "Think Before They Act": CMU &times; EmbodyX RARRL</a>
-                        </h3>
-                        <p>RARRL (Resource-Aware Reasoning via Reinforcement Learning) enables robots to dynamically decide when to reason versus act, achieving 60%+ reduction in reasoning time while maintaining performance on ALFRED benchmarks.</p>
-                        <div class="wm-article-links">
-                            <a href="https://arxiv.org/abs/2603.16673" target="_blank">arXiv</a>
-                            <a href="https://x.com/EmbodyX_/status/2054238355496317335?s=20" target="_blank">Discussion on X</a>
-                            <a href="https://www.linkedin.com/pulse/breakthrough-embodied-ai-cmu-embodyx-enable-robots-think-before-lnsve/" target="_blank">Discussion on LinkedIn</a>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 style="font-size: 1.4rem;">Models & Benchmarks</h2>
-                <div class="wm-bench-grid">
-                    <div class="wm-bench-card">
-                        <h4><span class="wm-tag wm-tag--model">Model</span> PhyWorld</h4>
-                        <p>Physics-faithful world model for video generation. Uses a two-stage post-training approach — flow-matching fine-tuning for visual consistency, then Direct Preference Optimization to align generated dynamics with physical laws. Achieves 0.769 on VBench and 3.09 on PhyGround.</p>
-                        <div class="card-links">
-                            <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
-                            <a href="https://arxiv.org/" target="_blank">Paper</a>
-                        </div>
-                    </div>
-
-                    <div class="wm-bench-card">
-                        <h4><span class="wm-tag wm-tag--benchmark">Benchmark</span> PhyGround</h4>
-                        <p>Criteria-grounded benchmark evaluating how well video generation models adhere to physical laws. 250 curated prompts across 13 physical laws (solid-body mechanics, fluid dynamics, optics) with 37,000+ fine-grained labels from 459 annotators. Includes PhyJudge-9B, an open-source physics-specialized VLM.</p>
-                        <div class="card-links">
-                            <a href="https://phyground.github.io/" target="_blank">Project Page</a>
-                            <a href="https://arxiv.org/abs/2605.10806" target="_blank">Paper</a>
-                        </div>
-                    </div>
-                </div>
-                <p class="wm-note">All World Model research is conducted in collaboration with <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a>.</p>
-            </section>
-
             <!-- ═══ Moxin LM ═══ -->
-            <section class="project-section">
-                <h2>Moxin LM</h2>
-                <div class="cards-container">
-                    <div class="project-card">
-                        <h3>Moxin-LLM</h3>
+            <div class="os-section">
+                <div class="os-hero os-hero--moxin">
+                    <span class="os-hero-tag">Open Source Models</span>
+                    <h2>Moxin LM</h2>
+                    <p class="os-hero-desc">A family of open-source foundation models spanning language, vision-language, and vision-language-action for efficient and accessible AI.</p>
+                </div>
+                <div class="os-cards">
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--llm">LLM</span> <a href="https://github.com/moxin-org/Moxin-LLM" target="_blank">Moxin-LLM</a></h3>
                         <p>Open-source Large Language Model framework optimized for efficiency and performance.</p>
-                        <div class="card-links">
-                            <a href="https://arxiv.org/abs/2412.06845v6" class="card-link" target="_blank">Paper</a>
-                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" class="card-link" target="_blank">Hugging Face</a>
-                            <a href="https://github.com/moxin-org/Moxin-LLM" class="card-link" target="_blank">GitHub</a>
+                        <div class="os-card-links">
+                            <a href="https://arxiv.org/abs/2412.06845v6" target="_blank">Paper</a>
+                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" target="_blank">Hugging Face</a>
+                            <a href="https://github.com/moxin-org/Moxin-LLM" target="_blank">GitHub</a>
                         </div>
                     </div>
-                    <div class="project-card">
-                        <h3>Moxin-VLM</h3>
-                        <p>Vision-Language Model capabilities bridging visual understanding with linguistic reasoning.</p>
-                        <div class="card-links">
-                            <a href="https://www.arxiv.org/abs/2512.22208" class="card-link" target="_blank">Paper</a>
-                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" class="card-link" target="_blank">Hugging Face</a>
-                            <a href="https://github.com/moxin-org/Moxin-VLM" class="card-link" target="_blank">GitHub</a>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--vlm">VLM</span> <a href="https://github.com/moxin-org/Moxin-VLM" target="_blank">Moxin-VLM</a></h3>
+                        <p>Vision-Language Model bridging visual understanding with linguistic reasoning.</p>
+                        <div class="os-card-links">
+                            <a href="https://www.arxiv.org/abs/2512.22208" target="_blank">Paper</a>
+                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" target="_blank">Hugging Face</a>
+                            <a href="https://github.com/moxin-org/Moxin-VLM" target="_blank">GitHub</a>
                         </div>
                     </div>
-                    <div class="project-card">
-                        <h3>Moxin-VLA</h3>
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--vla">VLA</span> <a href="https://github.com/moxin-org" target="_blank">Moxin-VLA</a></h3>
                         <p>Vision-Language-Action models for embodied AI and robotics control tasks.</p>
-                        <div class="card-links">
-                            <a href="https://www.arxiv.org/abs/2512.22208" class="card-link" target="_blank">Paper</a>
-                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" class="card-link" target="_blank">Hugging Face</a>
-                            <a href="https://github.com/moxin-org" class="card-link" target="_blank">GitHub</a>
+                        <div class="os-card-links">
+                            <a href="https://www.arxiv.org/abs/2512.22208" target="_blank">Paper</a>
+                            <a href="https://huggingface.co/collections/moxin-org/moxin-llm-vlm-vla" target="_blank">Hugging Face</a>
+                            <a href="https://github.com/moxin-org" target="_blank">GitHub</a>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- ═══ Quantization ═══ -->
-            <section class="project-section">
-                <h2>Quantization</h2>
-                <div class="cards-container">
-                    <div class="project-card">
-                        <h3>Moxin-GGUF</h3>
+            <div class="os-section">
+                <div class="os-hero os-hero--quant">
+                    <span class="os-hero-tag">Efficiency Tools</span>
+                    <h2>Quantization</h2>
+                    <p class="os-hero-desc">High-performance quantized models for efficient local inference on consumer hardware.</p>
+                </div>
+                <div class="os-cards">
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--quant">GGUF</span> <a href="https://github.com/moxin-org/CC-MoE" target="_blank">Moxin-GGUF</a></h3>
                         <p>High-performance GGUF quantized models for efficient local inference, including DeepSeek, Qwen3, GLM, and more.</p>
-                        <div class="card-links">
-                            <a href="https://arxiv.org/abs/2509.25689" class="card-link" target="_blank">Paper</a>
-                            <a href="https://huggingface.co/collections/moxin-org/moxin-gguf" class="card-link" target="_blank">Hugging Face</a>
-                            <a href="https://github.com/moxin-org/CC-MoE" class="card-link" target="_blank">GitHub</a>
+                        <div class="os-card-links">
+                            <a href="https://arxiv.org/abs/2509.25689" target="_blank">Paper</a>
+                            <a href="https://huggingface.co/collections/moxin-org/moxin-gguf" target="_blank">Hugging Face</a>
+                            <a href="https://github.com/moxin-org/CC-MoE" target="_blank">GitHub</a>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+
         </main>
 
         <shared-footer></shared-footer>
