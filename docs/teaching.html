@@ -21,6 +21,12 @@
             padding-bottom: 0.5rem;
             margin-bottom: 2rem;
         }
+        .students-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5rem; margin-bottom: 2rem; }
+        .student-card { text-align: center; }
+        .student-photo { width: 80%; aspect-ratio: 1; object-fit: cover; object-position: center top; border-radius: 5px; display: block; margin: 0 auto; }
+        .student-name { margin-top: 0.6rem; margin-bottom: 0.2rem; font-size: 0.95rem; }
+        .student-desc { font-size: 0.82rem; color: #555; margin-bottom: 0; }
+        @media (max-width: 768px) { .students-grid { grid-template-columns: repeat(3, 1fr); } }
     </style>
   <script type="module" crossorigin src="/assets/main-BmK4RsMK.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/main-CAJS1acD.css">
@@ -32,43 +38,184 @@
 
     <div class="container">
         <main class="main-content">
+            <h1>Supervised Students</h1>
+            <section>
+                <h3>Current Ph.D. Students</h3>
+                <div class="students-grid">
+                    <div class="student-card">
+                        <img src="/assets/arash-akbari-DkRlZ7_i.jpg" alt="Arash Akbari" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Arash Akbari</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/arman-akbari-C_U3hKoQ.jpg" alt="Arman Akbari" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Arman Akbari</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected, co-advised with Prof. Silvia Zhang)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/yixiao-chen-BpPuA4Ca.jpg" alt="Yixiao Chen" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Yixiao Chen</strong></p>
+                        <p class="student-desc">2026 鈥?2030 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/rahul-chowdhury-CgYgCRpL.jpg" alt="Rahul Chowdhury" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Rahul Chowdhury</strong></p>
+                        <p class="student-desc">2021 鈥?2026 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/juyi-lin-DROhZbC-.jpg" alt="Juyi Lin" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Juyi Lin</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/lei-lu-DKroCsn4.jpg" alt="Lei Lu" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Lei Lu</strong></p>
+                        <p class="student-desc">2022 鈥?2026 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/enfu-nan-DJ9PgbLn.jpg" alt="Enfu Nan" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Enfu Nan</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="./assets/omid-poordashtban.jpg" alt="Omid Poordashtban" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Omid Poordashtban</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected, co-advised with Prof. Hossein Mosallaei)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="./assets/amir-taherin.jpg" alt="Amir Taherin" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Amir Taherin</strong></p>
+                        <p class="student-desc">2022 鈥?2026 (expected, co-advised with Prof. David Kaeli)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="./assets/yushu-wu.jpg" alt="Yushu Wu" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Yushu Wu</strong></p>
+                        <p class="student-desc">2020 鈥?2026 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="./assets/changdi-yang.jpg" alt="Changdi Yang" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Changdi Yang</strong></p>
+                        <p class="student-desc">2021 鈥?2026 (expected)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="./assets/xiaomeng-yang.jpg" alt="Xiaomeng Yang" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Xiaomeng Yang</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected, co-advised with Prof. Silvia Zhang)</p>
+                    </div>
+                    <div class="student-card">
+                        <img src="/assets/lin-zhao-CSPdxvFn.jpg" alt="Lin Zhao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Lin Zhao</strong></p>
+                        <p class="student-desc">2024 鈥?2029 (expected)</p>
+                    </div>
+                </div>
+                <h3>Research Assistant Professor</h3>
+                <div class="students-grid">
+                    <div class="student-card">
+                        <img src="/assets/pu-zhao-Dn7WPrnp.jpg" alt="Pu Zhao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Dr. Pu Zhao</strong></p>
+                        <p class="student-desc">Formally start from Fall 2021</p>
+                    </div>
+                </div>
+                <h3>Research Scientist</h3>
+                <div class="students-grid">
+                    <div class="student-card">
+                        <img src="/assets/haochen-zeng-YvOhDC7h.jpg" alt="Haochen Zeng" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Haochen Zeng</strong></p>
+                        <p class="student-desc">From 2025; M.S. from University of Washington</p>
+                    </div>
+                </div>
+                <h3>Research Manager</h3>
+                <div class="students-grid">
+                    <div class="student-card">
+                        <img src="/assets/yifan-cao-Db3RT5M2.jpg" alt="Yifan Cao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
+                        <p class="student-name"><strong>Yifan Cao</strong></p>
+                        <p class="student-desc">From 2026; M.S. from University of Texas Dallas</p>
+                    </div>
+                </div>
+                <h3>Ph.D. and Postdoc Alumni</h3>
+                <ul style="padding-left: 1.5rem;">
+                    <li><strong>Caiwen Ding</strong> (Graduation Year: 2019) Current Employment: Associate Professor in Dept. of CSE, University of Minnesota</li>
+                    <li><strong>Ao Ren</strong> (Graduation Year: 2020) Current Employment: Full Professor in School of CS, Chongqing University</li>
+                    <li><strong>Xiaolong Ma</strong> (Graduation Year: 2022) Assistant Professor in Dept. of ECE, University of Arizona</li>
+                    <li><strong>Ruizhe Cai</strong> (Graduation Year: 2020) Current Employment: Facebook Inc.</li>
+                    <li><strong>Ning Liu</strong> (Graduation Year: 2021) Current Employment: Beijing Humanoid Research Center (founding researcher)</li>
+                    <li><strong>Sheng Lin</strong> (Graduation Year: 2021) Current Employment: Research Scientist, Tencent U.S.</li>
+                    <li><strong>Hongjia Li</strong> (Graduation Year: 2021) Current Employment: Research Scientist, Amazon</li>
+                    <li><strong>Geng Yuan</strong> (Graduation Year: 2023) Current Employment: Assistant Professor in Dept. of CSE, University of Georgia</li>
+                    <li><strong>Qing Jin</strong> (Graduation Year: 2023) Current Employment: Research Scientist, Snap Inc.</li>
+                    <li><strong>Zhenglun Kong</strong> (Graduation Year: 2024) Current Employment: Postdoc Researcher, Harvard University</li>
+                    <li><strong>Zhengang Li</strong> (Graduation Year: 2024) Current Employment: Research Scientist, Adobe Research</li>
+                    <li><strong>Peiyan Dong</strong> (Graduation Year: 2024) Current Employment: Postdoc Researcher, MIT</li>
+                    <li><strong>Malith Jayaweera</strong> (Graduation Year: 2024) Current Employment: Amazon Research</li>
+                    <li><strong>Yifan Gong</strong> (Graduation Year: 2024) Current Employment: Adobe Research (incoming Assistant Professor of University of Massachusetts Amherst)</li>
+                    <li><strong>Xuan Shen</strong> (Graduation Year: 2025) Current Employment: Associate Professor, Zhejiang University in China</li>
+                    <li><strong>Zheng Zhang</strong> (Graduation Year: 2024) Current Employment: Microsoft Research</li>
+                    <li><strong>Sung-en Chang</strong> (Graduation Year: 2024) Current Employment: Research Scientist, Bose Inc.</li>
+                    <li><strong>Yanyue Xie</strong> (Graduation Year: 2025) Current Employment: Research Scientist, Bytedance Seeds</li>
+                    <li><strong>Jun Liu</strong> (Graduation Year: 2025) Current Employment: Research Scientist, CMU</li>
+                    <li><strong>Timothy Rupprecht</strong> (Graduation Year: 2025) Current Employment (part time): Research Scientist, EmbodyX Inc.</li>
+                    <li><strong>Chao Wu</strong> (Postdoc researcher 2022 鈥?2023) Current Employment: Associate Professor, University of Science and Technology in China</li>
+                    <li><strong>Masoud Zabihi</strong> (Postdoc researcher 2022 鈥?2023) Current Employment: IBM Research</li>
+                    <li><strong>Cheng Lyu</strong> (Postdoc researcher 2023 鈥?2025)</li>
+                    <li><strong>Fangzheng Sun</strong> (Primary Advisor: Prof. Hao Sun and Prof. Ryan Wang) (Graduation Year: 2021) Current Employment: Research Scientist, Amazon</li>
+                    <li><strong>Chen Pan</strong> (Visiting student/postdoc) Current Employment: Assistant Professor in Dept. of CSE, University of Texas San Antonio</li>
+                    <li><strong>Tianyun Zhang</strong> (Primary Advisor: Prof. Makan Fardad) (Graduation Year: 2021) Current Employment: Assistant Professor in Dept. of ECE, Cleveland State University</li>
+                    <li><strong>Mengshu Sun</strong> (Primary Advisor: Prof. Xue Lin) (Graduation Year: 2022) Current Employment: Associate Professor in Dept. of ECE, Beijing University of Science and Technology</li>
+                    <li><strong>Cihan Ruan</strong> (Visiting student/postdoc) Current Employment: Incoming Associate Professor in Dept. of Mathematics, Nankai University</li>
+                    <li><strong>Zhe Li</strong> (Primary Advisor: Prof. Qinru Qiu) (Graduation Year: 2018) Current Employment: Staff Researcher, Google DeepMind</li>
+                </ul>
+                <h3>Visiting Scholar and Students</h3>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Prof. Olivia Chen (2019, 2022, Associate Professor, Yokohama National University, Japan)</li>
+                    <li>Hao Tang, currently Assistant Professor at Peking University</li>
+                    <li>Yuxi Hong (2022, Ph.D. student at KAUST, Saudi Arabia, currently Assistant Professor at Indiana University)</li>
+                    <li>Wei Niu (2019, Ph.D. student at College of William and Mary, currently Assistant Professor in Dept. of CSE, University of Georgia)</li>
+                    <li>Runbin Shi (2019, Ph.D. student at University of Hong Kong, currently at AMD Research)</li>
+                </ul>
+                <h3>M.S. Alumni (selected)</h3>
+                <ul style="padding-left: 1.5rem;">
+                    <li>Shaokai Ye (graduation 2018, researcher at Apple)</li>
+                    <li>Shuo Wang (graduation 2015, currently founder and CEO of Leap.IO)</li>
+                </ul>
+            </section>
+
             <h1>Teaching</h1>
             <section>
                 <p style="margin-bottom: 1.5rem;"><em>Received Martin Essigmann Outstanding Teaching Award</em></p>
 
                 <h3>At Northeastern University</h3>
                 <ul style="padding-left: 1.5rem;">
-                    <li><strong>EECE 7398:</strong> Deep Learning Embedded Systems – Spring 2026</li>
-                    <li><strong>EECE 2140:</strong> Computing Fundamentals for Engineering – Fall 2025</li>
-                    <li><strong>EECE 3324:</strong> Computer Architecture &amp; Organization – Fall 2024</li>
-                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning – Spring 2024 (68 graduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Fall 2023 (4.1/5.0, 50 graduate students)</li>
-                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning – Spring 2023 (4.2/5.0, 70 graduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Fall 2022 (4.9/5.0, 45 graduate students)</li>
-                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning – Spring 2022 (4.3/5.0, 70 graduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Fall 2021 (4.7/5.0, 45 graduate students)</li>
-                    <li><strong>EECE 3324:</strong> Computer Architecture and Organization – Summer I 2021 (4.9/5.0, 18 undergraduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Spring 2021 (4.5/5.0, 53 graduate students)</li>
-                    <li><strong>EECE 4524:</strong> VLSI Design – Spring 2020 (4.0/5.0, 5 undergraduate students)</li>
-                    <li><strong>EECE 7398:</strong> Deep Learning Embedded Systems – Spring 2020 (4.8/5.0, 46 graduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Spring 2019 (4.6/5.0, 43 graduate students)</li>
-                    <li><strong>EECE 7398:</strong> Advances in Deep Learning – Fall 2018 (4.7/5.0, 45 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Deep Learning Embedded Systems 鈥?Spring 2026</li>
+                    <li><strong>EECE 2140:</strong> Computing Fundamentals for Engineering 鈥?Fall 2025</li>
+                    <li><strong>EECE 3324:</strong> Computer Architecture &amp; Organization 鈥?Fall 2024</li>
+                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning 鈥?Spring 2024 (68 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Fall 2023 (4.1/5.0, 50 graduate students)</li>
+                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning 鈥?Spring 2023 (4.2/5.0, 70 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Fall 2022 (4.9/5.0, 45 graduate students)</li>
+                    <li><strong>Data Science 5220:</strong> Supervised Machine Learning 鈥?Spring 2022 (4.3/5.0, 70 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Fall 2021 (4.7/5.0, 45 graduate students)</li>
+                    <li><strong>EECE 3324:</strong> Computer Architecture and Organization 鈥?Summer I 2021 (4.9/5.0, 18 undergraduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Spring 2021 (4.5/5.0, 53 graduate students)</li>
+                    <li><strong>EECE 4524:</strong> VLSI Design 鈥?Spring 2020 (4.0/5.0, 5 undergraduate students)</li>
+                    <li><strong>EECE 7398:</strong> Deep Learning Embedded Systems 鈥?Spring 2020 (4.8/5.0, 46 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Spring 2019 (4.6/5.0, 43 graduate students)</li>
+                    <li><strong>EECE 7398:</strong> Advances in Deep Learning 鈥?Fall 2018 (4.7/5.0, 45 graduate students)</li>
                 </ul>
 
                 <h3>At Syracuse University</h3>
                 <ul style="padding-left: 1.5rem;">
-                    <li><strong>CSE/CIS 700:</strong> Advances in Deep Learning – Spring 2018 (4.7/5.0, 50 graduate students)</li>
-                    <li><strong>CSE 381:</strong> Computer Architecture – Fall 2017 (4.1/5.0, 28 undergraduate students)</li>
-                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods – Fall 2017 (4.4/5.0, 29 graduate students)</li>
-                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods – Fall 2016 (4.86/5.0, 27 graduate students)</li>
-                    <li><strong>CSE/CSE 655/611:</strong> Advanced Computer Architecture – Spring 2016 (4.27/5.0, 44 graduate students)</li>
-                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods – Fall 2015 (4.67/5.0, 16 graduate and undergraduate students)</li>
+                    <li><strong>CSE/CIS 700:</strong> Advances in Deep Learning 鈥?Spring 2018 (4.7/5.0, 50 graduate students)</li>
+                    <li><strong>CSE 381:</strong> Computer Architecture 鈥?Fall 2017 (4.1/5.0, 28 undergraduate students)</li>
+                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods 鈥?Fall 2017 (4.4/5.0, 29 graduate students)</li>
+                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods 鈥?Fall 2016 (4.86/5.0, 27 graduate students)</li>
+                    <li><strong>CSE/CSE 655/611:</strong> Advanced Computer Architecture 鈥?Spring 2016 (4.27/5.0, 44 graduate students)</li>
+                    <li><strong>ELE/CSE 664:</strong> VLSI Design Methods 鈥?Fall 2015 (4.67/5.0, 16 graduate and undergraduate students)</li>
                 </ul>
 
                 <h3>At University of Southern California (as postdoc and lecturer)</h3>
                 <ul style="padding-left: 1.5rem;">
-                    <li><strong>EE 680:</strong> Computer Aided Design I – Spring 2015 (4.8/5.0, 33 graduate students)</li>
-                    <li><strong>EE 577A:</strong> Advanced VLSI Designs – Fall 2014 (4.73/5.0, 105 graduate students)</li>
+                    <li><strong>EE 680:</strong> Computer Aided Design I 鈥?Spring 2015 (4.8/5.0, 33 graduate students)</li>
+                    <li><strong>EE 577A:</strong> Advanced VLSI Designs 鈥?Fall 2014 (4.73/5.0, 105 graduate students)</li>
                 </ul>
             </section>
 
@@ -78,14 +225,14 @@
             <section>
                 <h3>Associate Editor / Editorial Board</h3>
                 <ul style="padding-left: 1.5rem;">
-                    <li>Elsevier Journal of VLSI Integration: 2017 – present</li>
+                    <li>Elsevier Journal of VLSI Integration: 2017 鈥?present</li>
                     <li>IEEE Trans. on Neural Networks and Learning Systems (TNNLS): next term</li>
-                    <li>IEEE Trans. on Computers, special session on “Emerging Technologies and Trends in Machine
-                        Learning”, 2020</li>
+                    <li>IEEE Trans. on Computers, special session on 鈥淓merging Technologies and Trends in Machine
+                        Learning鈥? 2020</li>
                     <li>IEEE Trans. on Circuits and Systems II, 2020, 2022</li>
-                    <li>CCF Trans. on High Performance Computing – Special Issue on Disruptive Computing Techniques,
+                    <li>CCF Trans. on High Performance Computing 鈥?Special Issue on Disruptive Computing Techniques,
                         2020</li>
-                    <li>ACM SIGDA Newsletter, 2017 – present</li>
+                    <li>ACM SIGDA Newsletter, 2017 鈥?present</li>
                 </ul>
 
                 <h3>Conference Leadership</h3>
@@ -118,11 +265,11 @@
 
                 <h3>Technical Program Committee (TPC) Member</h3>
                 <ul style="padding-left: 1.5rem;">
-                    <li>IEEE/ACM Design Automation Conference (DAC): 2016, 2019 – 2021, 2023</li>
-                    <li>IEEE/ACM International Conference on Computer Aided Design (ICCAD): 2016, 2018 – 2020</li>
-                    <li>Design Automation and Test Conference in Europe (DATE): 2016 – 2019</li>
+                    <li>IEEE/ACM Design Automation Conference (DAC): 2016, 2019 鈥?2021, 2023</li>
+                    <li>IEEE/ACM International Conference on Computer Aided Design (ICCAD): 2016, 2018 鈥?2020</li>
+                    <li>Design Automation and Test Conference in Europe (DATE): 2016 鈥?2019</li>
                     <li>IEEE International Conference on Computer Communications (INFOCOM): 2018, 2019</li>
-                    <li>AAAI Conference on Artificial Intelligence (AAAI): 2019 – 2021</li>
+                    <li>AAAI Conference on Artificial Intelligence (AAAI): 2019 鈥?2021</li>
                     <li>International Conference on Learning Representation (ICLR): 2019, 2021, 2023</li>
                     <li>International Joint Conference on Artificial Intelligence (IJCAI): 2019, 2020</li>
                     <li>IEEE Conference on Computer Vision and Pattern Recognition (CVPR): 2020, 2021, 2022</li>
@@ -137,16 +284,16 @@
                     <li>International Symposium on Machine Learning Systems (MLSys): 2022, 2023</li>
                     <li>NSF Workshop on Sustainable Computing, 2022</li>
                     <li>IEEE Winter Conference on Applications of Computer Vision (WACV): 2021</li>
-                    <li>IEEE International Conference on Computer Design (ICCD): 2016 – 2019</li>
-                    <li>Asia and South Pacific Design Automation Conference (ASP-DAC): 2017 – 2019, 2021</li>
-                    <li>International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS): 2016 –
+                    <li>IEEE International Conference on Computer Design (ICCD): 2016 鈥?2019</li>
+                    <li>Asia and South Pacific Design Automation Conference (ASP-DAC): 2017 鈥?2019, 2021</li>
+                    <li>International Conference on Hardware/Software Codesign and System Synthesis (CODES+ISSS): 2016 鈥?
                         2018</li>
                     <li>International Conference on Compilers, Architectures, and Synthesis for Embedded Systems
                         (CASES): 2016</li>
-                    <li>ACM Great Lakes Symposium on VLSI (GLS-VLSI): 2015 – 2021</li>
-                    <li>International Symposium on Quality Electronic Design (ISQED): 2017 – 2020</li>
-                    <li>IEEE International Symposium on VLSI (ISVLSI): 2016 – 2018</li>
-                    <li>ACM/IEEE International Conference on System-level Interconnect Problems (SLIP): 2015 – 2018</li>
+                    <li>ACM Great Lakes Symposium on VLSI (GLS-VLSI): 2015 鈥?2021</li>
+                    <li>International Symposium on Quality Electronic Design (ISQED): 2017 鈥?2020</li>
+                    <li>IEEE International Symposium on VLSI (ISVLSI): 2016 鈥?2018</li>
+                    <li>ACM/IEEE International Conference on System-level Interconnect Problems (SLIP): 2015 鈥?2018</li>
                     <li>IEEE Global Conference on Signal and Information Processing (GlobalSIP): 2019</li>
                     <li>IEEE Biomedical Circuits and Systems Conference (BioCAS): 2019</li>
                     <li>ACM/IEEE Workshop on Machine Learning for CAD (MLCAD): 2020</li>
@@ -164,161 +311,6 @@
                 </ul>
             </section>
 
-            <style>
-                .students-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5rem; margin-bottom: 2rem; }
-                .student-card { text-align: center; }
-                .student-photo { width: 80%; aspect-ratio: 1; object-fit: cover; object-position: center top; border-radius: 5px; display: block; margin: 0 auto; }
-                .student-name { margin-top: 0.6rem; margin-bottom: 0.2rem; font-size: 0.95rem; }
-                .student-desc { font-size: 0.82rem; color: #555; margin-bottom: 0; }
-                @media (max-width: 768px) { .students-grid { grid-template-columns: repeat(3, 1fr); } }
-            </style>
-
-            <h1>Supervised Students</h1>
-            <section>
-                <h3>Current Ph.D. Students</h3>
-                <div class="students-grid">
-                    <div class="student-card">
-                        <img src="/assets/arash-akbari-DkRlZ7_i.jpg" alt="Arash Akbari" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Arash Akbari</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/arman-akbari-C_U3hKoQ.jpg" alt="Arman Akbari" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Arman Akbari</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected, co-advised with Prof. Silvia Zhang)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/yixiao-chen-BpPuA4Ca.jpg" alt="Yixiao Chen" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Yixiao Chen</strong></p>
-                        <p class="student-desc">2026 – 2030 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/rahul-chowdhury-CgYgCRpL.jpg" alt="Rahul Chowdhury" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Rahul Chowdhury</strong></p>
-                        <p class="student-desc">2021 – 2026 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/juyi-lin-DROhZbC-.jpg" alt="Juyi Lin" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Juyi Lin</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/lei-lu-DKroCsn4.jpg" alt="Lei Lu" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Lei Lu</strong></p>
-                        <p class="student-desc">2022 – 2026 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/enfu-nan-DJ9PgbLn.jpg" alt="Enfu Nan" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Enfu Nan</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="./assets/omid-poordashtban.jpg" alt="Omid Poordashtban" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Omid Poordashtban</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected, co-advised with Prof. Hossein Mosallaei)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="./assets/amir-taherin.jpg" alt="Amir Taherin" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Amir Taherin</strong></p>
-                        <p class="student-desc">2022 – 2026 (expected, co-advised with Prof. David Kaeli)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="./assets/yushu-wu.jpg" alt="Yushu Wu" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Yushu Wu</strong></p>
-                        <p class="student-desc">2020 – 2026 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="./assets/changdi-yang.jpg" alt="Changdi Yang" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Changdi Yang</strong></p>
-                        <p class="student-desc">2021 – 2026 (expected)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="./assets/xiaomeng-yang.jpg" alt="Xiaomeng Yang" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Xiaomeng Yang</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected, co-advised with Prof. Silvia Zhang)</p>
-                    </div>
-                    <div class="student-card">
-                        <img src="/assets/lin-zhao-CSPdxvFn.jpg" alt="Lin Zhao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Lin Zhao</strong></p>
-                        <p class="student-desc">2024 – 2029 (expected)</p>
-                    </div>
-                </div>
-
-                <h3>Research Assistant Professor</h3>
-                <div class="students-grid">
-                    <div class="student-card">
-                        <img src="/assets/pu-zhao-Dn7WPrnp.jpg" alt="Pu Zhao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Dr. Pu Zhao</strong></p>
-                        <p class="student-desc">Formally start from Fall 2021</p>
-                    </div>
-                </div>
-
-                <h3>Research Scientist</h3>
-                <div class="students-grid">
-                    <div class="student-card">
-                        <img src="/assets/haochen-zeng-YvOhDC7h.jpg" alt="Haochen Zeng" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Haochen Zeng</strong></p>
-                        <p class="student-desc">From 2025; M.S. from University of Washington</p>
-                    </div>
-                </div>
-
-                <h3>Research Manager</h3>
-                <div class="students-grid">
-                    <div class="student-card">
-                        <img src="/assets/yifan-cao-Db3RT5M2.jpg" alt="Yifan Cao" class="student-photo" onerror="this.src='./assets/placeholder-student.webp'">
-                        <p class="student-name"><strong>Yifan Cao</strong></p>
-                        <p class="student-desc">From 2026; M.S. from University of Texas Dallas</p>
-                    </div>
-                </div>
-
-                <h3>Ph.D. and Postdoc Alumni</h3>
-                <ul style="padding-left: 1.5rem;">
-                    <li><strong>Caiwen Ding</strong> (Graduation Year: 2019) Current Employment: Associate Professor in Dept. of CSE, University of Minnesota</li>
-                    <li><strong>Ao Ren</strong> (Graduation Year: 2020) Current Employment: Full Professor in School of CS, Chongqing University. Previous Employment: Assistant Professor in Dept. of ECE, Clemson University</li>
-                    <li><strong>Xiaolong Ma</strong> (Graduation Year: 2022) Assistant Professor in Dept. of ECE, University of Arizona.</li>
-                    <li><strong>Ruizhe Cai</strong> (Graduation Year: 2020) Current Employment: Facebook Inc.</li>
-                    <li><strong>Ning Liu</strong> (Graduation Year: 2021) Current Employment: Beijing Humanoid Research Center (founding researcher)</li>
-                    <li><strong>Sheng Lin</strong> (Graduation Year: 2021) Current Employment: Research Scientist, Tencent U.S.</li>
-                    <li><strong>Hongjia Li</strong> (Graduation Year: 2021) Current Employment: Research Scientist, Amazon</li>
-                    <li><strong>Geng Yuan</strong> (Graduation Year: 2023) Current Employment: Assistant Professor in Dept. of CSE, University of Georgia</li>
-                    <li><strong>Qing Jin</strong> (Graduation Year: 2023) Current Employment: Research Scientist, Snap Inc.</li>
-                    <li><strong>Zhenglun Kong</strong> (Graduation Year: 2024) Current Employment: Postdoc Researcher, Harvard University</li>
-                    <li><strong>Zhengang Li</strong> (Graduation Year: 2024) Current Employment: Research Scientist, Adobe Research</li>
-                    <li><strong>Peiyan Dong</strong> (Graduation Year: 2024) Current Employment: Postdoc Researcher, MIT</li>
-                    <li><strong>Malith Jayaweera</strong> (Graduation Year: 2024) Current Employment: Amazon Research</li>
-                    <li><strong>Yifan Gong</strong> (Graduation Year: 2024) Current Employment: Adobe Research (incoming Assistant Professor of University of Massachusetts Amherst)</li>
-                    <li><strong>Xuan Shen</strong> (Graduation Year: 2025) Current Employment: Associate Professor, Zhejiang University in China</li>
-                    <li><strong>Zheng Zhang</strong> (Graduation Year: 2024) Current Employment: Microsoft Research</li>
-                    <li><strong>Sung-en Chang</strong> (Graduation Year: 2024) Current Employment: Research Scientist, Bose Inc.</li>
-                    <li><strong>Yanyue Xie</strong> (Graduation Year: 2025) Current Employment: Research Scientist, Bytedance Seeds</li>
-                    <li><strong>Jun Liu</strong> (Graduation Year: 2025) Current Employment: Research Scientist, CMU</li>
-                    <li><strong>Timothy Rupprecht</strong> (Graduation Year: 2025) Current Employment (part time): Research Scientist, EmbodyX Inc.</li>
-                    <li><strong>Chao Wu</strong> (Postdoc researcher 2022 – 2023) Current Employment: Associate Professor, University of Science and Technology in China</li>
-                    <li><strong>Masoud Zabihi</strong> (Postdoc researcher 2022 – 2023) Current Employment: IBM Research</li>
-                    <li><strong>Cheng Lyu</strong> (Postdoc researcher 2023 – 2025)</li>
-                    <li><strong>Fangzheng Sun</strong> (Primary Advisor: Prof. Hao Sun and Prof. Ryan Wang) (Graduation Year: 2021) Current Employment: Research Scientist, Amazon</li>
-                    <li><strong>Chen Pan</strong> (Visiting student/postdoc) Current Employment: Assistant Professor in Dept. of CSE, University of Texas San Antonio</li>
-                    <li><strong>Tianyun Zhang</strong> (Primary Advisor: Prof. Makan Fardad) (Graduation Year: 2021) Current Employment: Assistant Professor in Dept. of ECE, Cleveland State University</li>
-                    <li><strong>Mengshu Sun</strong> (Primary Advisor: Prof. Xue Lin) (Graduation Year: 2022) Current Employment: Associate Professor in Dept. of ECE, Beijing University of Science and Technology</li>
-                    <li><strong>Cihan Ruan</strong> (Visiting student/postdoc) Current Employment: Incoming Associate Professor in Dept. of Mathematics, Nankai University</li>
-                    <li><strong>Zhe Li</strong> (Primary Advisor: Prof. Qinru Qiu) (Graduation Year: 2018) Current Employment: Staff Researcher, Google DeepMind</li>
-                </ul>
-
-                <h3>Visiting Scholar and Students</h3>
-                <ul style="padding-left: 1.5rem;">
-                    <li>Prof. Olivia Chen (2019, 2022, Associate Professor, Yokohama National University, Japan)</li>
-                    <li>Hao Tang, currently Assistant Professor at Peking University</li>
-                    <li>Yuxi Hong (2022, Ph.D. student at KAUST, Saudi Arabia, currently Assistant Professor at Indiana University)</li>
-                    <li>Wei Niu (2019, Ph.D. student at College of William and Mary, currently Assistant Professor in Dept. of CSE, University of Georgia)</li>
-                    <li>Runbin Shi (2019, Ph.D. student at University of Hong Kong, currently at AMD Research)</li>
-                </ul>
-
-                <h3>M.S. Alumni (selected)</h3>
-                <ul style="padding-left: 1.5rem;">
-                    <li>Shaokai Ye (graduation 2018, researcher at Apple)</li>
-                    <li>Shuo Wang (graduation 2015, currently founder and CEO of Leap.IO)</li>
-                </ul>
-            </section>
         </main>
 
         <shared-footer></shared-footer>
