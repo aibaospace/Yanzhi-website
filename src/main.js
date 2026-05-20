@@ -29,7 +29,7 @@ class SharedHeader extends HTMLElement {
                     <li><a href="./index.html">Home</a></li>
                     <li><a href="./news.html">News</a></li>
                     <li><a href="./publications.html">Publications</a></li>
-                    <li><a href="./projects.html">Lab Projects</a></li>
+                    <li><a href="./opensource.html">Open Source</a></li>
                     <li><a href="./teaching.html">Teaching</a></li>
                     <li><a href="./opensource.html">Open Source</a></li>
                     <li><a href="./CV.pdf" target="_blank">CV</a></li>
