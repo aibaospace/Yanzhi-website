@@ -227,12 +227,42 @@
 
                 <h3 style="font-size: 1.15rem; color: #1e293b; margin: 2rem 0 1rem; font-weight: 700;">Benchmarks</h3>
                 <div class="os-cards">
-                    <div class="os-card">
-                        <h3><span class="os-tag os-tag--benchmark">Benchmark</span> <a href="https://phyground.github.io/" target="_blank">PhyGround</a></h3>
-                        <p>Evaluates how well video models adhere to physical laws. 250 prompts across 13 physics laws, 37K+ labels from 459 annotators. Includes PhyJudge-9B, an open-source physics-specialized VLM.</p>
-                        <div class="os-card-links">
-                            <a href="https://phyground.github.io/" target="_blank">Project Page</a>
-                            <a href="https://arxiv.org/abs/2605.10806" target="_blank">arXiv</a>
+                    <div class="os-card os-card--wide">
+                        <div>
+                            <div style="margin-bottom: 1rem;">
+                                <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 0.3rem;">🍎 <strong>Gravity</strong> — <em>"A player checks another player, sending them sprawling onto the ice."</em></p>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div class="os-video-cell">
+                                        <video autoplay muted loop playsinline><source src="https://phyground.github.io/static/videos/ltx-2.3-22b-dev/collision_431.mp4" type="video/mp4"></video>
+                                        <span class="os-video-label">LTX-2.3-22B</span>
+                                    </div>
+                                    <div class="os-video-cell">
+                                        <video autoplay muted loop playsinline><source src="https://phyground.github.io/static/videos/cosmos-predict2.5-14b/collision_431.mp4" type="video/mp4"></video>
+                                        <span class="os-video-label">Cosmos-14B</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 0.3rem;">🌊 <strong>Flow Dynamics</strong> — <em>"A stream of water from a handheld nozzle hits a small oil fire, extinguishing the blaze."</em></p>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div class="os-video-cell">
+                                        <video autoplay muted loop playsinline><source src="https://phyground.github.io/static/videos/cosmos-predict2.5-14b/fluid_553.mp4" type="video/mp4"></video>
+                                        <span class="os-video-label">Cosmos-14B</span>
+                                    </div>
+                                    <div class="os-video-cell">
+                                        <video autoplay muted loop playsinline><source src="https://phyground.github.io/static/videos/wan2.2-i2v-a14b/fluid_553.mp4" type="video/mp4"></video>
+                                        <span class="os-video-label">Wan2.2-27B-A14B</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="os-card-info">
+                            <h3><span class="os-tag os-tag--benchmark">Benchmark</span> <a href="https://phyground.github.io/" target="_blank">PhyGround</a></h3>
+                            <p>Criteria-grounded benchmark evaluating how well video generation models adhere to physical laws. 250 curated prompts across 13 physical laws spanning solid-body mechanics, fluid dynamics, and optics — with 37,000+ fine-grained labels from 459 annotators. Includes PhyJudge-9B, an open-source physics-specialized vision-language model for automated evaluation.</p>
+                            <div class="os-card-links">
+                                <a href="https://phyground.github.io/" target="_blank">Project Page</a>
+                                <a href="https://arxiv.org/abs/2605.10806" target="_blank">arXiv</a>
+                            </div>
                         </div>
                     </div>
                 </div>
