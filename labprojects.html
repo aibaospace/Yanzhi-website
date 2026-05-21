@@ -166,26 +166,6 @@
 
         .lab-nav-grid a:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-        /* Video Carousel */
-        .vid-carousel-wrap { position: relative; margin-bottom: 1.5rem; }
-        .vid-carousel { display: flex; gap: 1rem; overflow-x: auto; scroll-behavior: smooth; padding: 0.5rem 0; scrollbar-width: none; }
-        .vid-carousel::-webkit-scrollbar { display: none; }
-        .vid-carousel-item { flex: 0 0 260px; border-radius: 10px; overflow: hidden; background: #000; position: relative; }
-        .vid-carousel-item video { width: 100%; display: block; border-radius: 10px; }
-        .vid-carousel-item .vid-caption { text-align: center; font-size: 0.78rem; font-weight: 600; color: #166534; padding: 0.4rem 0 0.2rem; background: #fff; }
-        .vid-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; border: none; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; z-index: 2; transition: background 0.15s; }
-        .vid-arrow:hover { background: rgba(0,0,0,0.75); }
-        .vid-arrow--left { left: 6px; }
-        .vid-arrow--right { right: 6px; }
-
-        /* Comparison grid */
-        .vid-compare { margin-top: 1.5rem; }
-        .vid-compare-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; }
-        .vid-compare-row { display: flex; gap: 0.75rem; margin-bottom: 1rem; overflow-x: auto; scrollbar-width: none; }
-        .vid-compare-row::-webkit-scrollbar { display: none; }
-        .vid-compare-cell { flex: 0 0 220px; position: relative; border-radius: 8px; overflow: hidden; background: #000; }
-        .vid-compare-cell video { width: 100%; display: block; border-radius: 8px; }
-
         @media (max-width: 768px) {
             .lab-nav-grid { grid-template-columns: repeat(2, 1fr) !important; }
             .os-hero { padding: 1.5rem; }
@@ -230,42 +210,33 @@
                     <h2>World Model & Embodied AI</h2>
                     <p class="os-hero-desc">Building the foundation for machines that understand and reason about the physical world — from cognitive architectures and physics-faithful video generation to resource-aware robotic reasoning. A core pillar at <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a>.</p>
                 </div>
-                <h3 style="font-size: 1.3rem; color: #1e293b; margin: 1.5rem 0 0.5rem; font-weight: 700;">Models</h3>
-                <div class="os-card" style="padding: 1.5rem; grid-column: 1/-1;">
-                    <h3 style="margin-top: 0;"><span class="os-tag os-tag--model">Model</span> <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PhyWorld</a></h3>
-                    <p>Physics-faithful world model for video generation. Two-stage post-training: flow-matching fine-tuning for visual consistency, then DPO to align dynamics with physical laws. Achieves 0.769 on VBench and 3.09 on PhyGround.</p>
-                    <div class="os-card-links" style="margin-bottom: 1.25rem;">
-                        <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
-                    </div>
-
-                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">PhyWorld Outputs</p>
-                    <div class="vid-carousel-wrap">
-                        <button class="vid-arrow vid-arrow--left" onclick="document.getElementById('pwCarousel').scrollBy({left:-280,behavior:'smooth'})">&#9664;</button>
-                        <div class="vid-carousel" id="pwCarousel">
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_826.mp4" type="video/mp4"></video><div class="vid-caption">Sample 826</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_115.mp4" type="video/mp4"></video><div class="vid-caption">Sample 115</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_147.mp4" type="video/mp4"></video><div class="vid-caption">Sample 147</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_234.mp4" type="video/mp4"></video><div class="vid-caption">Sample 234</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_282.mp4" type="video/mp4"></video><div class="vid-caption">Sample 282</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_518.mp4" type="video/mp4"></video><div class="vid-caption">Sample 518</div></div>
-                            <div class="vid-carousel-item"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_705.mp4" type="video/mp4"></video><div class="vid-caption">Sample 705</div></div>
+                <h3 style="font-size: 1.3rem; color: #1e293b; margin: 1.5rem 0 1rem; font-weight: 700;">Models</h3>
+                <div class="os-cards">
+                    <div class="os-card os-card--wide">
+                        <div class="os-video-grid">
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">PhyWorld (Ours)</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/cosmos/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">Cosmos</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/ltx/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">LTX</span>
+                            </div>
+                            <div class="os-video-cell">
+                                <video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/omniweave/video_115.mp4" type="video/mp4"></video>
+                                <span class="os-video-label">OmniWeave</span>
+                            </div>
                         </div>
-                        <button class="vid-arrow vid-arrow--right" onclick="document.getElementById('pwCarousel').scrollBy({left:280,behavior:'smooth'})">&#9654;</button>
-                    </div>
-
-                    <div class="vid-compare">
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; font-weight: 600;">Head-to-Head Comparisons</p>
-                        <div class="vid-compare-row">
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_115.mp4" type="video/mp4"></video><span class="os-video-label">PhyWorld</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/cosmos/video_115.mp4" type="video/mp4"></video><span class="os-video-label">Cosmos</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/ltx/video_115.mp4" type="video/mp4"></video><span class="os-video-label">LTX</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/omniweave/video_115.mp4" type="video/mp4"></video><span class="os-video-label">OmniWeave</span></div>
-                        </div>
-                        <div class="vid-compare-row">
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/phyworld/video_234.mp4" type="video/mp4"></video><span class="os-video-label">PhyWorld</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/cosmos/video_234.mp4" type="video/mp4"></video><span class="os-video-label">Cosmos</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/ltx/video_234.mp4" type="video/mp4"></video><span class="os-video-label">LTX</span></div>
-                            <div class="vid-compare-cell"><video autoplay muted loop playsinline><source src="https://nu-world-model-embodied-ai.github.io/PhyWorld/static/videos/omniweave/video_234.mp4" type="video/mp4"></video><span class="os-video-label">OmniWeave</span></div>
+                        <div class="os-card-info">
+                            <h3><span class="os-tag os-tag--model">Model</span> <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">PhyWorld</a></h3>
+                            <p>Physics-faithful world model for video generation. Uses a two-stage post-training approach — flow-matching fine-tuning for visual consistency, then Direct Preference Optimization to align generated dynamics with physical laws. Achieves 0.769 on VBench and 3.09 on PhyGround benchmark.</p>
+                            <div class="os-card-links">
+                                <a href="https://nu-world-model-embodied-ai.github.io/PhyWorld/" target="_blank">Project Page</a>
+                            </div>
                         </div>
                     </div>
                 </div>
