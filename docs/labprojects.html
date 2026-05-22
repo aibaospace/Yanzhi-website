@@ -387,6 +387,19 @@
 
         <shared-footer></shared-footer>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('video').forEach(function(v) {
+            v.setAttribute('webkit-playsinline', '');
+            v.setAttribute('x5-playsinline', '');
+            v.setAttribute('x5-video-player-type', 'h5');
+            v.play().catch(function(){});
+        });
+        document.addEventListener('touchstart', function() {
+            document.querySelectorAll('video').forEach(function(v) { v.play().catch(function(){}); });
+        }, { once: true });
+    });
+    </script>
 </body>
 
 </html>
