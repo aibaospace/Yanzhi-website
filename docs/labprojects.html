@@ -191,7 +191,7 @@
                 </a>
                 <a href="#embodied-ai" style="text-decoration: none; background: #eff6ff; border: 1px solid #bfdbfe; border-top: 4px solid #3b82f6; border-radius: 10px; padding: 1.5rem; display: block; transition: transform 0.2s, box-shadow 0.2s;">
                     <div style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #1e40af; margin-bottom: 0.6rem;">Embodied AI</div>
-                    <div style="font-size: 0.9rem; color: #555; line-height: 1.6;">Resource-aware robotic reasoning and real-time decision-making for physical agents.</div>
+                    <div style="font-size: 0.9rem; color: #555; line-height: 1.6;">Real-time world-action models, modality-aware distillation, and resource-aware robotic reasoning.</div>
                 </a>
                 <a href="#moxin" style="text-decoration: none; background: #f5f3ff; border: 1px solid #ddd6fe; border-top: 4px solid #7c3aed; border-radius: 10px; padding: 1.5rem; display: block; transition: transform 0.2s, box-shadow 0.2s;">
                     <div style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #5b21b6; margin-bottom: 0.6rem;">Moxin</div>
@@ -311,9 +311,57 @@
                 <div class="os-hero" style="background: #1e3a5f;">
                     <span class="os-hero-tag" style="color: #7dd3fc; background: rgba(125,211,252,0.15);">Research Initiative</span>
                     <h2>Embodied AI</h2>
-                    <p class="os-hero-desc">Resource-aware robotic reasoning and real-time decision-making for physical agents. In collaboration with CMU and <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a>.</p>
+                    <p class="os-hero-desc">Real-time world-action models, modality-aware distillation, and resource-aware robotic reasoning for physical agents. In collaboration with CMU and <a href="https://www.embodyx.io/" target="_blank">EmbodyX</a>.</p>
                 </div>
+
+                <h3 style="font-size: 1.3rem; color: #1e293b; margin: 1.5rem 0 1rem; font-weight: 700;">Models</h3>
                 <div class="os-cards">
+                    <div class="os-card os-card--wide" style="gap: 2rem;">
+                        <div>
+                            <p style="font-size: 0.8rem; color: #64748b; margin: 0 0 0.4rem; font-weight: 600;">LingBot-VA (3v/10a) — Baseline</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-bottom: 0.75rem;">
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_lingbot_3.mp4" type="video/mp4"></video></div>
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_lingbot_1.mp4" type="video/mp4"></video></div>
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_lingbot_2.mp4" type="video/mp4"></video></div>
+                            </div>
+                            <div style="background: #0f172a; border-radius: 6px; padding: 0.4rem; text-align: center; margin-bottom: 0.75rem;">
+                                <span style="color: #22c55e; font-weight: 800; font-size: 1.1rem;">23× Speedup</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #166534; margin: 0 0 0.4rem; font-weight: 600;">Flash-WAM (1v/1a) — Ours</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem;">
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_flash_1.mp4" type="video/mp4"></video></div>
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_flash_2.mp4" type="video/mp4"></video></div>
+                                <div class="os-video-cell"><video autoplay muted loop playsinline><source src="/videos/flashwam_flash_3.mp4" type="video/mp4"></video></div>
+                            </div>
+                        </div>
+                        <div class="os-card-info">
+                            <h3><span class="os-tag os-tag--model">Model</span> <a href="https://flashwam.github.io/" target="_blank">Flash-WAM</a></h3>
+                            <p>Modality-Aware Distillation for World Action Models. Compresses diffusion-based world-action models from 25 video + 50 action steps down to 1 each, achieving 23× speedup (8.1s → 348ms). Each modality gets its own consistency function matched to its noise characteristics.</p>
+                            <div style="display: flex; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                <div style="text-align: center;"><span style="font-size: 1.3rem; font-weight: 800; color: #166534;">23×</span><br><span style="font-size: 0.7rem; color: #64748b;">Speedup</span></div>
+                                <div style="text-align: center;"><span style="font-size: 1.3rem; font-weight: 800; color: #1e40af;">85.5%</span><br><span style="font-size: 0.7rem; color: #64748b;">RoboTwin</span></div>
+                                <div style="text-align: center;"><span style="font-size: 1.3rem; font-weight: 800; color: #1e40af;">95.7%</span><br><span style="font-size: 0.7rem; color: #64748b;">LIBERO</span></div>
+                            </div>
+                            <div class="os-card-links">
+                                <a href="https://flashwam.github.io/" target="_blank">Project Page</a>
+                                <a href="https://www.alphaxiv.org/abs/2606.05254" target="_blank">arXiv</a>
+                                <a href="https://github.com/NU-World-Model-Embodied-AI/Flash-WAM" target="_blank">GitHub</a>
+                                <a href="https://huggingface.co/NU-World-Model-Embodied-AI/FlashWAM-RoboTwin" target="_blank">Hugging Face</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.3rem; color: #1e293b; margin: 2rem 0 1rem; font-weight: 700;">Papers</h3>
+                <div class="os-cards">
+                    <div class="os-card">
+                        <h3><span class="os-tag os-tag--paper">Paper</span> <a href="https://www.alphaxiv.org/abs/2606.05254" target="_blank">Flash-WAM: Modality-Aware Distillation</a></h3>
+                        <p>Identifies why naive consistency distillation fails on joint video-action models (asymmetric noise schedules cause action gradients to vanish) and proposes modality-aware distillation with tailored parametrizations.</p>
+                        <div class="os-card-links">
+                            <a href="https://www.alphaxiv.org/abs/2606.05254" target="_blank">arXiv</a>
+                            <a href="https://github.com/NU-World-Model-Embodied-AI/Flash-WAM" target="_blank">GitHub</a>
+                        </div>
+                    </div>
                     <div class="os-card">
                         <h3><span class="os-tag os-tag--paper">Paper</span> <a href="https://arxiv.org/abs/2603.16673" target="_blank">RARRL: Robots Think Before They Act</a></h3>
                         <p>CMU &times; EmbodyX. Resource-Aware Reasoning via RL enables robots to dynamically decide when to reason vs. act, achieving 60%+ reduction in reasoning time on ALFRED benchmarks.</p>
