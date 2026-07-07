@@ -165,7 +165,7 @@
         }
 
         .schedule-cell {
-            height: 82px;
+            height: 126px;
             padding: 0;
             background: #fff;
             vertical-align: top;
@@ -175,9 +175,9 @@
             box-sizing: border-box;
             display: block;
             width: 100%;
-            height: 50px;
-            min-height: 50px;
-            max-height: 50px;
+            height: 42px;
+            min-height: 42px;
+            max-height: 42px;
             border: none;
             resize: none;
             padding: 0.45rem 0.55rem;
@@ -198,6 +198,7 @@
         .cell-editor::placeholder {
             color: #9ca3af;
         }
+        .cell-meta-input,
         .cell-location {
             box-sizing: border-box;
             display: block;
@@ -214,8 +215,13 @@
             outline: none;
         }
 
+        .cell-meta-input:focus,
         .cell-location:focus {
             border-color: #222;
+        }
+
+        .cell-meta-input::placeholder {
+            color: #9ca3af;
         }
 
         .save-state {
@@ -545,13 +551,17 @@
             return {
                 cells: schedule?.cells && typeof schedule.cells === 'object' ? schedule.cells : {},
                 states: schedule?.states && typeof schedule.states === 'object' ? schedule.states : {},
+                companies: schedule?.companies && typeof schedule.companies === 'object' ? schedule.companies : {},
+                companyLocations: schedule?.companyLocations && typeof schedule.companyLocations === 'object' ? schedule.companyLocations : {},
                 updatedAt: schedule?.updatedAt || null
             };
         }
 
         function hasScheduleEntries(schedule) {
             return Object.values(schedule.cells || {}).some((value) => String(value || '').trim()) ||
-                Object.values(schedule.states || {}).some(Boolean);
+                Object.values(schedule.states || {}).some(Boolean) ||
+                Object.values(schedule.companies || {}).some((value) => String(value || '').trim()) ||
+                Object.values(schedule.companyLocations || {}).some((value) => String(value || '').trim());
         }
 
         function mergeSchedules(remoteSchedule, localSchedule) {
@@ -560,6 +570,8 @@
             return {
                 cells: { ...local.cells, ...remote.cells },
                 states: { ...local.states, ...remote.states },
+                companies: { ...local.companies, ...remote.companies },
+                companyLocations: { ...local.companyLocations, ...remote.companyLocations },
                 updatedAt: remote.updatedAt || local.updatedAt || null
             };
         }
@@ -853,6 +865,8 @@
                     td.className = 'schedule-cell';
                     const textarea = document.createElement('textarea');
                     const stateSelect = document.createElement('select');
+                    const companyInput = document.createElement('input');
+                    const companyLocationInput = document.createElement('input');
                     const key = `${person}__${weekStart}`;
                     stateSelect.className = 'cell-location';
                     stateSelect.innerHTML = '<option value="">State</option>' + stateOptions
@@ -862,6 +876,26 @@
                     stateSelect.addEventListener('change', () => {
                         const latest = loadSchedule();
                         latest.states[key] = stateSelect.value;
+                        saveSchedule(latest);
+                        updateMap();
+                    });
+                    companyInput.className = 'cell-meta-input';
+                    companyInput.type = 'text';
+                    companyInput.placeholder = 'Company';
+                    companyInput.value = schedule.companies[key] || '';
+                    companyInput.addEventListener('input', () => {
+                        const latest = loadSchedule();
+                        latest.companies[key] = companyInput.value;
+                        saveSchedule(latest);
+                        updateMap();
+                    });
+                    companyLocationInput.className = 'cell-meta-input';
+                    companyLocationInput.type = 'text';
+                    companyLocationInput.placeholder = 'Company location';
+                    companyLocationInput.value = schedule.companyLocations[key] || '';
+                    companyLocationInput.addEventListener('input', () => {
+                        const latest = loadSchedule();
+                        latest.companyLocations[key] = companyLocationInput.value;
                         saveSchedule(latest);
                         updateMap();
                     });
@@ -875,6 +909,8 @@
                         updateMap();
                     });
                     td.appendChild(stateSelect);
+                    td.appendChild(companyInput);
+                    td.appendChild(companyLocationInput);
                     td.appendChild(textarea);
                     tr.appendChild(td);
                 });
@@ -1010,8 +1046,9 @@
                     const entry = {
                         person,
                         dateLabel: formatActivityDateLabel(text, weekStart),
-                        location: getStateName(state),
-                        company: getCompanyName(text),
+                        location: schedule.companyLocations[key] || '',
+                        stateLocation: getStateName(state),
+                        company: schedule.companies[key] || '',
                         note: text.trim()
                     };
                     if (!activeByState.has(state)) activeByState.set(state, []);
@@ -1062,7 +1099,7 @@
 
         document.getElementById('clear-schedule').addEventListener('click', () => {
             if (!confirm('Clear all activity arrangement entries for everyone?')) return;
-            saveSchedule({ cells: {}, states: {} });
+            saveSchedule({ cells: {}, states: {}, companies: {}, companyLocations: {} });
             setSaveState('Table cleared.');
             renderSchedule();
             updateMap();
@@ -1076,6 +1113,7 @@
 </body>
 
 </html>
+
 
 
 
