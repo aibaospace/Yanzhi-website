@@ -722,7 +722,7 @@
                 const year = monthDate[3] || new Date(`${weekStart}T00:00:00`).getFullYear();
                 return `${year}-${String(month).padStart(2, '0')}-${monthDate[2].padStart(2, '0')}`;
             }
-            return weekStart;
+            return null;
         }
 
         function isCurrentOrFuture(dateString) {
@@ -747,8 +747,8 @@
                 if (separatorIndex === -1) return;
                 const person = key.slice(0, separatorIndex);
                 const weekStart = key.slice(separatorIndex + 2);
-                const entryDate = parseEntryDate(text, weekStart);
-                if (!isCurrentOrFuture(entryDate)) return;
+                const activeUntil = parseEntryDate(text, weekStart) || addDays(weekStart, 6);
+                if (!isCurrentOrFuture(activeUntil)) return;
                 const matchedStates = new Set(findStates(text));
                 if (selectedState) matchedStates.add(selectedState);
                 matchedStates.forEach((state) => {
@@ -817,7 +817,4 @@
 </body>
 
 </html>
-
-
-
 
