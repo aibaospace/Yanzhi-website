@@ -418,6 +418,8 @@
 
     <script>
         const storageKey = 'activity_arrangement_weekly_v1';
+        const apiBase = 'https://conference-tracker-a2x1.onrender.com';
+        const tokenKey = 'ct_token';
         const people = ['Yanzhi Wang', 'Nick Chen', 'Arash Akbari', 'Arman Akbari', 'Enfu Nan', 'Jun Liu', 'Juyi Lin', 'Pu Zhao', 'Rahul', 'Timothy Rupprecht', 'Yixiao Chen'];
         const personColors = ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#0891b2', '#be185d', '#4d7c0f', '#9333ea', '#0f766e', '#ea580c'];
         const weeksPerPage = 8;
@@ -429,24 +431,119 @@
             VT: [430, 27], NH: [464, 28], MA: [488, 58], RI: [489, 84], CT: [488, 108], NJ: [488, 130], DE: [488, 154], MD: [488, 178], DC: [488, 204]
         };
         let pageOffset = Number(sessionStorage.getItem('activity_arrangement_page_offset') || 0);
+        let scheduleCache = readLocalSchedule();
+        let saveTimer = null;
+
+        function normalizeSchedule(schedule) {
+            return {
+                cells: schedule?.cells && typeof schedule.cells === 'object' ? schedule.cells : {},
+                states: schedule?.states && typeof schedule.states === 'object' ? schedule.states : {},
+                updatedAt: schedule?.updatedAt || null
+            };
+        }
+
+        function hasScheduleEntries(schedule) {
+            return Object.values(schedule.cells || {}).some((value) => String(value || '').trim()) ||
+                Object.values(schedule.states || {}).some(Boolean);
+        }
+
+        function mergeSchedules(remoteSchedule, localSchedule) {
+            const remote = normalizeSchedule(remoteSchedule);
+            const local = normalizeSchedule(localSchedule);
+            return {
+                cells: { ...local.cells, ...remote.cells },
+                states: { ...local.states, ...remote.states },
+                updatedAt: remote.updatedAt || local.updatedAt || null
+            };
+        }
+
+        function readLocalSchedule() {
+            try {
+                return normalizeSchedule(JSON.parse(localStorage.getItem(storageKey)));
+            } catch {}
+            return normalizeSchedule();
+        }
+
+        function persistLocalSchedule(schedule) {
+            localStorage.setItem(storageKey, JSON.stringify(normalizeSchedule(schedule)));
+        }
+
+        function getAuthToken() {
+            return localStorage.getItem(tokenKey);
+        }
+
+        function setSaveState(message) {
+            const state = document.getElementById('save-state');
+            if (state) state.textContent = message;
+        }
 
         function loadSchedule() {
-            try {
-                const saved = JSON.parse(localStorage.getItem(storageKey));
-                if (saved) {
-                    return {
-                        cells: saved.cells || {},
-                        states: saved.states || {}
-                    };
-                }
-            } catch {}
-            return { cells: {}, states: {} };
+            return scheduleCache;
         }
 
         function saveSchedule(schedule) {
-            localStorage.setItem(storageKey, JSON.stringify(schedule));
-            const state = document.getElementById('save-state');
-            state.textContent = `Saved ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            scheduleCache = normalizeSchedule(schedule);
+            persistLocalSchedule(scheduleCache);
+            setSaveState(`Saved locally ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+            queueRemoteSave(scheduleCache);
+        }
+
+        function queueRemoteSave(schedule) {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => saveRemoteSchedule(schedule), 500);
+        }
+
+        async function saveRemoteSchedule(schedule) {
+            const token = getAuthToken();
+            if (!token) {
+                setSaveState('Saved in this browser. Sign in to sync.');
+                return;
+            }
+            try {
+                const res = await fetch(`${apiBase}/api/activity-arrangement`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(normalizeSchedule(schedule))
+                });
+                if (!res.ok) throw new Error('Save failed');
+                scheduleCache = normalizeSchedule(await res.json());
+                persistLocalSchedule(scheduleCache);
+                setSaveState(`Synced ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+            } catch (err) {
+                console.error(err);
+                setSaveState('Saved locally. Sync failed.');
+            }
+        }
+
+        async function loadRemoteSchedule() {
+            const token = getAuthToken();
+            if (!token) {
+                setSaveState('Saved in this browser. Sign in to sync.');
+                return;
+            }
+            try {
+                const localSchedule = readLocalSchedule();
+                const res = await fetch(`${apiBase}/api/activity-arrangement`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Load failed');
+                const remoteSchedule = normalizeSchedule(await res.json());
+                const mergedSchedule = mergeSchedules(remoteSchedule, localSchedule);
+                scheduleCache = mergedSchedule;
+                persistLocalSchedule(scheduleCache);
+                renderSchedule();
+                updateMap();
+                setSaveState(remoteSchedule.updatedAt ? 'Synced from server.' : 'Ready.');
+                if (hasScheduleEntries(localSchedule) && JSON.stringify(mergedSchedule) !== JSON.stringify(remoteSchedule)) {
+                    await saveRemoteSchedule(mergedSchedule);
+                }
+            } catch (err) {
+                console.error(err);
+                setSaveState('Using local copy. Sync unavailable.');
+            }
         }
 
         function getMonday(date) {
@@ -705,9 +802,9 @@
         });
 
         document.getElementById('clear-schedule').addEventListener('click', () => {
-            if (!confirm('Clear all activity arrangement entries saved in this browser?')) return;
-            localStorage.removeItem(storageKey);
-            document.getElementById('save-state').textContent = 'Table cleared.';
+            if (!confirm('Clear all activity arrangement entries for everyone?')) return;
+            saveSchedule({ cells: {}, states: {} });
+            setSaveState('Table cleared.');
             renderSchedule();
             updateMap();
         });
@@ -715,6 +812,7 @@
         initStateMap();
         renderSchedule();
         updateMap();
+        loadRemoteSchedule();
     </script>
 </body>
 
