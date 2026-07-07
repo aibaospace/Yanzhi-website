@@ -167,7 +167,7 @@
         }
 
         .schedule-cell {
-            height: 126px;
+            height: 82px;
             padding: 0;
             background: #fff;
             vertical-align: top;
@@ -200,7 +200,6 @@
         .cell-editor::placeholder {
             color: #9ca3af;
         }
-        .cell-meta-input,
         .cell-location {
             box-sizing: border-box;
             display: block;
@@ -217,13 +216,8 @@
             outline: none;
         }
 
-        .cell-meta-input:focus,
         .cell-location:focus {
             border-color: #222;
-        }
-
-        .cell-meta-input::placeholder {
-            color: #9ca3af;
         }
 
         .save-state {
@@ -446,6 +440,26 @@
             color: #111827;
             font-size: 0.78rem;
             font-weight: 800;
+        }
+
+        .active-field {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            height: 28px;
+            border: 1px solid #d6d6d6;
+            border-radius: 4px;
+            background: #fff;
+            color: #222;
+            font: inherit;
+            font-size: 0.82rem;
+            padding: 0 0.4rem;
+            outline: none;
+        }
+
+        .active-field:focus {
+            border-color: #222;
+            box-shadow: 0 0 0 1px #222;
         }
 
         @media (max-width: 760px) {
@@ -706,9 +720,24 @@
 
         function appendCell(row, text, tagName = 'td') {
             const cell = document.createElement(tagName);
-            cell.textContent = text || '-';
+            if (text instanceof Node) {
+                cell.appendChild(text);
+            } else {
+                cell.textContent = text || '-';
+            }
             row.appendChild(cell);
             return cell;
+        }
+
+        function createActiveInput(value, label, onInput, onCommit) {
+            const input = document.createElement('input');
+            input.className = 'active-field';
+            input.type = 'text';
+            input.value = value || '';
+            input.setAttribute('aria-label', label);
+            input.addEventListener('input', () => onInput(input.value));
+            input.addEventListener('change', onCommit);
+            return input;
         }
 
         function createActiveTable(headers, rows) {
@@ -741,19 +770,27 @@
 
             const entries = [...activeByState.entries()]
                 .flatMap(([state, stateEntries]) => stateEntries.map((entry) => ({ ...entry, state })))
-                .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel) || a.person.localeCompare(b.person) || a.state.localeCompare(b.state));
+                .sort((a, b) => b.dateSort.localeCompare(a.dateSort) || a.person.localeCompare(b.person) || a.state.localeCompare(b.state));
+
+            const saveActiveValue = (entry, field, value) => {
+                const latest = loadSchedule();
+                if (!latest[field] || typeof latest[field] !== 'object') latest[field] = {};
+                latest[field][entry.key] = value;
+                saveSchedule(latest);
+            };
+            const refreshActiveTables = () => updateMap();
 
             const detailRows = entries.map((entry) => [
                 entry.dateLabel,
                 entry.person,
                 `${entry.state} - ${entry.location}`,
-                entry.company
+                createActiveInput(entry.company, `Company for ${entry.person} ${entry.dateLabel}`, (value) => saveActiveValue(entry, 'companies', value), refreshActiveTables)
             ]);
 
-            const companyLocationRows = [...new Map(entries.map((entry) => {
-                const key = `${entry.company || '-'}__${entry.state}`;
-                return [key, [entry.company, `${entry.state} - ${entry.location}`]];
-            })).values()].sort((a, b) => (a[0] || '').localeCompare(b[0] || '') || a[1].localeCompare(b[1]));
+            const companyLocationRows = entries.map((entry) => [
+                createActiveInput(entry.company, `Company for ${entry.person} ${entry.dateLabel}`, (value) => saveActiveValue(entry, 'companies', value), refreshActiveTables),
+                createActiveInput(entry.location, `Company location for ${entry.person} ${entry.dateLabel}`, (value) => saveActiveValue(entry, 'companyLocations', value), refreshActiveTables)
+            ]);
 
             const detailsPanel = document.createElement('div');
             detailsPanel.className = 'active-panel';
@@ -865,8 +902,6 @@
                     td.className = 'schedule-cell';
                     const textarea = document.createElement('textarea');
                     const stateSelect = document.createElement('select');
-                    const companyInput = document.createElement('input');
-                    const companyLocationInput = document.createElement('input');
                     const key = `${person}__${weekStart}`;
                     stateSelect.className = 'cell-location';
                     stateSelect.innerHTML = '<option value="">State</option>' + stateOptions
@@ -876,26 +911,6 @@
                     stateSelect.addEventListener('change', () => {
                         const latest = loadSchedule();
                         latest.states[key] = stateSelect.value;
-                        saveSchedule(latest);
-                        updateMap();
-                    });
-                    companyInput.className = 'cell-meta-input';
-                    companyInput.type = 'text';
-                    companyInput.placeholder = 'Company';
-                    companyInput.value = schedule.companies[key] || '';
-                    companyInput.addEventListener('input', () => {
-                        const latest = loadSchedule();
-                        latest.companies[key] = companyInput.value;
-                        saveSchedule(latest);
-                        updateMap();
-                    });
-                    companyLocationInput.className = 'cell-meta-input';
-                    companyLocationInput.type = 'text';
-                    companyLocationInput.placeholder = 'Company location';
-                    companyLocationInput.value = schedule.companyLocations[key] || '';
-                    companyLocationInput.addEventListener('input', () => {
-                        const latest = loadSchedule();
-                        latest.companyLocations[key] = companyLocationInput.value;
                         saveSchedule(latest);
                         updateMap();
                     });
@@ -909,8 +924,6 @@
                         updateMap();
                     });
                     td.appendChild(stateSelect);
-                    td.appendChild(companyInput);
-                    td.appendChild(companyLocationInput);
                     td.appendChild(textarea);
                     tr.appendChild(td);
                 });
@@ -1044,7 +1057,9 @@
                 if (selectedState) matchedStates.add(selectedState);
                 matchedStates.forEach((state) => {
                     const entry = {
+                        key,
                         person,
+                        dateSort: weekStart,
                         dateLabel: formatActivityDateLabel(text, weekStart),
                         location: schedule.companyLocations[key] || '',
                         stateLocation: getStateName(state),
