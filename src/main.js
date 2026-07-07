@@ -280,6 +280,7 @@ function closeModal() {
 let sidebarLink = null;
 let sidebarNewsLink = null;
 let sidebarPRLink = null;
+let sidebarActivityLink = null;
 
 function makeSidebarLink(href, text, marginTop) {
     const a = document.createElement('a');
@@ -318,7 +319,7 @@ function updateSidebarLink(user) {
     if (!logo) return;
     if (user) {
         const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
-        // Order: PR Tool → Conference Tracker → News Management
+        // Order: PR Tool -> Conference Tracker -> News Management -> Activity Arrangement
         if (isAdminOrOwner && !sidebarPRLink) {
             sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '2rem');
             logo.insertAdjacentElement('afterend', sidebarPRLink);
@@ -337,10 +338,18 @@ function updateSidebarLink(user) {
             sidebarNewsLink.remove();
             sidebarNewsLink = null;
         }
+        if (isAdminOrOwner && !sidebarActivityLink) {
+            sidebarActivityLink = makeSidebarLink('/activity-arrangement.html', 'Activity Arrangement', '0.5rem');
+            (sidebarNewsLink || sidebarLink).insertAdjacentElement('afterend', sidebarActivityLink);
+        } else if (!isAdminOrOwner && sidebarActivityLink) {
+            sidebarActivityLink.remove();
+            sidebarActivityLink = null;
+        }
     } else {
         if (sidebarLink) { sidebarLink.remove(); sidebarLink = null; }
         if (sidebarNewsLink) { sidebarNewsLink.remove(); sidebarNewsLink = null; }
         if (sidebarPRLink) { sidebarPRLink.remove(); sidebarPRLink = null; }
+        if (sidebarActivityLink) { sidebarActivityLink.remove(); sidebarActivityLink = null; }
     }
 }
 

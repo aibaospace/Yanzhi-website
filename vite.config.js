@@ -19,7 +19,8 @@ export default defineConfig({
                 dam: 'dam.html',
                 matrixPublishing: 'matrix-publishing.html',
                 internal: 'internal/index.html',
-                campaign: 'campaign.html'
+                campaign: 'campaign.html',
+                activityArrangement: 'activity-arrangement.html'
             }
         },
         outDir: 'docs', // Output to docs/ for easier GitHub Pages deployment
