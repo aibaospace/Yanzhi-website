@@ -261,6 +261,56 @@
             padding: 0.25rem 0;
         }
 
+        .state-group {
+            cursor: default;
+        }
+
+        .state-group.has-activity {
+            cursor: pointer;
+        }
+
+        .state-tooltip {
+            position: fixed;
+            z-index: 10000;
+            display: none;
+            max-width: 280px;
+            padding: 0.7rem 0.8rem;
+            border: 1px solid rgba(17, 24, 39, 0.12);
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
+            color: #1f2937;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            pointer-events: none;
+        }
+
+        .state-tooltip-title {
+            margin-bottom: 0.45rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .state-tooltip-entry {
+            padding-top: 0.45rem;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .state-tooltip-entry:first-of-type {
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .state-tooltip-person {
+            font-weight: 700;
+        }
+
+        .state-tooltip-date,
+        .state-tooltip-note {
+            margin-top: 0.15rem;
+            color: #64748b;
+        }
+
         .state-map {
             width: 100%;
             min-width: 860px;
@@ -387,6 +437,7 @@
                     <div class="state-map-wrap">
                         <svg class="state-map" id="state-map" viewBox="0 0 500 330" role="img" aria-label="United States activity map"></svg>
                     </div>
+                    <div class="state-tooltip" id="state-tooltip" role="tooltip"></div>
                     <div class="map-legend" id="map-legend"></div>
                     <div class="active-locations" id="active-locations"></div>
                 </section>
@@ -433,6 +484,7 @@
         let pageOffset = Number(sessionStorage.getItem('activity_arrangement_page_offset') || 0);
         let scheduleCache = readLocalSchedule();
         let saveTimer = null;
+        let activeTooltipEntries = new Map();
 
         function normalizeSchedule(schedule) {
             return {
@@ -571,6 +623,73 @@
             return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
+        function formatActivityDateLabel(text, weekStart) {
+            const explicitDate = parseEntryDate(text, weekStart);
+            if (explicitDate) return formatWeekLabel(explicitDate);
+            return `${formatWeekLabel(weekStart)} - ${formatWeekLabel(addDays(weekStart, 6))}`;
+        }
+
+        function moveStateTooltip(event) {
+            const tooltip = document.getElementById('state-tooltip');
+            if (!tooltip || tooltip.style.display === 'none') return;
+            const rect = tooltip.getBoundingClientRect();
+            const left = Math.min(event.clientX + 14, window.innerWidth - rect.width - 12);
+            const top = Math.min(event.clientY + 14, window.innerHeight - rect.height - 12);
+            tooltip.style.left = `${Math.max(12, left)}px`;
+            tooltip.style.top = `${Math.max(12, top)}px`;
+        }
+
+        function hideStateTooltip() {
+            const tooltip = document.getElementById('state-tooltip');
+            if (tooltip) tooltip.style.display = 'none';
+        }
+
+        function showStateTooltip(event, state) {
+            const entries = activeTooltipEntries.get(state) || [];
+            const tooltip = document.getElementById('state-tooltip');
+            if (!tooltip || !entries.length) {
+                hideStateTooltip();
+                return;
+            }
+            const stateName = stateShapes.find((shape) => shape.abbr === state)?.name || state;
+            tooltip.innerHTML = '';
+
+            const title = document.createElement('div');
+            title.className = 'state-tooltip-title';
+            title.textContent = `${stateName} (${state})`;
+            tooltip.appendChild(title);
+
+            entries
+                .slice()
+                .sort((a, b) => a.person.localeCompare(b.person) || a.dateLabel.localeCompare(b.dateLabel))
+                .forEach((entry) => {
+                    const row = document.createElement('div');
+                    row.className = 'state-tooltip-entry';
+
+                    const person = document.createElement('div');
+                    person.className = 'state-tooltip-person';
+                    person.textContent = entry.person;
+                    row.appendChild(person);
+
+                    const date = document.createElement('div');
+                    date.className = 'state-tooltip-date';
+                    date.textContent = entry.dateLabel;
+                    row.appendChild(date);
+
+                    if (entry.note) {
+                        const note = document.createElement('div');
+                        note.className = 'state-tooltip-note';
+                        note.textContent = entry.note;
+                        row.appendChild(note);
+                    }
+
+                    tooltip.appendChild(row);
+                });
+
+            tooltip.style.display = 'block';
+            moveStateTooltip(event);
+        }
+
         function renderSchedule() {
             const schedule = loadSchedule();
             const visibleWeeks = getVisibleWeeks();
@@ -637,6 +756,8 @@
                 const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 group.dataset.state = shape.abbr;
                 group.setAttribute('class', 'state-group');
+                group.addEventListener('mousemove', (event) => showStateTooltip(event, shape.abbr));
+                group.addEventListener('mouseleave', hideStateTooltip);
 
                 let region;
                 if (shape.type === 'polygon') {
@@ -751,28 +872,38 @@
                 if (!isCurrentOrFuture(activeUntil)) return;
                 const matchedStates = new Set(findStates(text));
                 if (selectedState) matchedStates.add(selectedState);
+                const entry = {
+                    person,
+                    dateLabel: formatActivityDateLabel(text, weekStart),
+                    note: text.trim()
+                };
                 matchedStates.forEach((state) => {
-                    if (!activeByState.has(state)) activeByState.set(state, new Set());
-                    activeByState.get(state).add(person);
+                    if (!activeByState.has(state)) activeByState.set(state, []);
+                    activeByState.get(state).push(entry);
                 });
             });
 
+            activeTooltipEntries = activeByState;
+
             document.querySelectorAll('.state-group').forEach((group) => {
-                const peopleForState = activeByState.get(group.dataset.state);
+                const entriesForState = activeByState.get(group.dataset.state) || [];
+                const peopleForState = new Set(entriesForState.map((entry) => entry.person));
+                const hasActivity = entriesForState.length > 0;
                 const marker = group.querySelector('.state-marker');
                 const label = group.querySelector('.state-label');
                 const title = group.querySelector('title');
-                marker.classList.toggle('is-active', Boolean(peopleForState));
-                marker.classList.toggle('is-multi', Boolean(peopleForState && peopleForState.size > 1));
-                label.classList.toggle('is-active', Boolean(peopleForState));
+                group.classList.toggle('has-activity', hasActivity);
+                marker.classList.toggle('is-active', hasActivity);
+                marker.classList.toggle('is-multi', peopleForState.size > 1);
+                label.classList.toggle('is-active', hasActivity);
                 marker.style.fill = '';
                 const stateName = stateShapes.find((shape) => shape.abbr === group.dataset.state)?.name || group.dataset.state;
                 title.textContent = stateName;
-                if (peopleForState && peopleForState.size === 1) {
+                if (hasActivity && peopleForState.size === 1) {
                     const person = [...peopleForState][0];
                     marker.style.fill = personColors[people.indexOf(person) % personColors.length];
                     title.textContent += ` - ${person}`;
-                } else if (peopleForState && peopleForState.size > 1) {
+                } else if (peopleForState.size > 1) {
                     title.textContent += ` - ${[...peopleForState].join(', ')}`;
                 }
             });
@@ -817,4 +948,7 @@
 </body>
 
 </html>
+
+
+
 
