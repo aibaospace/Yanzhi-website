@@ -379,10 +379,65 @@
         }
 
         .active-locations {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(260px, 0.55fr);
+            gap: 1rem;
             margin-top: 1rem;
             color: #444;
             font-size: 0.9rem;
-            line-height: 1.55;
+            line-height: 1.45;
+        }
+
+        .active-locations.is-empty {
+            display: block;
+        }
+
+        .active-panel {
+            min-width: 0;
+        }
+
+        .active-panel-title {
+            margin-bottom: 0.4rem;
+            color: #111827;
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+
+        .active-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+            table-layout: fixed;
+        }
+
+        .active-table th,
+        .active-table td {
+            padding: 0.45rem 0.55rem;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        .active-table th:last-child,
+        .active-table td:last-child {
+            border-right: none;
+        }
+
+        .active-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .active-table th {
+            background: #f8f9fa;
+            color: #111827;
+            font-size: 0.78rem;
+            font-weight: 800;
         }
 
         @media (max-width: 760px) {
@@ -629,6 +684,85 @@
             return `${formatWeekLabel(weekStart)} - ${formatWeekLabel(addDays(weekStart, 6))}`;
         }
 
+        function getCompanyName(text) {
+            return (text || '').split('\n').map((line) => line.trim()).find(Boolean) || '';
+        }
+
+        function getStateName(abbr) {
+            return stateShapes.find((shape) => shape.abbr === abbr)?.name || abbr;
+        }
+
+        function appendCell(row, text, tagName = 'td') {
+            const cell = document.createElement(tagName);
+            cell.textContent = text || '-';
+            row.appendChild(cell);
+            return cell;
+        }
+
+        function createActiveTable(headers, rows) {
+            const table = document.createElement('table');
+            table.className = 'active-table';
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headers.forEach((header) => appendCell(headerRow, header, 'th'));
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            rows.forEach((rowValues) => {
+                const row = document.createElement('tr');
+                rowValues.forEach((value) => appendCell(row, value));
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            return table;
+        }
+
+        function renderActiveLocations(activeByState) {
+            const activeLocations = document.getElementById('active-locations');
+            activeLocations.innerHTML = '';
+            activeLocations.classList.toggle('is-empty', !activeByState.size);
+            if (!activeByState.size) {
+                activeLocations.textContent = 'No active future/current US locations logged yet.';
+                return;
+            }
+
+            const entries = [...activeByState.entries()]
+                .flatMap(([state, stateEntries]) => stateEntries.map((entry) => ({ ...entry, state })))
+                .sort((a, b) => a.dateLabel.localeCompare(b.dateLabel) || a.person.localeCompare(b.person) || a.state.localeCompare(b.state));
+
+            const detailRows = entries.map((entry) => [
+                entry.dateLabel,
+                entry.person,
+                `${entry.state} - ${entry.location}`,
+                entry.company
+            ]);
+
+            const companyLocationRows = [...new Map(entries.map((entry) => {
+                const key = `${entry.company || '-'}__${entry.state}`;
+                return [key, [entry.company, `${entry.state} - ${entry.location}`]];
+            })).values()].sort((a, b) => (a[0] || '').localeCompare(b[0] || '') || a[1].localeCompare(b[1]));
+
+            const detailsPanel = document.createElement('div');
+            detailsPanel.className = 'active-panel';
+            const detailsTitle = document.createElement('div');
+            detailsTitle.className = 'active-panel-title';
+            detailsTitle.textContent = 'Active Logs';
+            detailsPanel.appendChild(detailsTitle);
+            detailsPanel.appendChild(createActiveTable(['Time', 'Person', 'Location', 'Company'], detailRows));
+
+            const companyPanel = document.createElement('div');
+            companyPanel.className = 'active-panel';
+            const companyTitle = document.createElement('div');
+            companyTitle.className = 'active-panel-title';
+            companyTitle.textContent = 'Company Locations';
+            companyPanel.appendChild(companyTitle);
+            companyPanel.appendChild(createActiveTable(['Company', 'Location'], companyLocationRows));
+
+            activeLocations.appendChild(detailsPanel);
+            activeLocations.appendChild(companyPanel);
+        }
+
         function moveStateTooltip(event) {
             const tooltip = document.getElementById('state-tooltip');
             if (!tooltip || tooltip.style.display === 'none') return;
@@ -872,12 +1006,14 @@
                 if (!isCurrentOrFuture(activeUntil)) return;
                 const matchedStates = new Set(findStates(text));
                 if (selectedState) matchedStates.add(selectedState);
-                const entry = {
-                    person,
-                    dateLabel: formatActivityDateLabel(text, weekStart),
-                    note: text.trim()
-                };
                 matchedStates.forEach((state) => {
+                    const entry = {
+                        person,
+                        dateLabel: formatActivityDateLabel(text, weekStart),
+                        location: getStateName(state),
+                        company: getCompanyName(text),
+                        note: text.trim()
+                    };
                     if (!activeByState.has(state)) activeByState.set(state, []);
                     activeByState.get(state).push(entry);
                 });
@@ -908,15 +1044,7 @@
                 }
             });
 
-            const activeLocations = document.getElementById('active-locations');
-            if (!activeByState.size) {
-                activeLocations.textContent = 'No active future/current US locations logged yet.';
-                return;
-            }
-            activeLocations.textContent = [...activeByState.entries()]
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([state, peopleSet]) => `${state}: ${[...peopleSet].join(', ')}`)
-                .join(' | ');
+            renderActiveLocations(activeByState);
         }
         document.getElementById('prev-weeks').addEventListener('click', () => {
             pageOffset -= 1;
@@ -948,6 +1076,7 @@
 </body>
 
 </html>
+
 
 
 
