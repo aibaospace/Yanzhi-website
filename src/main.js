@@ -143,7 +143,7 @@ function buildModal() {
 
             <div id="ct-logged-in" style="display:none; padding:1.5rem; text-align:center;">
                 <p id="ct-logged-email" style="font-weight:600; margin-bottom:1rem; color:#1e293b;"></p>
-                <a id="ct-admin-btn" href="/internal/pr-tool.html" style="
+                <a id="ct-admin-btn" href="/conferences/?admin=1" style="
                     display:none; margin-bottom:0.5rem;
                     padding:0.5rem 1.2rem; background:#1e293b; color:#fff;
                     border:none; border-radius:6px; cursor:pointer; font-size:0.9rem;
