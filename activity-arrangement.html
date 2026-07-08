@@ -705,8 +705,11 @@
         }
 
         function formatActivityDateLabel(text, weekStart) {
-            const explicitDate = parseEntryDate(text, weekStart);
-            if (explicitDate) return formatWeekLabel(explicitDate);
+            const explicitRange = parseEntryDateRange(text, weekStart);
+            if (explicitRange) {
+                if (explicitRange.start === explicitRange.end) return formatWeekLabel(explicitRange.start);
+                return `${formatWeekLabel(explicitRange.start)} - ${formatWeekLabel(explicitRange.end)}`;
+            }
             return `${formatWeekLabel(weekStart)} - ${formatWeekLabel(addDays(weekStart, 6))}`;
         }
 
@@ -1009,22 +1012,40 @@
         }
 
         function parseEntryDate(text, weekStart) {
+            return parseEntryDateRange(text, weekStart)?.end || null;
+        }
+
+        function parseEntryDateRange(text, weekStart) {
+            const year = new Date(`${weekStart}T00:00:00`).getFullYear();
+            const compactRange = text.match(/\b(\d{2})(\d{2})\s*[-–—]\s*(\d{2})(\d{2})\b/);
+            if (compactRange) {
+                return {
+                    start: `${year}-${compactRange[1]}-${compactRange[2]}`,
+                    end: `${year}-${compactRange[3]}-${compactRange[4]}`
+                };
+            }
             const ymd = text.match(/\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/);
-            if (ymd) return `${ymd[1]}-${ymd[2].padStart(2, '0')}-${ymd[3].padStart(2, '0')}`;
+            if (ymd) {
+                const date = `${ymd[1]}-${ymd[2].padStart(2, '0')}-${ymd[3].padStart(2, '0')}`;
+                return { start: date, end: date };
+            }
             const mdy = text.match(/\b(\d{1,2})[-/.](\d{1,2})[-/.](20\d{2})\b/);
-            if (mdy) return `${mdy[3]}-${mdy[1].padStart(2, '0')}-${mdy[2].padStart(2, '0')}`;
+            if (mdy) {
+                const date = `${mdy[3]}-${mdy[1].padStart(2, '0')}-${mdy[2].padStart(2, '0')}`;
+                return { start: date, end: date };
+            }
             const shortMdy = text.match(/\b(\d{1,2})[-/.](\d{1,2})\b/);
             if (shortMdy) {
-                const year = new Date(`${weekStart}T00:00:00`).getFullYear();
-                return `${year}-${shortMdy[1].padStart(2, '0')}-${shortMdy[2].padStart(2, '0')}`;
+                const date = `${year}-${shortMdy[1].padStart(2, '0')}-${shortMdy[2].padStart(2, '0')}`;
+                return { start: date, end: date };
             }
             const monthDate = text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:,?\s*(20\d{2}))?\b/i);
             if (monthDate) {
                 const monthMap = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
                 const monthKey = monthDate[1].toLowerCase().startsWith('sept') ? 'sept' : monthDate[1].toLowerCase().slice(0, 3);
                 const month = monthMap[monthKey];
-                const year = monthDate[3] || new Date(`${weekStart}T00:00:00`).getFullYear();
-                return `${year}-${String(month).padStart(2, '0')}-${monthDate[2].padStart(2, '0')}`;
+                const date = `${monthDate[3] || year}-${String(month).padStart(2, '0')}-${monthDate[2].padStart(2, '0')}`;
+                return { start: date, end: date };
             }
             return null;
         }
@@ -1043,6 +1064,7 @@
                 ...Object.keys(schedule.cells || {}),
                 ...Object.keys(schedule.states || {})
             ]);
+            const seenEntries = new Set();
             scheduledKeys.forEach((key) => {
                 const text = schedule.cells[key] || '';
                 const selectedState = schedule.states[key] || '';
@@ -1051,16 +1073,21 @@
                 if (separatorIndex === -1) return;
                 const person = key.slice(0, separatorIndex);
                 const weekStart = key.slice(separatorIndex + 2);
-                const activeUntil = parseEntryDate(text, weekStart) || addDays(weekStart, 6);
+                const dateRange = parseEntryDateRange(text, weekStart);
+                const activeUntil = dateRange?.end || addDays(weekStart, 6);
                 if (!isCurrentOrFuture(activeUntil)) return;
-                const matchedStates = new Set(findStates(text));
-                if (selectedState) matchedStates.add(selectedState);
+                const matchedStates = new Set(selectedState ? [selectedState] : findStates(text));
                 matchedStates.forEach((state) => {
+                    const dateLabel = formatActivityDateLabel(text, weekStart);
+                    const dateSort = dateRange?.start || weekStart;
+                    const dedupeKey = `${person}__${state}__${dateLabel}__${text.trim()}`;
+                    if (seenEntries.has(dedupeKey)) return;
+                    seenEntries.add(dedupeKey);
                     const entry = {
                         key,
                         person,
-                        dateSort: weekStart,
-                        dateLabel: formatActivityDateLabel(text, weekStart),
+                        dateSort,
+                        dateLabel,
                         location: schedule.companyLocations[key] || '',
                         stateLocation: getStateName(state),
                         company: schedule.companies[key] || '',
