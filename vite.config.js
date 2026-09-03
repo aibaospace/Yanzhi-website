@@ -16,6 +16,7 @@ export default defineConfig({
                 opensource: 'opensource.html',
                 labprojects: 'labprojects.html',
                 prTool: 'pr-tool.html',
+                paperTracking: 'paper-tracking.html',
                 dam: 'dam.html',
                 matrixPublishing: 'matrix-publishing.html',
                 internal: 'internal/index.html',

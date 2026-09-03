@@ -280,6 +280,7 @@ function closeModal() {
 let sidebarLink = null;
 let sidebarNewsLink = null;
 let sidebarPRLink = null;
+let sidebarPaperTrackingLink = null;
 let sidebarActivityLink = null;
 
 function makeSidebarLink(href, text, marginTop) {
@@ -319,17 +320,21 @@ function updateSidebarLink(user) {
     if (!logo) return;
     if (user) {
         const isAdminOrOwner = user.role === 'admin' || user.role === 'owner';
-        // Order: PR Tool -> Conference Tracker -> News Management -> Activity Arrangement
+        // Order: Paper Tracking -> PR Tool -> Conference Tracker -> News Management -> Activity Arrangement
+        if (!sidebarPaperTrackingLink) {
+            sidebarPaperTrackingLink = makeSidebarLink('/paper-tracking.html', 'Paper Tracking', '2rem');
+            logo.insertAdjacentElement('afterend', sidebarPaperTrackingLink);
+        }
         if (isAdminOrOwner && !sidebarPRLink) {
-            sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '2rem');
-            logo.insertAdjacentElement('afterend', sidebarPRLink);
+            sidebarPRLink = makeSidebarLink('/pr-tool.html', 'PR Tool', '0.5rem');
+            sidebarPaperTrackingLink.insertAdjacentElement('afterend', sidebarPRLink);
         } else if (!isAdminOrOwner && sidebarPRLink) {
             sidebarPRLink.remove();
             sidebarPRLink = null;
         }
         if (!sidebarLink) {
             sidebarLink = makeSidebarLink('/conferences/', 'Conference Tracker', '0.5rem');
-            (sidebarPRLink || logo).insertAdjacentElement('afterend', sidebarLink);
+            (sidebarPRLink || sidebarPaperTrackingLink).insertAdjacentElement('afterend', sidebarLink);
         }
         if (isAdminOrOwner && !sidebarNewsLink) {
             sidebarNewsLink = makeSidebarLink('/conferences/#news', 'News Management', '0.5rem');
@@ -349,6 +354,7 @@ function updateSidebarLink(user) {
         if (sidebarLink) { sidebarLink.remove(); sidebarLink = null; }
         if (sidebarNewsLink) { sidebarNewsLink.remove(); sidebarNewsLink = null; }
         if (sidebarPRLink) { sidebarPRLink.remove(); sidebarPRLink = null; }
+        if (sidebarPaperTrackingLink) { sidebarPaperTrackingLink.remove(); sidebarPaperTrackingLink = null; }
         if (sidebarActivityLink) { sidebarActivityLink.remove(); sidebarActivityLink = null; }
     }
 }
