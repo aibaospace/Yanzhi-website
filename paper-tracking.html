@@ -38,10 +38,41 @@ let user=null,items=[],editing=null,usingLocal=false;
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const val=(o,...keys)=>keys.map(k=>o[k]).find(v=>v!==undefined&&v!==null&&v!=='')||'';
 function firstAuthor(authors){return String(authors||'').split(/,|;|\band\b/i).map(x=>x.trim()).filter(Boolean)[0]||''}
-function normalized(p){const item={...p,entryType:val(p,'entryType','entry_type')||'paper',conferenceStartDate:val(p,'conferenceStartDate','conference_start_date','date'),conferenceEndDate:val(p,'conferenceEndDate','conference_end_date'),conferenceLocation:val(p,'conferenceLocation','conference_location','location'),attendees:val(p,'attendees','conferenceAttendees'),funding:val(p,'funding','fundingAcknowledgements'),latestResults:val(p,'latestResults','latest_results','notes'),ownerEmail:val(p,'ownerEmail','owner_email','createdBy')};item.studentName=firstAuthor(item.authors)||item.studentName||'';return item}
+function normalized(p){const item={...p,entryType:val(p,'entryType','entry_type')||'paper',conferenceStartDate:val(p,'conferenceStartDate','conference_start_date','date'),conferenceEndDate:val(p,'conferenceEndDate','conference_end_date'),conferenceLocation:val(p,'conferenceLocation','conference_location','location'),attendees:val(p,'attendees','conferenceAttendees'),funding:val(p,'funding','fundingAcknowledgements'),latestResults:val(p,'latestResults','latest_results','notes'),ownerEmail:val(p,'ownerEmail','owner_email','createdBy')};if(/^\s*late breaking results?\s*:/i.test(item.title||''))item.entryType='result';item.studentName=firstAuthor(item.authors)||item.studentName||'';return item}
 function titleKey(title){return String(title||'').toLowerCase().normalize('NFKD').replace(/^(late breaking results?|extended abstract|paper)\s*[:\-]\s*/,'').replace(/\b(arxiv preprint|preprint)\b.*$/,'').replace(/[^a-z0-9]+/g,' ').replace(/\b(the|a|an)\b/g,' ').replace(/\s+/g,' ').trim()}
 function sameTitle(a,b){const ka=titleKey(a),kb=titleKey(b);if(!ka||!kb)return false;if(ka===kb)return true;const A=new Set(ka.split(' ')),B=new Set(kb.split(' '));let common=0;for(const w of A)if(B.has(w))common++;return common/Math.max(A.size,B.size)>=.84}
-function is2026(item){return String(item.year||item.conferenceStartDate||item.date||'').includes('2026')}
+const SCHOLAR_2026=`Hydra: Phase-Aware Workload Characterization of LLM Inference across Edge SoC Generations, Backends, and Quantization Levels
+From Retrieved Context to Runtime Control: Adaptive Compression for Edge-based RAG
+Mechanistic Interpretability of Structure-Aware Numerical Reasoning in LLaMA 3.1 8B
+Fine-Tuning Qwen3-27B for C-to-Rust Code Translation: A Three-Stage Curriculum of Pretraining, Debugging-Aware SFT, and Task-Specific SFT
+Diff-StyGS: 3D Gaussian Splatting Stylization via Tuning-Free Multi-view Sparse Diffusion
+ScAle: Attention Head Scaling as a Minimal Adapter for Spatial Reasoning in Vision Language Models
+Cross-platform scaling of vision-language-action models from edge to cloud gpus
+Prompt2Effect: Training-Free Image-to-Video Model Specialization via LoRA Generation
+Flash-WAM: Modality-Aware Distillation for World Action Models
+OmniMem: Scalable and Adaptive Memory Retrieval for Long Video Generation
+Structured Agent Distillation for Large Language Model Agents
+Palette: A Modular, Controllable, and Efficient Framework for On-demand Authorized Safety Alignment Relaxation in LLMs
+ActQuant: Sub-4-bit Action-Guided Quantization for Vision-Language-Action Models
+PhyWorld: Physics-Faithful World Model for Video Generation
+PanoWorld: Geometry-Consistent Panoramic Video World Modeling
+PhyGround: Benchmarking Physical Reasoning in Generative World Models
+CUDAHercules: Benchmarking Hardware-Aware Expert-level CUDA Optimization for LLMs
+Collaborative Compression for Large-Scale MoE Deployment on Edge
+Routing mamba: Scaling state space models with mixture-of-experts projection
+Alter: All-in-one layer pruning and temporal expert routing for efficient diffusion generation
+Harmony in divergence: Towards fast, accurate, and memory-efficient zeroth-order llm fine-tuning
+Circuitsense: A hierarchical MLLM benchmark bridging visual comprehension and symbolic reasoning in engineering design process
+Fastcar: Cache attentive replay for fast auto-regressive video generation on the edge
+Human Cognition in Machines: A Unified Perspective of World Models
+When Should a Robot Think? Resource-Aware Reasoning via Reinforcement Learning for Embodied Robotic Decision-Making
+Hieramp: Coarse-to-fine autoregressive amplification for generative dataset distillation
+A very big video reasoning suite
+Effective moe-based llm compression by exploiting heterogeneous inter-group experts routing frequency and information density
+S2dit: Sandwich diffusion transformer for mobile streaming video generation
+Q-realign: Piggybacking realignment on quantization for safe and efficient llm deployment
+From Bits to Chips: An LLM-based Hardware-Aware Quantization Agent for Streamlined Deployment of LLMs`.split('\n');
+function is2026(item){if(item.entryType==='result')return /2026/.test([item.conferenceName,item.conferenceStartDate,item.date].join(' '));return SCHOLAR_2026.some(title=>sameTitle(title,item.title))}
 function cleanPapers(list){const unique=[];for(const raw of list.map(normalized).filter(is2026)){if(!titleKey(raw.title))continue;const index=unique.findIndex(old=>sameTitle(old.title,raw.title));if(index<0){unique.push(raw);continue}const old=unique[index],score=x=>['authors','conferenceName','conferenceLocation','attendees','funding','latestResults','link'].filter(k=>x[k]).length;unique[index]=score(raw)>score(old)?{...old,...raw}:{...raw,...old}}return unique}
 function own(p){return user&&(user.role==='admin'||user.role==='owner'||!p.ownerEmail||p.ownerEmail===user.email||p.userId===user.id);}
 async function request(path,opt={}){const r=await fetch(API+path,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+token,...opt.headers}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).error||'Request failed');return r.status===204?null:r.json();}
