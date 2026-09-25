@@ -128,7 +128,7 @@ function buildModal() {
                         border-radius:6px; font-size:0.95rem; box-sizing:border-box;
                     ">
                 </div>
-                <p id="ct-auth-error" style="display:none; color:#991b1b; font-size:0.875rem; margin-bottom:0.75rem;"></p>
+                <p id="ct-auth-error" role="alert" style="display:none; color:#991b1b; font-size:0.875rem; margin-bottom:0.75rem;"></p>
                 <div style="display:flex; gap:0.5rem;">
                     <button type="submit" id="ct-auth-submit" style="
                         flex:1; padding:0.65rem; background:#3b82f6; color:#fff;
@@ -195,7 +195,7 @@ function buildModal() {
 
     document.getElementById('ct-auth-form').addEventListener('submit', async e => {
         e.preventDefault();
-        const email = document.getElementById('ct-email').value;
+        const email = document.getElementById('ct-email').value.trim();
         const password = document.getElementById('ct-password').value;
         const errEl = document.getElementById('ct-auth-error');
         const submit = document.getElementById('ct-auth-submit');
@@ -229,7 +229,8 @@ function buildModal() {
             errEl.style.display = 'block';
         } finally {
             submit.disabled = false;
-            switchTab(currentTab);
+            // Restore the button without clearing the error shown above.
+            submit.textContent = currentTab === 'login' ? 'Sign In' : 'Create Account';
         }
     });
 }
