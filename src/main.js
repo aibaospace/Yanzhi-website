@@ -68,7 +68,7 @@ class SharedFooter extends HTMLElement {
     connectedCallback() {
         this.innerHTML = `
         <footer>
-            <p>&copy; 2025 Yanzhi Wang</p>
+            <p>&copy; 2026 Yanzhi Wang</p>
         </footer>
         `;
     }
