@@ -1,0 +1,85 @@
+.publications-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.publications-table .publication-year-column {
+    width: 76px;
+}
+
+.publications-table thead th {
+    padding: 12px 0;
+    border-bottom: 1px solid #c8cdd3;
+    color: #666;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.publications-table .publication-year-heading th {
+    padding: 26px 0 10px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.publications-table .publication-row td {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.publications-table .publication-row td:first-child {
+    padding-right: 24px;
+    overflow-wrap: anywhere;
+}
+
+.publications-table .publication-title {
+    margin: 0 0 5px;
+    color: #1a0dab;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.publications-table .publication-title a {
+    color: inherit;
+}
+
+.publications-table .publication-authors,
+.publications-table .publication-venue {
+    margin: 0;
+    color: #666;
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+
+.publications-table .publication-year,
+.publications-table thead th:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.publications-table .publication-year {
+    color: #444;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 600px) {
+    .publications-table .publication-year-column {
+        width: 48px;
+    }
+
+    .publications-table .publication-row td:first-child {
+        padding-right: 12px;
+    }
+
+    .publications-table .publication-title {
+        font-size: 0.95rem;
+    }
+}
